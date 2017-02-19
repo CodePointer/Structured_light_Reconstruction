@@ -37,6 +37,7 @@ bool CCalculation::ReleaseSpace()
 {
 	if (this->m_sensor != NULL)
 	{
+		this->m_sensor->UnloadDatas();
 		delete(this->m_sensor);
 		this->m_sensor = NULL;
 	}
@@ -140,6 +141,10 @@ bool CCalculation::Init()
 	{
 		this->m_sensor = new CSensor;
 		status = this->m_sensor->InitSensor();
+	}
+	if (status)
+	{
+		status = this->m_sensor->LoadDatas(DYNAFRAME_MAXNUM);
 	}
 	printf("finished.\n");
 
@@ -267,7 +272,12 @@ bool CCalculation::CalculateFirst()
 		printf("finished.\n");
 	}
 
-	//myDebug.Show(this->m_jPro[0], 0, true, 0.5);
+	myDebug.ShowPeriod(this->m_iPro[0], 100, 0.5, true, 
+		DATA_PATH 
+		+ this->m_resPath
+		+ "Show/"
+		+ "ipro0.png"
+		);
 
 	// 计算每个点的极线值
 	if (status)
@@ -281,12 +291,12 @@ bool CCalculation::CalculateFirst()
 	if (status)
 	{
 		printf("\tBegin writing...");
-		status = this->Result(DATA_PATH
+		/*status = this->Result(DATA_PATH
 			+ this->m_resPath
 			+ this->m_pcPath
 			+ this->m_pcName
 			+ "0"
-			+ this->m_pcSuffix, 0, false);
+			+ this->m_pcSuffix, 0, false);*/
 		printf("finished.\n");
 	}
 	
@@ -347,7 +357,14 @@ bool CCalculation::CalculateOther()
 		}
 
 		// 测试输出：
-		myDebug.Show(this->m_zMat[frameNum], 100, true, 0.5);
+		myDebug.ShowPeriod(this->m_iPro[frameNum], 100, 0.5, true,
+			DATA_PATH
+			+ this->m_resPath
+			+ "Show/"
+			+ "ipro"
+			+ idx2str
+			+ ".png"
+		);
 
 		// 显示
 		//Mat colorShow;
@@ -414,6 +431,7 @@ bool CCalculation::CalculateOther()
 
 	return true;
 }
+
 
 // 存储、记录结果
 bool CCalculation::Result(string fileName, int i, bool view_port_only)
@@ -677,6 +695,7 @@ bool CCalculation::CalculateEpipolarLine()
 	return status;
 }
 
+
 // 填充后续帧中的ProU。直接将视口中的每个点映射到后续帧中。
 bool CCalculation::FillOtherProU(int fN)
 {
@@ -811,8 +830,7 @@ bool CCalculation::TrackPoints(int frameNum)
 		// 后续帧情况
 
 		// 获取图像，0时刻的iniGreyMat，t时刻的nowGreyMat
-		this->m_sensor->LoadDatas(2);
-		this->m_sensor->SetProPicture(0); // 目前使用的是和0时刻对比
+		this->m_sensor->SetProPicture(frameNum - 1); // 目前使用的是和t-1时刻对比
 		Mat tmpMat, iniGreyMat, nowGreyMat;
 		tmpMat = this->m_sensor->GetCamPicture();
 		tmpMat.copyTo(iniGreyMat);

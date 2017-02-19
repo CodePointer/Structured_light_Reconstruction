@@ -332,3 +332,7 @@ __pycache__/
 # !tools/packages.config
 
 # End of https://www.gitignore.io/api/visualstudio,windows,c++
+*.vcxproj
+C_Project/C_Project/C_Project.vcxproj
+C_Project/C_Project/C_Project.vcxproj
+C_Project/C_Project/C_Project.vcxproj

@@ -11,6 +11,45 @@ CVisualization::~CVisualization()
 	destroyWindow(this->m_winName);
 }
 
+
+int CVisualization::ShowPeriod(Mat pic, int time, double zoom, bool save, string savePath)
+{
+	Mat pic_resize;
+	Size show_size = Size(pic.size().width*zoom, pic.size().height*zoom);
+	resize(pic, pic_resize, show_size);
+	Mat pic_show;
+	pic_show.create(show_size, CV_8UC1);
+
+	for (int h = 0; h < show_size.height; h++)
+	{
+		for (int w = 0; w < show_size.width; w++)
+		{
+			uchar value = 0;
+			double pic_value = pic_resize.at<double>(h, w);
+
+			if (pic_value < 0)
+			{
+				value = 0;
+			}
+			else
+			{
+				value = ((int)pic_value % 32) * 4 + 128;
+			}
+			pic_show.at<uchar>(h, w) = value;
+		}
+	}
+
+	if (save)
+	{
+		imwrite(savePath, pic_show);
+	}
+
+	imshow(this->m_winName, pic_show);
+	int key = waitKey(time);
+	return key;
+}
+
+
 int CVisualization::Show(Mat pic, int time, bool norm, double zoom, bool save, string savePath)
 {
 	Mat show;
