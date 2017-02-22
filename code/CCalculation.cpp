@@ -120,20 +120,20 @@ bool CCalculation::Init()
 		return false;
 
 	// 设定相关参数
-	this->m_paraPath = "";
+	this->m_paraPath = "code/";
 	this->m_paraName = "parameters";
 	this->m_paraSuffix = ".yml";
 
-	this->m_resPath = "20170213\\Result\\";
-	this->m_pcPath = "PointCloud\\";
+	this->m_resPath = "20170213\\StatueForward_Result\\";
+	this->m_pcPath = "PointCloud_Next\\";
 	this->m_pcName = "pc";
 	this->m_pcSuffix = ".txt";
 
 	// 根据数据设定视口大小：
-	this->m_hBegin = 340;
-	this->m_hEnd = 460;
-	this->m_wBegin = 260;
-	this->m_wEnd = 850;
+	this->m_hBegin = 450;
+	this->m_hEnd = 650;
+	this->m_wBegin = 700;
+	this->m_wEnd = 900;
 
 	// 创建新元素
 	printf("\tCreating sensor...");
@@ -522,7 +522,7 @@ bool CCalculation::FillFirstProjectorU()
 	Mat vProjectorMat;
 
 	FileStorage fs(DATA_PATH
-		+ "20170213\\MoveRegular\\ipro\\"
+		+ "20170213\\StatueForward\\ipro\\"
 		+ "ipro_mat0"
 		+ ".xml", FileStorage::READ);
 	fs["ipro_mat"] >> vProjectorMat;

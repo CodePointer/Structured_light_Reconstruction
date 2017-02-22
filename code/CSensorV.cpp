@@ -35,7 +35,7 @@ bool CSensor::InitSensor()
 {
 	bool status = true;
 
-	this->m_groupDataPath = DATA_PATH + "20170213\\MoveRegular\\";
+	this->m_groupDataPath = DATA_PATH + "20170213\\StatueForward\\";
 	this->m_dynaPath = "dyna\\";
 	this->m_dynaName = "dyna_mat";
 	this->m_dataFileSuffix = ".png";
