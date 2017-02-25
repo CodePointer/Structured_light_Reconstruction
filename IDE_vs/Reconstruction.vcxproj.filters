@@ -27,49 +27,49 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="StaticParameters.cpp">
-      <Filter>Parameters</Filter>
+    <ClCompile Include="code\main.cpp">
+      <Filter>Mainpart</Filter>
     </ClCompile>
-    <ClCompile Include="GlobalFunction.cpp">
-      <Filter>Parameters</Filter>
+    <ClCompile Include="code\CCalculation.cpp">
+      <Filter>Mainpart</Filter>
     </ClCompile>
-    <ClCompile Include="CSensorV.cpp">
+    <ClCompile Include="code\CSensorV.cpp">
       <Filter>Sensor</Filter>
     </ClCompile>
-    <ClCompile Include="CStorage.cpp">
+    <ClCompile Include="code\CStorage.cpp">
       <Filter>Storage&amp;Visualization</Filter>
     </ClCompile>
-    <ClCompile Include="CVisualization.cpp">
+    <ClCompile Include="code\CVisualization.cpp">
       <Filter>Storage&amp;Visualization</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Mainpart</Filter>
+    <ClCompile Include="code\GlobalFunction.cpp">
+      <Filter>Parameters</Filter>
     </ClCompile>
-    <ClCompile Include="CCalculation.cpp">
-      <Filter>Mainpart</Filter>
+    <ClCompile Include="code\StaticParameters.cpp">
+      <Filter>Parameters</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="StaticParameters.h">
-      <Filter>Parameters</Filter>
+    <ClInclude Include="code\CCalculation.h">
+      <Filter>Mainpart</Filter>
     </ClInclude>
-    <ClInclude Include="GlobalFunction.h">
-      <Filter>Parameters</Filter>
-    </ClInclude>
-    <ClInclude Include="CSensorV.h">
+    <ClInclude Include="code\CSensorV.h">
       <Filter>Sensor</Filter>
     </ClInclude>
-    <ClInclude Include="CStorage.h">
+    <ClInclude Include="code\CStorage.h">
       <Filter>Storage&amp;Visualization</Filter>
     </ClInclude>
-    <ClInclude Include="CVisualization.h">
+    <ClInclude Include="code\CVisualization.h">
       <Filter>Storage&amp;Visualization</Filter>
     </ClInclude>
-    <ClInclude Include="CCalculation.h">
-      <Filter>Mainpart</Filter>
+    <ClInclude Include="code\GlobalFunction.h">
+      <Filter>Parameters</Filter>
+    </ClInclude>
+    <ClInclude Include="code\StaticParameters.h">
+      <Filter>Parameters</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="parameters.yml" />
+    <None Include="code\parameters.yml" />
   </ItemGroup>
 </Project>

@@ -124,8 +124,8 @@ bool CCalculation::Init()
 	this->m_paraName = "parameters";
 	this->m_paraSuffix = ".yml";
 
-	this->m_resPath = "20170213\\StatueForward_Result\\";
-	this->m_pcPath = "PointCloud_Next\\";
+	this->m_resPath = "20170213\\StatueForward_Compare_Result\\";
+	this->m_pcPath = "PointCloud\\";
 	this->m_pcName = "pc";
 	this->m_pcSuffix = ".txt";
 
@@ -829,8 +829,17 @@ bool CCalculation::TrackPoints(int frameNum)
 	{
 		// 后续帧情况
 
+		// 计算比较帧帧数
+		int compare_frame = 1;
+		compare_frame = frameNum - (frameNum % 5);
+		if (frameNum % 5 == 0)
+		{
+			compare_frame -= 5;
+		}
+
 		// 获取图像，0时刻的iniGreyMat，t时刻的nowGreyMat
-		this->m_sensor->SetProPicture(frameNum - 1); // 目前使用的是和t-1时刻对比
+		//this->m_sensor->SetProPicture(0); // 目前使用的是和0时刻对比
+		this->m_sensor->SetProPicture(compare_frame); // 目前使用的是和某个比较帧对比
 		Mat tmpMat, iniGreyMat, nowGreyMat;
 		tmpMat = this->m_sensor->GetCamPicture();
 		tmpMat.copyTo(iniGreyMat);
@@ -874,8 +883,10 @@ bool CCalculation::TrackPoints(int frameNum)
 				}*/
 
 				// 获取xk，yk的搜索中心并圈定搜索范围
-				int hk_1 = (int)this->m_iH[frameNum - 1].at<double>(h0, w0);
-				int wk_1 = (int)this->m_iW[frameNum - 1].at<double>(h0, w0);
+				//int hk_1 = (int)this->m_iH[0].at<double>(h0, w0);
+				//int wk_1 = (int)this->m_iW[0].at<double>(h0, w0);
+				int hk_1 = (int)this->m_iH[compare_frame].at<double>(h0, w0);
+				int wk_1 = (int)this->m_iW[compare_frame].at<double>(h0, w0);
 				hk_sBegin = hk_1 - sHalfWin;	// 目前的搜索范围仅为一个邻域
 				hk_sEnd = hk_1 + sHalfWin + 1;
 				wk_sBegin = wk_1 - sHalfWin;
