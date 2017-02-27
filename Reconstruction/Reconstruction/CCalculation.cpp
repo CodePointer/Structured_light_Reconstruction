@@ -119,15 +119,47 @@ bool CCalculation::Init()
 	if ((this->m_sensor != NULL))
 		return false;
 
-	// 设定相关参数
-	this->m_paraPath = "code/";
-	this->m_paraName = "parameters";
-	this->m_paraSuffix = ".yml";
+	// 设定相关路径参数
+	this->inner_para_path_ = "";
+	this->inner_para_name_ = "parameters";
+	this->inner_para_suffix_ = ".yml";
+	FileStorage fs;
+	fs.open(CONFIG_PATHNAME, FileStorage::READ);
+	if (!fs.isOpened())
+	{
+		status = false;
+		printf("Error in find config.xml: %s", CONFIG_PATHNAME);
+	}
+	else
+	{
+		string main_path;
+		string data_set_path;
+		fs["main_path"] >> main_path;
+		fs["data_set_path"] >> data_set_path;
 
-	this->m_resPath = "20170213\\StatueForward_Compare_Result\\";
-	this->m_pcPath = "PointCloud\\";
-	this->m_pcName = "pc";
-	this->m_pcSuffix = ".txt";
+		string tmp;
+		fs["ipro_mat_path"] >> tmp;
+		this->ipro_mat_path_ = main_path + data_set_path + tmp;
+		fs["ipro_mat_name"] >> this->ipro_mat_name_;
+		fs["ipro_mat_suffix"] >> this->ipro_mat_suffix_;
+
+		fs["point_cloud_path"] >> tmp;
+		this->point_cloud_path_ = main_path + data_set_path + tmp;
+		fs["point_cloud_name"] >> this->point_cloud_name_;
+		fs["point_cloud_suffix"] >> this->point_cloud_suffix_;
+
+		fs["point_show_path"] >> tmp;
+		this->point_show_path_ = main_path + data_set_path + tmp;
+		fs["point_show_name"] >> this->point_show_name_;
+		fs["point_show_suffix"] >> this->point_show_suffix_;
+
+		fs["trace_path"] >> tmp;
+		this->trace_path_ = main_path + data_set_path + tmp;
+		fs["trace_name"] >> this->trace_name_;
+		fs["trace_suffix"] >> this->trace_suffix_;
+
+		fs.release();
+	}
 
 	// 根据数据设定视口大小：
 	this->m_hBegin = 450;
@@ -186,9 +218,9 @@ bool CCalculation::Init()
 	
 	// 导入标定的系统参数
 	printf("\tImporting system parameters...");
-	FileStorage fs(this->m_paraPath 
-		+ this->m_paraName 
-		+ this->m_paraSuffix, FileStorage::READ);
+	fs.open(this->inner_para_path_ 
+		+ this->inner_para_name_ 
+		+ this->inner_para_suffix_, FileStorage::READ);
 	fs["CamMat"] >> this->m_camMatrix;
 	fs["ProMat"] >> this->m_proMatrix;
 	fs["R"] >> this->m_R;
@@ -273,10 +305,10 @@ bool CCalculation::CalculateFirst()
 	}
 
 	myDebug.ShowPeriod(this->m_iPro[0], 100, 0.5, true, 
-		DATA_PATH 
-		+ this->m_resPath
-		+ "Show/"
-		+ "ipro0.png"
+		this->point_show_path_
+		+ this->point_show_name_
+		+ "0"
+		+ this->point_show_suffix_
 		);
 
 	// 计算每个点的极线值
@@ -358,12 +390,10 @@ bool CCalculation::CalculateOther()
 
 		// 测试输出：
 		myDebug.ShowPeriod(this->m_iPro[frameNum], 100, 0.5, true,
-			DATA_PATH
-			+ this->m_resPath
-			+ "Show/"
-			+ "ipro"
+			this->point_show_path_
+			+ this->point_show_name_
 			+ idx2str
-			+ ".png"
+			+ this->point_show_suffix_
 		);
 
 		// 显示
@@ -418,12 +448,10 @@ bool CCalculation::CalculateOther()
 		if (status)
 		{
 			printf("\tWriteData...");
-			this->Result(DATA_PATH
-				+ this->m_resPath
-				+ this->m_pcPath
-				+ this->m_pcName
+			this->Result(this->point_cloud_path_
+				+ this->point_cloud_name_
 				+ idx2str
-				+ this->m_pcSuffix, frameNum, false);
+				+ this->point_cloud_suffix_, frameNum, false);
 			printf("finished.\n");
 		}
 		
@@ -482,9 +510,6 @@ bool CCalculation::Result(string fileName, int i, bool view_port_only)
 	// 保存iX,iY,deltaX,deltaY
 	if (i >= 0)
 	{
-		string xyFilePath = DATA_PATH
-			+ this->m_resPath
-			+ "XY\\";
 		string idx2str;
 		stringstream ss;
 		ss << i;
@@ -496,7 +521,7 @@ bool CCalculation::Result(string fileName, int i, bool view_port_only)
 		Mat deltaXv = this->m_deltaH[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
 		Mat deltaYv = this->m_deltaW[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
 
-		FileStorage fs((xyFilePath + "XY" + idx2str + ".xml"), FileStorage::WRITE);
+		FileStorage fs((this->trace_path_ + this->trace_name_ + idx2str + this->trace_suffix_), FileStorage::WRITE);
 		fs << "iX" << iXv;
 		fs << "iY" << iYv;
 		fs << "deltaX" << deltaXv;
@@ -521,10 +546,10 @@ bool CCalculation::FillFirstProjectorU()
 	Mat vPhaseMat;
 	Mat vProjectorMat;
 
-	FileStorage fs(DATA_PATH
-		+ "20170213\\StatueForward\\ipro\\"
-		+ "ipro_mat0"
-		+ ".xml", FileStorage::READ);
+	FileStorage fs(this->ipro_mat_path_
+		+ this->ipro_mat_name_
+		+ "0"
+		+ this->ipro_mat_suffix_, FileStorage::READ);
 	fs["ipro_mat"] >> vProjectorMat;
 	fs.release();
 

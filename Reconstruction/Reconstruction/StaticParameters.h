@@ -31,7 +31,7 @@ extern const bool VISUAL_DEBUG;
 //extern const int CHESS_ROW;
 
 // 数据读取相关
-extern const string DATA_PATH;
+extern const string CONFIG_PATHNAME;
 extern const int DYNAFRAME_MAXNUM;
 
 // 数据输出相关

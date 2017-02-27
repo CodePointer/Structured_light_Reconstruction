@@ -42,9 +42,9 @@ private:
 	Mat * m_zMat;
 
 	// 标定的矩阵
-	string m_paraPath;
-	string m_paraName;
-	string m_paraSuffix;
+	string inner_para_path_;
+	string inner_para_name_;
+	string inner_para_suffix_;
 	Mat m_camMatrix;
 	Mat m_proMatrix;
 	Mat m_R;
@@ -56,11 +56,21 @@ private:
 	Mat m_cC;
 	Mat m_cD;
 
-	// 输出点云的参数
-	string m_resPath;
-	string m_pcPath;
-	string m_pcName;
-	string m_pcSuffix;
+	//parameers of input data
+	string ipro_mat_path_;
+	string ipro_mat_name_;
+	string ipro_mat_suffix_;
+
+	// parameters of output result
+	string point_cloud_path_;
+	string point_cloud_name_;
+	string point_cloud_suffix_;
+	string point_show_path_;
+	string point_show_name_;
+	string point_show_suffix_;
+	string trace_path_;
+	string trace_name_;
+	string trace_suffix_;
 
 	// 用于FloodFill的全局临时矩阵
 	Mat m_tempMat;

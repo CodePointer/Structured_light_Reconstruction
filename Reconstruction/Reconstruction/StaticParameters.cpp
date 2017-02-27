@@ -27,7 +27,7 @@ const int CHESS_LINE = 13;
 const int CHESS_ROW = 8;
 
 // 数据读取相关
-const string DATA_PATH = "D:\\Structured_Light_Data\\";
+const string CONFIG_PATHNAME = "config.xml";
 const int DYNAFRAME_MAXNUM = 50;
 
 // 数据输出相关

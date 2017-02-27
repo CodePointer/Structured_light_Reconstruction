@@ -23,10 +23,10 @@ private:
 	string m_fileSuffix;
 
 	// 总体数据：
-	string m_groupDataPath;	// 一组数据的path
-	string m_dynaPath;
-	string m_dynaName;
-	string m_dataFileSuffix;
+	string data_path_;	// 一组数据的path
+	string dyna_path_;
+	string dyna_name_;
+	string dyna_suffix_;
 
 	// 存储的相机图案
 	Mat * m_dataMats;

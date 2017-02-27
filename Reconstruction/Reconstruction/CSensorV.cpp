@@ -35,10 +35,25 @@ bool CSensor::InitSensor()
 {
 	bool status = true;
 
-	this->m_groupDataPath = DATA_PATH + "20170213\\StatueForward\\";
-	this->m_dynaPath = "dyna\\";
-	this->m_dynaName = "dyna_mat";
-	this->m_dataFileSuffix = ".png";
+	FileStorage fs;
+	fs.open(CONFIG_PATHNAME, FileStorage::READ);
+	if (!fs.isOpened())
+	{
+		status = false;
+	}
+	else
+	{
+		string main_path;
+		string data_set_path;
+		fs["main_path"] >> main_path;
+		fs["data_set_path"] >> data_set_path;
+		this->data_path_ = main_path + data_set_path;
+		fs["dyna_mat_path"] >> this->dyna_path_;
+		fs["dyna_mat_name"] >> this->dyna_name_;
+		fs["dyna_mat_suffix"] >> this->dyna_suffix_;
+		fs.release();
+	}
+	
 
 	return status;
 }
@@ -67,9 +82,9 @@ bool CSensor::LoadDatas(int max_frame_num)
 	// Read dynaMats from files
 	this->m_dataNum = max_frame_num;
 	this->m_nowNum = 0;
-	this->m_filePath = this->m_groupDataPath + this->m_dynaPath;
-	this->m_fileName = this->m_dynaName;
-	this->m_fileSuffix = this->m_dataFileSuffix;
+	this->m_filePath = this->data_path_ + this->dyna_path_;
+	this->m_fileName = this->dyna_name_;
+	this->m_fileSuffix = this->dyna_suffix_;
 
 	// Read files
 	this->m_dataMats = new Mat[this->m_dataNum];
