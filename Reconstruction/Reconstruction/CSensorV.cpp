@@ -45,7 +45,18 @@ bool CSensor::InitSensor()
 	{
 		string main_path;
 		string data_set_path;
-		fs["main_path"] >> main_path;
+		if (kPlatformFlag == WINDOWS)
+		{
+			fs["main_path_win"] >> main_path;
+		}
+		else if (kPlatformFlag == UBUNTU)
+		{
+			fs["main_path_linux"] >> main_path;
+		}
+		else
+		{
+			return false;
+		}
 		fs["data_set_path"] >> data_set_path;
 		this->data_path_ = main_path + data_set_path;
 		fs["dyna_mat_path"] >> this->dyna_path_;

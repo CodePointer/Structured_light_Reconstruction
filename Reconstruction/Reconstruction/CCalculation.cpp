@@ -128,13 +128,24 @@ bool CCalculation::Init()
 	if (!fs.isOpened())
 	{
 		status = false;
-		printf("Error in find config.xml: %s", CONFIG_PATHNAME);
+		ErrorHandling("Error in find config.xml: " + CONFIG_PATHNAME);
 	}
 	else
 	{
 		string main_path;
 		string data_set_path;
-		fs["main_path"] >> main_path;
+		if (kPlatformFlag == WINDOWS)
+		{
+			fs["main_path_win"] >> main_path;
+		}
+		else if (kPlatformFlag == UBUNTU)
+		{
+			fs["main_path_linux"] >> main_path;
+		}
+		else
+		{
+			return false;
+		}
 		fs["data_set_path"] >> data_set_path;
 
 		string tmp;
@@ -147,16 +158,19 @@ bool CCalculation::Init()
 		this->point_cloud_path_ = main_path + data_set_path + tmp;
 		fs["point_cloud_name"] >> this->point_cloud_name_;
 		fs["point_cloud_suffix"] >> this->point_cloud_suffix_;
+		CreateDir(this->point_cloud_path_);
 
 		fs["point_show_path"] >> tmp;
 		this->point_show_path_ = main_path + data_set_path + tmp;
 		fs["point_show_name"] >> this->point_show_name_;
 		fs["point_show_suffix"] >> this->point_show_suffix_;
+		CreateDir(this->point_show_path_);
 
 		fs["trace_path"] >> tmp;
 		this->trace_path_ = main_path + data_set_path + tmp;
 		fs["trace_name"] >> this->trace_name_;
 		fs["trace_suffix"] >> this->trace_suffix_;
+		CreateDir(this->trace_path_);
 
 		fs.release();
 	}
@@ -852,37 +866,31 @@ bool CCalculation::TrackPoints(int frameNum)
 	}
 	else
 	{
-		// 后续帧情况
-
-		// 计算比较帧帧数
-		int compare_frame = 1;
-		compare_frame = frameNum - (frameNum % 5);
+		// Calculate key frame num
+		int key_frame = 1;
+		key_frame = frameNum - (frameNum % 5);
 		if (frameNum % 5 == 0)
 		{
-			compare_frame -= 5;
+			key_frame -= 5;
 		}
 
-		// 获取图像，0时刻的iniGreyMat，t时刻的nowGreyMat
-		//this->m_sensor->SetProPicture(0); // 目前使用的是和0时刻对比
-		this->m_sensor->SetProPicture(compare_frame); // 目前使用的是和某个比较帧对比
-		Mat tmpMat, iniGreyMat, nowGreyMat;
+		// Get key frame and now frame
+		this->m_sensor->SetProPicture(key_frame);
+		Mat tmpMat, key_frame_mat, now_frame_mat;
 		tmpMat = this->m_sensor->GetCamPicture();
-		tmpMat.copyTo(iniGreyMat);
+		tmpMat.copyTo(key_frame_mat);
 		this->m_sensor->SetProPicture(frameNum);
 		tmpMat = this->m_sensor->GetCamPicture();
-		tmpMat.copyTo(nowGreyMat);
-		//myDebug.Show(nowGreyMat, 100, false);
+		tmpMat.copyTo(now_frame_mat);
 
-		// 设定参数
-		int sHalfWin = (SEARCH_WINDOW_SIZE - 1) / 2;
-		int mHalfWin = (MATCH_WINDOW_SIZE - 1) / 2;
-		int hk_sBegin, hk_sEnd, wk_sBegin, wk_sEnd;		// xk,yk的搜索范围（给定中心点）
-		Mat xk_1_mMat;
-		int hk_1_mBegin, hk_1_mEnd, wk_1_mBegin, wk_1_mEnd;
-		//Mat x0_mMat;
-		//int h0_mBegin, h0_mEnd, w0_mBegin, w0_mEnd;		// 0时刻的匹配矩阵
-		Mat xk_mMat;
-		int wk_mBegin, wk_mEnd;		// k时刻的匹配矩阵
+		// bound parameters for patch, search area
+		int search_half_win = (SEARCH_WINDOW_SIZE - 1) / 2;
+		int now_search_h_begin, now_search_h_end, now_search_w_begin, now_search_w_end;		// xk,yk的搜索范围（给定中心点）
+		int patch_half_win = (MATCH_WINDOW_SIZE - 1) / 2;
+		Mat key_patch;
+		int key_patch_h_begin, key_patch_h_end, key_patch_w_begin, key_patch_w_end;
+		Mat now_patch;
+		int now_patch_h_begin, now_patch_h_end, now_patch_w_begin, now_patch_w_end;
 
 		double hSize = this->m_hEnd - this->m_hBegin;
 		int k = 0;
@@ -892,187 +900,111 @@ bool CCalculation::TrackPoints(int frameNum)
 		{
 			if (h0%10 == 0)
 			{
-				cout << '.';
+				cout << '.' << flush;
 			}
 			for (int w0 = this->m_wBegin; w0 < this->m_wEnd; w0++)
 			{
 				if (this->m_iPro[0].at<double>(h0, w0) <= 0)
 				{
-					// 这会导致部分点跟踪出错。就是一直原地趴窝 (WaitForFixed)
+					// no data point
 					continue;
 				}
 
-				/*if ((h0 == 405) && (w0 == 632) && (frameNum == 4))
-				{
-					cout << endl;
-				}*/
+				// find key patch in key frame
+				int h_key = (int)this->m_iH[key_frame].at<double>(h0, w0);
+				int w_key = (int)this->m_iW[key_frame].at<double>(h0, w0);
+				key_patch_h_begin = h_key - patch_half_win;
+				key_patch_h_end = h_key + patch_half_win + 1;
+				key_patch_w_begin = w_key - patch_half_win;
+				key_patch_w_end = w_key + patch_half_win + 1;
+				tmpMat = key_frame_mat(Range(key_patch_h_begin, key_patch_h_end),
+					Range(key_patch_w_begin, key_patch_w_end));
+				tmpMat.convertTo(key_patch, CV_64FC1);
 
-				// 获取xk，yk的搜索中心并圈定搜索范围
-				//int hk_1 = (int)this->m_iH[0].at<double>(h0, w0);
-				//int wk_1 = (int)this->m_iW[0].at<double>(h0, w0);
-				int hk_1 = (int)this->m_iH[compare_frame].at<double>(h0, w0);
-				int wk_1 = (int)this->m_iW[compare_frame].at<double>(h0, w0);
-				hk_sBegin = hk_1 - sHalfWin;	// 目前的搜索范围仅为一个邻域
-				hk_sEnd = hk_1 + sHalfWin + 1;
-				wk_sBegin = wk_1 - sHalfWin;
-				wk_sEnd = wk_1 + sHalfWin + 1;
-				
-				// 获取k-1时刻的，中心为xk-1，yk-1的匹配矩阵
-				hk_1_mBegin = h0 - mHalfWin;
-				hk_1_mEnd = h0 + mHalfWin + 1;
-				wk_1_mBegin = w0 - mHalfWin;
-				wk_1_mEnd = w0 + mHalfWin + 1;
-				tmpMat = iniGreyMat(Range(hk_1_mBegin, hk_1_mEnd), Range(wk_1_mBegin, wk_1_mEnd));
-				tmpMat.convertTo(xk_1_mMat, CV_64FC1);
-
-				// 灰度归一化
+				// Normalized
 				double min_val, max_val;
-				minMaxLoc(xk_1_mMat, &min_val, &max_val);
-				xk_1_mMat = (xk_1_mMat - min_val) / (max_val - min_val) * 255;
+				minMaxLoc(key_patch, &min_val, &max_val);
+				key_patch = (key_patch - min_val) / (max_val - min_val) * 255;
 
-				// 获取0时刻的，中心为x0,y0的匹配矩阵
-				//h0_mBegin = h0 - mHalfWin;
-				//h0_mEnd = h0 + mHalfWin + 1;
-				//w0_mBegin = w0 - mHalfWin;
-				//w0_mEnd = w0 + mHalfWin + 1;
-				//tmpMat = iniGreyMat(Range(h0_mBegin, h0_mEnd), Range(w0_mBegin, w0_mEnd));
-				////myDebug.Show(tmpMat, 0, false, 10.0);
-				//tmpMat.convertTo(x0_mMat, CV_64FC1);
+				// find search area in now frame, according to last frame position
+				int h_last = (int)this->m_iH[frameNum - 1].at<double>(h0, w0);
+				int w_last = (int)this->m_iW[frameNum - 1].at<double>(h0, w0);
+				now_search_h_begin = h_last - search_half_win;
+				now_search_h_end = h_last + search_half_win + 1;
+				now_search_w_begin = w_last - search_half_win;
+				now_search_w_end = w_last + search_half_win + 1;
 
-				// 创建一个存储数据的矩阵
-				Mat resMat(2, wk_sEnd - wk_sBegin, CV_64FC1);
-				Mat hMat(2, wk_sEnd - wk_sBegin, CV_16UC1);
-				resMat.setTo(65536.0);
-				hMat.setTo(0);
+				// result for storage
+				Mat error_result(2, now_search_w_end - now_search_w_begin, CV_64FC1);
+				Mat h_mark_mat(2, now_search_w_end - now_search_w_begin, CV_16UC1);
+				error_result.setTo(65536.0);
+				h_mark_mat.setTo(0);
 
 				// 在范围内进行查找匹配
 				double A = this->m_lineA[0].at<double>(h0, w0);
 				double B = this->m_lineB[0].at<double>(h0, w0);
 				double C = this->m_lineC[0].at<double>(h0, w0);
 				double N = (double)SEARCH_WINDOW_SIZE * (double)SEARCH_WINDOW_SIZE;
-
-				// 设定最小值阈值
 				Point minLoc;// Loc.x:W, Loc.y:H
 				double minVal = 99999999.0;
 				double kMatchThrehold = 0.0;
 
-				for (int w = wk_sBegin; w < wk_sEnd; w++)
+				/// Debug
+				if (h0 == 527 && w0 == 822)
 				{
-					wk_mBegin = w - mHalfWin;
-					wk_mEnd = w + mHalfWin + 1;
+					//printf("Debug.\n");
+				}
+				/// Debug
 
-					//// 检查目标点是否有值
-					//if (A == 0 && B == 0)
-					//{
-					//	resMat.at<double>(0, w - wk_sBegin) = 65536.0;
-					//	resMat.at<double>(1, w - wk_sBegin) = 65536.0;
-					//	hMat.at<ushort>(0, w - wk_sBegin) = -100;
-					//	hMat.at<ushort>(1, w - wk_sBegin) = -100;
-					//	break;
-					//}
+				for (int w = now_search_w_begin; w < now_search_w_end; w++)
+				{
+					// Calculate h for match according to epipolar constraint
+					double h_double = (-A / B)*w + (-C / B);
 
-					// 根据极限约束，考察对应的h值（极线的上、下）
-					double h = (-A / B)*w + (-C / B);
-					int h1 = (int)h;
-					int h2 = (int)h + 1;
-
-					// h1进行匹配
-					int h1_mBegin = h1 - mHalfWin;
-					int h1_mEnd = h1 + mHalfWin + 1;
-					tmpMat = nowGreyMat(Range(h1_mBegin, h1_mEnd), Range(wk_mBegin, wk_mEnd));
-					//test->Show(tmpMat, 100, false, 10.0);
-					tmpMat.convertTo(xk_mMat, CV_64FC1);
-					// 归一化
-					minMaxLoc(xk_mMat, &min_val, &max_val);
-					xk_mMat = (xk_mMat - min_val) / (max_val - min_val) * 255;
-					tmpMat = (xk_mMat - xk_1_mMat).mul((xk_mMat - xk_1_mMat), 1.0 / N);
-					//tmpMat = (xk_mMat - x0_mMat).mul((xk_mMat - x0_mMat), 1.0 / N);
-					Scalar err = sum(tmpMat);
-					resMat.at<double>(0, w - wk_sBegin) = err.val[0];
-					hMat.at<ushort>(0, w - wk_sBegin) = h1;
-					/*if ((h0 == 405) && (w0 == 632) && (frameNum == 4))
+					for (int h = (int)h_double; h <= (int)h_double + 1; h++)
 					{
-						cout << "(" << h1 << ", " << w << "): " << err.val[0] << endl;
-						imwrite("h0.bmp", iniGreyMat(Range(hk_1_mBegin, hk_1_mEnd), Range(wk_1_mBegin, wk_1_mEnd)));
-						imwrite("h1.bmp", nowGreyMat(Range(h1_mBegin, h1_mEnd), Range(wk_mBegin, wk_mEnd)));
-					}*/
-					if (err.val[0] < kMatchThrehold)
-					{
-						minVal = err.val[0];
-						minLoc = Point(w - wk_sBegin, 0);
-						break;
+						// find frame patch in now frame
+						now_patch_h_begin = h - patch_half_win;
+						now_patch_h_end = h + patch_half_win + 1;
+						now_patch_w_begin = w - patch_half_win;
+						now_patch_w_end = w + patch_half_win + 1;
+						tmpMat = now_frame_mat(Range(now_patch_h_begin, now_patch_h_end),
+							Range(now_patch_w_begin, now_patch_w_end));
+						tmpMat.convertTo(now_patch, CV_64FC1);
+
+						// Normalized
+						minMaxLoc(now_patch, &min_val, &max_val);
+						now_patch = (now_patch - min_val) / (max_val - min_val) * 255;
+
+						// Calculate error and mark down
+						tmpMat = (now_patch - key_patch).mul((now_patch - key_patch), 1.0 / N);
+						Scalar error_val = sum(tmpMat);
+						error_result.at<double>(h - (int)h_double, w - now_search_w_begin) = error_val[0];
+						h_mark_mat.at<ushort>(h - (int)h_double, w - now_search_w_begin) = h;
 					}
-
-					// h2进行匹配
-					int h2_mBegin = h2 - mHalfWin;
-					int h2_mEnd = h2 + mHalfWin + 1;
-					tmpMat = nowGreyMat(Range(h2_mBegin, h2_mEnd), Range(wk_mBegin, wk_mEnd));
-					//test->Show(tmpMat, 100, false, 10.0);
-					tmpMat.convertTo(xk_mMat, CV_64FC1);
-					// 归一化
-					minMaxLoc(xk_mMat, &min_val, &max_val);
-					xk_mMat = (xk_mMat - min_val) / (max_val - min_val) * 255;
-					tmpMat = (xk_mMat - xk_1_mMat).mul((xk_mMat - xk_1_mMat), 1.0 / N);
-					//tmpMat = (xk_mMat - x0_mMat).mul((xk_mMat - x0_mMat), 1.0 / N);
-					err = sum(tmpMat);
-					resMat.at<double>(1, w - wk_sBegin) = err.val[0];
-					hMat.at<ushort>(1, w - wk_sBegin) = h2;
-					/*if ((h0 == 405) && (w0 == 632) && (frameNum == 4))
-					{
-						cout << "(" << h2 << ", " << w << "): " << err.val[0] << endl;
-						imwrite("h2.bmp", nowGreyMat(Range(h2_mBegin, h2_mEnd), Range(wk_mBegin, wk_mEnd)));
-						cout << endl;
-					}*/
-					if (err.val[0] < kMatchThrehold)
-					{
-						minVal = err.val[0];
-						minLoc = Point(w - wk_sBegin, 1);
-						break;
-					}
-					
 				}
 
-				// 查找最小值并检查
-				/*cout << "resMat" << resMat << endl;
-				cout << "hMat" << hMat << endl;*/
+				// find min_value point position
 				if (minVal >= kMatchThrehold)
 				{
-					minMaxLoc(resMat, &minVal, NULL, &minLoc, NULL);
+					minMaxLoc(error_result, &minVal, NULL, &minLoc, NULL);
 				}
+				/// Debug
+				if (h0 == 527 && w0 == 822)
+				{
+					//cout << error_result << endl;
+					//cout << h_mark_mat << endl;
+				}
+				/// Debug
 				if (minVal > maxMinVal)
 				{
 					maxMinVal = minVal;
 				}
-				//int minThrehold = 100;
-				//if (minVal > minThrehold)	// 没有找到匹配
-				//{
-
-				//}
 				
-				// 赋值
-				//cout << minLoc << endl;
-				this->m_deltaH[frameNum].at<double>(h0, w0) = hMat.at<ushort>(minLoc.y, minLoc.x) - hk_1;
-				this->m_deltaW[frameNum].at<double>(h0, w0) = minLoc.x - sHalfWin;
-				//printf("dH:%f,dW:%f\n", this->m_deltaH[frameNum].at<double>(h0, w0), this->m_deltaW[frameNum].at<double>(h0, w0));
-
-				// Debug部分
-				//if ((h0 == 405) && (w0 == 632))
-				//{
-				//	// 找到当前匹配的坐标与图像
-				//	int hk = this->m_deltaH[frameNum].at<double>(h0, w0) + this->m_iH[frameNum - 1].at<double>(h0, w0);
-				//	int wk = this->m_deltaW[frameNum].at<double>(h0, w0) + this->m_iW[frameNum - 1].at<double>(h0, w0);
-				//	int hk_mBegin = hk - mHalfWin;
-				//	int hk_mEnd = hk + mHalfWin + 1;
-				//	int wk_mBegin = wk - mHalfWin;
-				//	int wk_mEnd = wk + mHalfWin + 1;
-				//	tmpMat = nowGreyMat(Range(hk_mBegin, hk_mEnd), Range(wk_mBegin, wk_mEnd));
-				//	stringstream ss;
-				//	ss << frameNum;
-				//	string idx2str;
-				//	ss >> idx2str;
-
-				//	imwrite("MidValue/tmpMat" + idx2str + ".bmp", tmpMat);
-				//}
+				// mark now h, w
+				this->m_deltaH[frameNum].at<double>(h0, w0) = h_mark_mat.at<ushort>(minLoc.y, minLoc.x) - h_last;
+				this->m_deltaW[frameNum].at<double>(h0, w0) = minLoc.x - search_half_win;
+				
 			}
 		}
 		printf("\n\t\tMaxMinVal: %0.2f", maxMinVal);

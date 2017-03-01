@@ -1,5 +1,8 @@
 #include "StaticParameters.h"
 
+// Platform
+const PlatformFlag kPlatformFlag = MY_PLATFORM_FLAG;
+
 // 投影仪的分辨率
 const int PROJECTOR_RESLINE = 1280;
 const int PROJECTOR_RESROW = 800;

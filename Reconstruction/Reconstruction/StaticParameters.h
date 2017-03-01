@@ -1,6 +1,29 @@
 #ifndef _STATICPARAMETERS_H_
 #define _STATICPARAMETERS_H_
 
+// Platform
+#ifdef _WIN64
+#include <io.h>
+#define MY_ACCESS _access
+#include <direct.h>
+#define MY_MKDIR(a) _mkdir((a))
+#define MY_PLATFORM_FLAG WINDOWS
+#else
+#include <unistd.h>
+#include <stdarg.h>
+#define MY_ACCESS access
+#include <sys/stat.h>
+#define MY_MKDIR(a) mkdir((a), 0755)
+#define MY_PLATFORM_FLAG UBUNTU
+#endif
+
+enum PlatformFlag
+{
+	WINDOWS,
+	UBUNTU,
+};
+extern const PlatformFlag kPlatformFlag;
+
 #include <string>
 using namespace std;
 

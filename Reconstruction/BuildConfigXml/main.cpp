@@ -1,5 +1,13 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include <string>
+
+enum PlatformFlag
+{
+	WINDOWS,
+	UBUNTU,
+};
+const PlatformFlag kPlatformFlag = UBUNTU;
 
 using namespace std;
 using namespace cv;
@@ -14,15 +22,16 @@ int main()
 	/// program parameters
 	
 	// main path
-	string main_path = "D:/Structured_Light_Data/";
-	string data_set_path = "MoveRegular/";
+	string main_path_win = "D:/Structured_Light_Data/";
+	string main_path_linux = "/home/rukun/Structured_Light_Data/";
+	string data_set_path = "20170213/StatueForward/";
 
 	// collected data path
 	string dyna_mat_path = "dyna/";
 	string dyna_mat_name = "dyna_mat";
 	string dyna_mat_suffix = ".png";
 	string ipro_mat_path = "ipro/";
-	string ipro_mat_name = "ipro";
+	string ipro_mat_name = "ipro_mat";
 	string ipro_mat_suffix = ".xml";
 
 	// output result path
@@ -34,7 +43,7 @@ int main()
 	string point_show_suffix = ".png";
 	string trace_path = "result/trace/";
 	string trace_name = "trace";
-	string trace_suffix = ".txt";
+	string trace_suffix = ".xml";
 
 
 	/// write xml file
@@ -46,7 +55,8 @@ int main()
 		system("PAUSE");
 		return 0;
 	}
-	fs << "main_path" << main_path;
+	fs << "main_path_win" << main_path_win;
+	fs << "main_path_linux" << main_path_linux;
 	fs << "data_set_path" << data_set_path;
 	fs << "dyna_mat_path" << dyna_mat_path;
 	fs << "dyna_mat_name" << dyna_mat_name;

@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <opencv_storage>
-<main_path>D:/Structured_Light_Data/</main_path>
-<data_set_path>MoveRegular/</data_set_path>
+<main_path_win>D:/Structured_Light_Data/</main_path_win>
+<main_path_linux>/home/rukun/Structured_Light_Data/</main_path_linux>
+<data_set_path>"20170213/StatueForward/"</data_set_path>
 <dyna_mat_path>dyna/</dyna_mat_path>
 <dyna_mat_name>dyna_mat</dyna_mat_name>
 <dyna_mat_suffix>".png"</dyna_mat_suffix>
 <ipro_mat_path>ipro/</ipro_mat_path>
-<ipro_mat_name>ipro</ipro_mat_name>
+<ipro_mat_name>ipro_mat</ipro_mat_name>
 <ipro_mat_suffix>".xml"</ipro_mat_suffix>
 <point_cloud_path>result/point_cloud/</point_cloud_path>
 <point_cloud_name>pc</point_cloud_name>
