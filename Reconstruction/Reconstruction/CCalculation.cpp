@@ -847,8 +847,8 @@ bool CCalculation::FillCoordinate(int i)
 // 填充iX和iY，deltaX和deltaY
 bool CCalculation::TrackPoints(int frameNum)
 {
-	this->m_iH[frameNum].setTo(0);
-	this->m_iW[frameNum].setTo(0);
+	this->m_iH[frameNum].setTo(-100);
+	this->m_iW[frameNum].setTo(-100);
 	this->m_deltaH[frameNum].setTo(0);	// 蛋疼，反了，最后翻过来了一次，函数内部这里是正确的
 	this->m_deltaW[frameNum].setTo(0);
 
@@ -906,7 +906,12 @@ bool CCalculation::TrackPoints(int frameNum)
 			{
 				if (this->m_iPro[0].at<double>(h0, w0) <= 0)
 				{
-					// no data point
+					// no data point in original mat, set to invalid
+					continue;
+				}
+				if (this->m_iH[frameNum - 1].at<double>(h0, w0) <= 0)
+				{
+					// last frame is invalid then discard
 					continue;
 				}
 
@@ -947,7 +952,7 @@ bool CCalculation::TrackPoints(int frameNum)
 				double N = (double)SEARCH_WINDOW_SIZE * (double)SEARCH_WINDOW_SIZE;
 				Point minLoc;// Loc.x:W, Loc.y:H
 				double minVal = 99999999.0;
-				double kMatchThrehold = 0.0;
+				double kMatchThrehold = 6000.0;
 
 				/// Debug
 				if (h0 == 527 && w0 == 822)
@@ -985,9 +990,11 @@ bool CCalculation::TrackPoints(int frameNum)
 				}
 
 				// find min_value point position
+				minMaxLoc(error_result, &minVal, NULL, &minLoc, NULL);
 				if (minVal >= kMatchThrehold)
 				{
-					minMaxLoc(error_result, &minVal, NULL, &minLoc, NULL);
+					// match badly, discard
+					continue;
 				}
 				/// Debug
 				if (h0 == 527 && w0 == 822)
