@@ -4,11 +4,17 @@
 #include "StaticParameters.h"
 #include <iostream>
 #include <string>
+#include <opencv2/opencv.hpp>
 using namespace std;
+using namespace cv;
 
 // ´íÎó´¦Àíº¯Êı
 int ErrorHandling(string message);
 
+
 int CreateDir(string dir_path);
+
+
+bool WriteMatData(string path, string name, string idx2str, string suffix, Mat data_mat);
 
 #endif

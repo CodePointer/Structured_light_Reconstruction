@@ -154,6 +154,12 @@ bool CCalculation::Init()
 		fs["ipro_mat_name"] >> this->ipro_mat_name_;
 		fs["ipro_mat_suffix"] >> this->ipro_mat_suffix_;
 
+		fs["depth_mat_path"] >> tmp;
+		this->depth_mat_path_ = main_path + data_set_path + tmp;
+		fs["depth_mat_name"] >> this->depth_mat_name_;
+		fs["depth_mat_suffix"] >> this->depth_mat_suffix_;
+		CreateDir(this->depth_mat_path_);
+
 		fs["point_cloud_path"] >> tmp;
 		this->point_cloud_path_ = main_path + data_set_path + tmp;
 		fs["point_cloud_name"] >> this->point_cloud_name_;
@@ -513,15 +519,14 @@ bool CCalculation::Result(string fileName, int i, bool view_port_only)
 				continue;
 			}
 
-			// 输出
+			// Output (x,y,z)
 			file << this->m_xMat[i].at<double>(v, u) << ' ';
 			file << this->m_yMat[i].at<double>(v, u) << ' ';
 			file << this->m_zMat[i].at<double>(v, u) << endl;
 			//printf("(%f, %f, %f)\n", this->m_xMat.at<double>(v, u), this->m_yMat.at<double>(v, u), this->m_zMat.at<double>(v, u));
 		}
 	}
-
-	// 保存iX,iY,deltaX,deltaY
+	
 	if (i >= 0)
 	{
 		string idx2str;
@@ -529,18 +534,23 @@ bool CCalculation::Result(string fileName, int i, bool view_port_only)
 		ss << i;
 		ss >> idx2str;
 
-		// 提取视口
-		Mat iXv = this->m_iH[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
-		Mat iYv = this->m_iW[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
-		Mat deltaXv = this->m_deltaH[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
-		Mat deltaYv = this->m_deltaW[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
+		// save depth mat
+		WriteMatData(this->depth_mat_path_,
+			this->depth_mat_name_,
+			idx2str,
+			this->depth_mat_suffix_, this->m_zMat[i]);
 
-		FileStorage fs((this->trace_path_ + this->trace_name_ + idx2str + this->trace_suffix_), FileStorage::WRITE);
-		fs << "iX" << iXv;
-		fs << "iY" << iYv;
-		fs << "deltaX" << deltaXv;
-		fs << "deltaY" << deltaYv;
-		fs.release();
+		// save iH,iW
+		Mat iHv = this->m_iH[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
+		Mat iWv = this->m_iW[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
+		WriteMatData(this->trace_path_,
+			this->trace_name_ + "_iH",
+			idx2str,
+			this->trace_suffix_, iHv);
+		WriteMatData(this->trace_path_,
+			this->trace_name_ + "_iW",
+			idx2str,
+			this->trace_suffix_, iWv);
 	}
 
 
@@ -768,13 +778,13 @@ bool CCalculation::FillCoordinate(int i)
 
 	// 根据ip坐标求得深度z
 	this->m_zMat[i].setTo(-100);
-	for (int u = 0; u < CAMERA_RESLINE; u++)
+	for (int h = 0; h < CAMERA_RESROW; h++)
 	{
-		for (int v = 0; v < CAMERA_RESROW; v++)
+		for (int w = 0; w < CAMERA_RESLINE; w++)
 		{
 			double z = -100;
 			// 如果是没有值的部分，z就暂时不填
-			if (this->m_iPro[i].at<double>(v, u) < 0)
+			if (this->m_iPro[i].at<double>(h, w) < 0)
 			{
 				z = -100;
 				continue;
@@ -782,8 +792,8 @@ bool CCalculation::FillCoordinate(int i)
 			// 有值的部分，计算深度
 			else
 			{
-				z = -(this->m_cA - this->m_cB*this->m_iPro[i].at<double>(v, u))
-					/ (this->m_cC.at<double>(v, u) - this->m_cD.at<double>(v, u)*this->m_iPro[i].at<double>(v, u));
+				z = -(this->m_cA - this->m_cB*this->m_iPro[i].at<double>(h, w))
+					/ (this->m_cC.at<double>(h, w) - this->m_cD.at<double>(h, w)*this->m_iPro[i].at<double>(h, w));
 			}
 
 			// 判断z是否在合法范围内
@@ -803,42 +813,29 @@ bool CCalculation::FillCoordinate(int i)
 				max = z;
 			}
 
-			this->m_zMat[i].at<double>(v, u) = z;
+			this->m_zMat[i].at<double>(h, w) = z;
 		}
 	}
 
 	// 根据z求得x和y
-	for (int u = 0; u < CAMERA_RESLINE; u++)
+	for (int h = 0; h < CAMERA_RESROW; h++)
 	{
-		for (int v = 0; v < CAMERA_RESROW; v++)
+		for (int w = 0; w < CAMERA_RESLINE; w++)
 		{
 			// x = z * u_c/f_u
-			double z = this->m_zMat[i].at<double>(v, u);
+			double z = this->m_zMat[i].at<double>(h, w);
 			if (z < 0)
 			{
 				continue;
 			}
-			double uc = u - this->m_C.at<double>(0, 2);
-			double vc = v - this->m_C.at<double>(1, 2);
-			double fu = this->m_C.at<double>(0, 0);
-			double fv = this->m_C.at<double>(1, 1);
-			this->m_xMat[i].at<double>(v, u) = z * uc / fu;
-			this->m_yMat[i].at<double>(v, u) = z * vc / fv;
-			
-			//printf("(%f, %f, %f)\n", this->m_xMat.at<double>(v, u), this->m_yMat.at<double>(v, u), this->m_zMat.at<double>(v, u));
+			double w_center = w - this->m_C.at<double>(0, 2);
+			double h_center = h - this->m_C.at<double>(1, 2);
+			double w_f = this->m_C.at<double>(0, 0);
+			double h_f = this->m_C.at<double>(1, 1);
+			this->m_xMat[i].at<double>(h, w) = z * w_center / w_f;
+			this->m_yMat[i].at<double>(h, w) = z * h_center / h_f;
 		}
 	}
-	/*if (i > 0)
-	{
-		this->m_deltaZ[i] = this->m_zMat[i] - this->m_zMat[i - 1];
-	}*/
-	
-	//Mat temp;
-	//Mat zTemp = (this->m_zMat[i] - min) / (max - min) * 255;
-	//zTemp.convertTo(temp, CV_16U);
-	//imwrite("test.bmp", temp);
-
-	//myDebug.Show(this->m_zMat[i], 100, true, 0.5);
 
 	return true;
 }
@@ -882,6 +879,40 @@ bool CCalculation::TrackPoints(int frameNum)
 		this->m_sensor->SetProPicture(frameNum);
 		tmpMat = this->m_sensor->GetCamPicture();
 		tmpMat.copyTo(now_frame_mat);
+
+		/// Test: Binary image
+		Mat mean_value_mat;
+		blur(key_frame_mat, mean_value_mat, Size(21, 21), Point(-1, -1));
+		for (int h = 0; h < CAMERA_RESROW; h++)
+		{
+			for (int w = 0; w < CAMERA_RESLINE; w++)
+			{
+				if (key_frame_mat.at<uchar>(h, w) < mean_value_mat.at<uchar>(h, w))
+				{
+					key_frame_mat.at<uchar>(h, w) = 0;
+				}
+				else
+				{
+					key_frame_mat.at<uchar>(h, w) = 255;
+				}
+			}
+		}
+		blur(now_frame_mat, mean_value_mat, Size(21, 21), Point(-1, -1));
+		for (int h = 0; h < CAMERA_RESROW; h++)
+		{
+			for (int w = 0; w < CAMERA_RESLINE; w++)
+			{
+				if (now_frame_mat.at<uchar>(h, w) < mean_value_mat.at<uchar>(h, w))
+				{
+					now_frame_mat.at<uchar>(h, w) = 0;
+				}
+				else
+				{
+					now_frame_mat.at<uchar>(h, w) = 255;
+				}
+			}
+		}
+		/// Test: Binary image
 
 		// bound parameters for patch, search area
 		int search_half_win = (SEARCH_WINDOW_SIZE - 1) / 2;

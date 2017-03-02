@@ -9,6 +9,9 @@
 <ipro_mat_path>ipro/</ipro_mat_path>
 <ipro_mat_name>ipro_mat</ipro_mat_name>
 <ipro_mat_suffix>".xml"</ipro_mat_suffix>
+<depth_mat_path>result/depth_mat/</depth_mat_path>
+<depth_mat_name>depth_mat</depth_mat_name>
+<depth_mat_suffix>".txt"</depth_mat_suffix>
 <point_cloud_path>result/point_cloud/</point_cloud_path>
 <point_cloud_name>pc</point_cloud_name>
 <point_cloud_suffix>".txt"</point_cloud_suffix>

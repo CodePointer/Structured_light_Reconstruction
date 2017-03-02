@@ -15,7 +15,7 @@ using namespace cv;
 int main()
 {
 	/// xml file parameters
-	string xml_file_path = "";
+	string xml_file_path = "../Reconstruction/";
 	string xml_file_name = "config.xml";
 
 
@@ -35,6 +35,9 @@ int main()
 	string ipro_mat_suffix = ".xml";
 
 	// output result path
+	string depth_mat_path = "result/depth_mat/";
+	string depth_mat_name = "depth_mat";
+	string depth_mat_suffix = ".txt";
 	string point_cloud_path = "result/point_cloud/";
 	string point_cloud_name = "pc";
 	string point_cloud_suffix = ".txt";
@@ -43,7 +46,7 @@ int main()
 	string point_show_suffix = ".png";
 	string trace_path = "result/trace/";
 	string trace_name = "trace";
-	string trace_suffix = ".xml";
+	string trace_suffix = ".txt";
 
 
 	/// write xml file
@@ -64,6 +67,9 @@ int main()
 	fs << "ipro_mat_path" << ipro_mat_path;
 	fs << "ipro_mat_name" << ipro_mat_name;
 	fs << "ipro_mat_suffix" << ipro_mat_suffix;
+	fs << "depth_mat_path" << depth_mat_path;
+	fs << "depth_mat_name" << depth_mat_name;
+	fs << "depth_mat_suffix" << depth_mat_suffix;
 	fs << "point_cloud_path" << point_cloud_path;
 	fs << "point_cloud_name" << point_cloud_name;
 	fs << "point_cloud_suffix" << point_cloud_suffix;

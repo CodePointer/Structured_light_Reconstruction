@@ -62,6 +62,9 @@ private:
 	string ipro_mat_suffix_;
 
 	// parameters of output result
+	string depth_mat_path_;
+	string depth_mat_name_;
+	string depth_mat_suffix_;
 	string point_cloud_path_;
 	string point_cloud_name_;
 	string point_cloud_suffix_;
@@ -77,7 +80,7 @@ private:
 
 	// 常用功能的小函数
 	bool ReleaseSpace();				// 释放空间
-	int FloodFill(int h, int w, uchar from, uchar to);	// 填充函数
+	//int FloodFill(int h, int w, uchar from, uchar to);	// 填充函数
 	
 	// 首帧P坐标的解码
 	bool FillFirstProjectorU();				// 首帧的解码
