@@ -4,12 +4,12 @@ wBegin = 700;
 wEnd = 900;
 warning('off');
 
-fix_h0 = 502;
-fix_w0 = 855;
+fix_h0 = 609;
+fix_w0 = 817;
 
 for frameIdx = 2:49
-    iH = load(['./result/trace_m/iH', num2str(frameIdx), '.txt']);
-    iW = load(['./result/trace_m/iW', num2str(frameIdx), '.txt']);
+    iH = load(['./result/trace/iH', num2str(frameIdx), '.txt']);
+    iW = load(['./result/trace/iW', num2str(frameIdx), '.txt']);
     Img = imread(['./dyna/dyna_mat', num2str(frameIdx), '.png']);
     
     rgbImg = zeros(1024, 1280, 3);

@@ -2,14 +2,23 @@ hBegin = 450;
 hEnd = 650;
 wBegin = 700;
 wEnd = 900;
-Img0 = imread('./dyna/dyna_mat0.png');
 
-fix_h0 = 502;
-fix_w0 = 855;
+fix_h0 = 609;
+fix_w0 = 817;
 
-for frameIdx = 2:40
-    iH = load(['./result/trace_m/iH', num2str(frameIdx), '.txt']);
-    iW = load(['./result/trace_m/iW', num2str(frameIdx), '.txt']);
+i = fix_h0 - hBegin;
+j = fix_w0 - wBegin;
+h0 = i + hBegin;
+w0 = j + wBegin;
+
+for frameIdx = 30:50
+    match_idx = frameIdx - mod(frameIdx, 5);
+    if mod(frameIdx, 5) == 0
+        match_idx = match_idx - 5;
+    end
+    Img0 = imread(['./dyna/dyna_mat', num2str(match_idx), '.png']);
+    iH = load(['./result/trace/iH', num2str(frameIdx), '.txt']);
+    iW = load(['./result/trace/iW', num2str(frameIdx), '.txt']);
     Img = imread(['./dyna/dyna_mat', num2str(frameIdx), '.png']);
     
     rgbImg = zeros(1024, 1280, 3);
@@ -17,8 +26,6 @@ for frameIdx = 2:40
     rgbImg(:,:,2) = double(Img) / 255.0;
     rgbImg(:,:,3) = double(Img) / 255.0;
     
-    i = fix_h0 - hBegin;
-    j = fix_w0 - wBegin;
     h = iH(i, j) + 1;
     w = iW(i, j) + 1;
     
@@ -27,8 +34,6 @@ for frameIdx = 2:40
     rgbImg(h-10:h+10, w-10:w+10, 3) = 0.0;
     
     winSize = 10;
-    h0 = i + hBegin;
-    w0 = j + wBegin;
     
     patchImg0_origin = Img0(h0-winSize:h0+winSize, w0-winSize:w0+winSize);
     min_val = double(min(min(patchImg0_origin)));
@@ -52,6 +57,11 @@ for frameIdx = 2:40
 %     end
     
     figure(2),imshow(rgbImg);
+    
+    if mod(frameIdx, 5) == 0
+        h0 = h;
+        w0 = w;
+    end
     
     fprintf('%d frame.\n', frameIdx);
     
