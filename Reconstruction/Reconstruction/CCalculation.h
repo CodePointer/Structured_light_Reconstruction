@@ -28,13 +28,12 @@ private:
 	Mat * m_lineB;
 	Mat * m_lineC;
 
-	// 跟踪得到的目标点值
-	Mat * m_iH;	// iH
-	Mat * m_iW;	// iW
-
-	// 变化量
-	Mat * m_deltaH;
-	Mat * m_deltaW;
+	// for (h_key, w_key) in key frame:
+	//	h_now = trace_h_.at(h_key, w_key)
+	Mat * trace_h_;	
+	Mat * trace_w_;	
+	Mat * delta_trace_h_;
+	Mat * delta_trace_w_;
 
 	// 每帧的点云信息
 	Mat * m_xMat;
@@ -84,13 +83,20 @@ private:
 	
 	// 首帧P坐标的解码
 	bool FillFirstProjectorU();				// 首帧的解码
-	bool FilljPro(int fN);	// 已有iPro的情况下，填充jPro
-	bool CalculateEpipolarLine();
+	bool FilljPro(int frame_num);	// 已有iPro的情况下，填充jPro
+	bool CalculateEpipolarLine(int frame_num);
 	
 	// 填充后续帧中的ProU码
-	bool FillOtherProU(int fN);
+	bool FillOtherProU(int frame_num, int key_frame_num);
+
+	// Convert between ipro_mat & depth_mat
+	bool Ipro2Depth(int frame_num);
+	bool Depth2Ipro(int frame_num);
+
+	// Process key frame
+	bool ProcessFrame(int frame_num); 
 	
-	// 计算坐标
+	// 根据Z值计算坐标
 	bool FillCoordinate(int i);
 
 	// 填充iX和iY，deltaX和deltaY

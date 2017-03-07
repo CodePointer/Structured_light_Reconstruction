@@ -20,10 +20,10 @@ CCalculation::CCalculation()
 	this->m_yMat = NULL;
 	this->m_zMat = NULL;
 
-	this->m_iH = NULL;
-	this->m_iW = NULL;
-	this->m_deltaH = NULL;
-	this->m_deltaW = NULL;
+	this->trace_h_ = NULL;
+	this->trace_w_ = NULL;
+	this->delta_trace_h_ = NULL;
+	this->delta_trace_w_ = NULL;
 }
 
 
@@ -84,25 +84,25 @@ bool CCalculation::ReleaseSpace()
 		this->m_zMat = NULL;
 	}
 
-	if (this->m_iH != NULL)
+	if (this->trace_h_ != NULL)
 	{
-		delete[](this->m_iH);
-		this->m_iH = NULL;
+		delete[](this->trace_h_);
+		this->trace_h_ = NULL;
 	}
-	if (this->m_iW != NULL)
+	if (this->trace_w_ != NULL)
 	{
-		delete[](this->m_iW);
-		this->m_iW = NULL;
+		delete[](this->trace_w_);
+		this->trace_w_ = NULL;
 	}
-	if (this->m_deltaH != NULL)
+	if (this->delta_trace_h_ != NULL)
 	{
-		delete[](this->m_deltaH);
-		this->m_deltaH = NULL;
+		delete[](this->delta_trace_h_);
+		this->delta_trace_h_ = NULL;
 	}
-	if (this->m_deltaW != NULL)
+	if (this->delta_trace_w_ != NULL)
 	{
-		delete[](this->m_deltaW);
-		this->m_deltaW = NULL;
+		delete[](this->delta_trace_w_);
+		this->delta_trace_w_ = NULL;
 	}
 
 	return true;
@@ -206,14 +206,14 @@ bool CCalculation::Init()
 	this->m_yMat = new Mat[DYNAFRAME_MAXNUM];
 	this->m_zMat = new Mat[DYNAFRAME_MAXNUM];
 	this->m_iPro = new Mat[DYNAFRAME_MAXNUM];
-	this->m_jPro = new Mat[1];
-	this->m_lineA = new Mat[1];
-	this->m_lineB = new Mat[1];
-	this->m_lineC = new Mat[1];
-	this->m_iH = new Mat[DYNAFRAME_MAXNUM];
-	this->m_iW = new Mat[DYNAFRAME_MAXNUM];
-	this->m_deltaH = new Mat[DYNAFRAME_MAXNUM];
-	this->m_deltaW = new Mat[DYNAFRAME_MAXNUM];
+	this->m_jPro = new Mat[DYNAFRAME_MAXNUM];
+	this->m_lineA = new Mat[DYNAFRAME_MAXNUM];
+	this->m_lineB = new Mat[DYNAFRAME_MAXNUM];
+	this->m_lineC = new Mat[DYNAFRAME_MAXNUM];
+	this->trace_h_ = new Mat[DYNAFRAME_MAXNUM];
+	this->trace_w_ = new Mat[DYNAFRAME_MAXNUM];
+	this->delta_trace_h_ = new Mat[DYNAFRAME_MAXNUM];
+	this->delta_trace_w_ = new Mat[DYNAFRAME_MAXNUM];
 	printf("finished.\n");
 
 	printf("\tAllocating mats...");
@@ -225,15 +225,11 @@ bool CCalculation::Init()
 		this->m_iPro[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
 		
 		
-		this->m_iH[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
-		this->m_iW[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
-		this->m_deltaH[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
-		this->m_deltaW[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
+		this->trace_h_[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
+		this->trace_w_[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
+		this->delta_trace_h_[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
+		this->delta_trace_w_[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
 	}
-	this->m_jPro[0].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
-	this->m_lineA[0].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
-	this->m_lineB[0].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
-	this->m_lineC[0].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
 	printf("finished.\n");
 	
 	// 导入标定的系统参数
@@ -298,7 +294,6 @@ bool CCalculation::CalculateFirst()
 
 	printf("First frame:\n");
 
-	// 根据数值计算ProjectorU
 	if (status)
 	{
 		printf("\tFillFirstProjectorU...");
@@ -306,12 +301,16 @@ bool CCalculation::CalculateFirst()
 		printf("finished.\n");
 	}
 	
-	//myDebug.Show(this->m_iPro[0], 0, true, 0.5);
-
-	// 根据ProjectorU和参数计算空间坐标
 	if (status)
 	{
-		printf("\tFillCoordinate...");
+		printf("\tFill depth_mat from ipro_mat...");
+		status = this->Ipro2Depth(0);
+		printf("finished.\n");
+	}
+
+	if (status)
+	{
+		printf("\tFill coordinate...");
 		status = this->FillCoordinate(0);
 		printf("finished.\n");
 	}
@@ -319,7 +318,7 @@ bool CCalculation::CalculateFirst()
 	// 根据数值填充jProjector
 	if (status)
 	{
-		printf("\tFiiljPro...");
+		printf("\tFiil jpro_mat...");
 		status = this->FilljPro(0);
 		printf("finished.\n");
 	}
@@ -331,15 +330,13 @@ bool CCalculation::CalculateFirst()
 		+ this->point_show_suffix_
 		);
 
-	// 计算每个点的极线值
 	if (status)
 	{
 		printf("\tCalculate epipolar line...");
-		status = this->CalculateEpipolarLine();
+		status = this->CalculateEpipolarLine(0);
 		printf("finished.\n");
 	}
 
-	// 输出、保存结果
 	if (status)
 	{
 		printf("\tBegin writing...");
@@ -384,19 +381,39 @@ bool CCalculation::CalculateOther()
 
 		printf("No.%d frame:\n", frameNum);
 
-		// 对视口中的每个点进行追踪：
+		// trace point according to key_frame：
 		if (status)
 		{
 			printf("\tPointTracking:");
 			status = this->TrackPoints(frameNum);
 			printf("finished.\n");
 		}
-		
-		// 追踪之后填充每个点
+
+		// fill ipro_maT
 		if (status)
 		{
-			printf("\tFillOtherDeltaProU:");
-			this->FillOtherProU(frameNum);
+			printf("\tFillOtherProU:");
+			int key_frame_num = frameNum - ((frameNum - 1) % 5 + 1);
+			this->FillOtherProU(frameNum, key_frame_num);
+			printf("finished.\n");
+		}
+
+		// process key frame
+		if (status)
+		{
+			if (frameNum % 5 == 0)
+			{
+				printf("\tProcess key frame:");
+				status = this->ProcessFrame(frameNum);
+				printf("finished.\n");
+			}
+		}
+
+		// fill z_mat
+		if (status)
+		{
+			printf("\tFill zmat:");
+			status = this->Ipro2Depth(frameNum);
 			printf("finished.\n");
 		}
 
@@ -415,54 +432,6 @@ bool CCalculation::CalculateOther()
 			+ idx2str
 			+ this->point_show_suffix_
 		);
-
-		// 显示
-		//Mat colorShow;
-		//colorShow = Mat::zeros(temp.size(), CV_8UC3);
-		//for (int h = 0; h < hTo - hFrom; h++)
-		//{
-		//	for (int w = 0; w < wTo - wFrom; w++)
-		//	{
-		//		double value = temp.at<double>(h, w);
-		//		
-		//		if (value > 0)
-		//		{
-		//			// 蓝移
-		//			uchar uVal = uchar(value * 255 / 6);
-		//			colorShow.at<Vec3b>(h, w) = Vec3b(255, 255 - uVal, 255 - uVal);
-		//		}
-		//		else if (value < 0)
-		//		{
-		//			// 红移
-		//			uchar uVal = uchar(-value * 255 / 6);
-		//			colorShow.at<Vec3b>(h, w) = Vec3b(255 - uVal, 255 - uVal, 255);
-		//		}
-		//		else
-		//		{
-		//			colorShow.at<Vec3b>(h, w) = Vec3b(255, 255, 255);
-		//		}
-		//	}
-		//}
-
-		//myDebug.Show(colorShow, 200, false, 1.0, true, DATA_PATH  + this->m_resPath + "DeltaZImg\\" + "dZ" + idx2str + ".jpg");
-
-		/*fstream file;
-		file.open(DATA_PATH + this->m_resPath + "DeltaZ\\" + "dZ" + idx2str + ".txt", ios::out);
-		if (!file)
-		{
-		system("PAUSE");
-		return false;
-		}
-		for (int h = hFrom; h < hTo; h++)
-		{
-		for (int w = wFrom; w < wTo; w++)
-		{
-		file << temp.at<double>(h - hFrom, w - wFrom) << " ";
-		}
-		file << endl;
-		}
-		file.close();*/
-
 
 		// 保存数据
 		if (status)
@@ -526,6 +495,7 @@ bool CCalculation::Result(string fileName, int i, bool view_port_only)
 			//printf("(%f, %f, %f)\n", this->m_xMat.at<double>(v, u), this->m_yMat.at<double>(v, u), this->m_zMat.at<double>(v, u));
 		}
 	}
+	file.close();
 	
 	if (i >= 0)
 	{
@@ -541,8 +511,8 @@ bool CCalculation::Result(string fileName, int i, bool view_port_only)
 			this->depth_mat_suffix_, this->m_zMat[i]);
 
 		// save iH,iW
-		Mat iHv = this->m_iH[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
-		Mat iWv = this->m_iW[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
+		Mat iHv = this->trace_h_[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
+		Mat iWv = this->trace_w_[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
 		WriteMatData(this->trace_path_,
 			this->trace_name_ + "_iH",
 			idx2str,
@@ -552,9 +522,7 @@ bool CCalculation::Result(string fileName, int i, bool view_port_only)
 			idx2str,
 			this->trace_suffix_, iWv);
 	}
-
-
-	file.close();
+	
 	return true;
 }
 
@@ -599,8 +567,8 @@ bool CCalculation::FillFirstProjectorU()
 }
 
 
-// 已有iPro的情况下，填充jPro
-bool CCalculation::FilljPro(int fN)
+// 已有x,y,z的情况下，填充jPro
+bool CCalculation::FilljPro(int frame_num)
 {
 	bool status = true;
 
@@ -623,19 +591,20 @@ bool CCalculation::FilljPro(int fN)
 
 	// 逐个像素点筛查
 	Mat PmRt = Pm * Rt;
-	this->m_jPro[fN].setTo(-100);
+	this->m_jPro[frame_num].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
+	this->m_jPro[frame_num].setTo(-100);
 	for (int h = 0; h < CAMERA_RESROW; h++)
 	{
 		for (int w = 0; w < CAMERA_RESLINE; w++)
 		{
 			// 判断是否有值
-			double z = this->m_zMat[fN].at<double>(h, w);
+			double z = this->m_zMat[frame_num].at<double>(h, w);
 			if (z < 0)
 			{
 				continue;
 			}
-			double x = this->m_xMat[fN].at<double>(h, w);
-			double y = this->m_yMat[fN].at<double>(h, w);
+			double x = this->m_xMat[frame_num].at<double>(h, w);
+			double y = this->m_yMat[frame_num].at<double>(h, w);
 
 			// 填充相机世界坐标系中的3D点坐标
 			Pp_oc.at<double>(0, 0) = x;
@@ -652,7 +621,7 @@ bool CCalculation::FilljPro(int fN)
 			double i = Pp_p.at<double>(0, 0);
 			double j = Pp_p.at<double>(1, 0);
 			double omega = Pp_p.at<double>(2, 0);
-			this->m_jPro[fN].at<double>(h, w) = j / omega;
+			this->m_jPro[frame_num].at<double>(h, w) = j / omega;
 		}
 	}
 
@@ -661,7 +630,7 @@ bool CCalculation::FilljPro(int fN)
 
 
 // 计算每个点对应的极线
-bool CCalculation::CalculateEpipolarLine()
+bool CCalculation::CalculateEpipolarLine(int frame_num)
 {
 	bool status = true;
 
@@ -700,9 +669,12 @@ bool CCalculation::CalculateEpipolarLine()
 	Mat Pp_op, Pp_oc;
 	Pp_op.create(4, 1, CV_64FC1);
 	double assumeZ = 1.0;
-	this->m_lineA[0].setTo(0);
-	this->m_lineB[0].setTo(0);
-	this->m_lineC[0].setTo(1);
+	this->m_lineA[frame_num].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
+	this->m_lineB[frame_num].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
+	this->m_lineC[frame_num].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
+	this->m_lineA[frame_num].setTo(0);
+	this->m_lineB[frame_num].setTo(0);
+	this->m_lineC[frame_num].setTo(1);
 	double di = this->m_proMatrix.at<double>(0, 2);
 	double dj = this->m_proMatrix.at<double>(1, 2);
 	double fi = this->m_proMatrix.at<double>(0, 0);
@@ -712,12 +684,12 @@ bool CCalculation::CalculateEpipolarLine()
 		for (int w = 0; w < CAMERA_RESLINE; w++)
 		{
 			// 假设Z的情况下，计算对应的X,Y,Z
-			double i = this->m_iPro[0].at<double>(h, w);
+			double i = this->m_iPro[frame_num].at<double>(h, w);
 			if (i < 0)
 			{
 				continue;
 			}
-			double j = this->m_jPro[0].at<double>(h, w);
+			double j = this->m_jPro[frame_num].at<double>(h, w);
 			double x = assumeZ * (i - di) / fi;
 			double y = assumeZ * (j - dj) / fj;
 			double z = assumeZ;
@@ -735,9 +707,9 @@ bool CCalculation::CalculateEpipolarLine()
 			double A = y2 - y1;
 			double B = x1 - x2;
 			double C = x2 * y1 -x1 * y2;
-			this->m_lineA[0].at<double>(h, w) = A;
-			this->m_lineB[0].at<double>(h, w) = B;
-			this->m_lineC[0].at<double>(h, w) = C;
+			this->m_lineA[frame_num].at<double>(h, w) = A;
+			this->m_lineB[frame_num].at<double>(h, w) = B;
+			this->m_lineC[frame_num].at<double>(h, w) = C;
 		}
 	}
 
@@ -746,23 +718,22 @@ bool CCalculation::CalculateEpipolarLine()
 
 
 // 填充后续帧中的ProU。直接将视口中的每个点映射到后续帧中。
-bool CCalculation::FillOtherProU(int fN)
+bool CCalculation::FillOtherProU(int frame_num, int key_frame_num)
 {
 	bool status = true;
 
-	// 对于视口中每个点，找到在k时刻对应的像素位置
-	
 	// 填充ProU[k]
-	this->m_iPro[fN].setTo(-100);
-	for (int x0 = this->m_hBegin; x0 < this->m_hEnd; x0++)
+	this->m_iPro[frame_num].setTo(-100);
+	for (int h = 0; h < CAMERA_RESROW; h++)
 	{
-		for (int y0 = this->m_wBegin; y0 < this->m_wEnd; y0++)
+		for (int w = 0; w < CAMERA_RESLINE; w++)
 		{
-			int xk = (int)this->m_iH[fN].at<double>(x0, y0);
-			int yk = (int)this->m_iW[fN].at<double>(x0, y0);
-			/*printf("\t\txk = %d, yk = %d\n", xk, yk);
-			printf("\t\tx0 = %d, y0 = %d\n", x0, y0);*/
-			this->m_iPro[fN].at<double>(xk, yk) = this->m_iPro[0].at<double>(x0, y0);
+			int h_now = (int)this->trace_h_[frame_num].at<double>(h, w);
+			int w_now = (int)this->trace_w_[frame_num].at<double>(h, w);
+			if ((h_now > 0) && (w_now > 0))
+			{
+				this->m_iPro[frame_num].at<double>(h_now, w_now) = this->m_iPro[key_frame_num].at<double>(h, w);
+			}
 		}
 	}
 
@@ -770,21 +741,18 @@ bool CCalculation::FillOtherProU(int fN)
 }
 
 
-// 根据系统的三角约束，完成ProjectorU至Z的计算
-bool CCalculation::FillCoordinate(int i)
+bool CCalculation::Ipro2Depth(int frame_num)
 {
-	double min = 60;
-	double max = 0;
+	bool status = true;
 
-	// 根据ip坐标求得深度z
-	this->m_zMat[i].setTo(-100);
+	this->m_zMat[frame_num].setTo(-100);
 	for (int h = 0; h < CAMERA_RESROW; h++)
 	{
 		for (int w = 0; w < CAMERA_RESLINE; w++)
 		{
 			double z = -100;
 			// 如果是没有值的部分，z就暂时不填
-			if (this->m_iPro[i].at<double>(h, w) < 0)
+			if (this->m_iPro[frame_num].at<double>(h, w) < 0)
 			{
 				z = -100;
 				continue;
@@ -792,8 +760,12 @@ bool CCalculation::FillCoordinate(int i)
 			// 有值的部分，计算深度
 			else
 			{
-				z = -(this->m_cA - this->m_cB*this->m_iPro[i].at<double>(h, w))
-					/ (this->m_cC.at<double>(h, w) - this->m_cD.at<double>(h, w)*this->m_iPro[i].at<double>(h, w));
+				double para_A = this->m_cA;
+				double para_B = this->m_cB;
+				double para_C = this->m_cC.at<double>(h, w);
+				double para_D = this->m_cD.at<double>(h, w);
+				z = -(para_A - para_B*this->m_iPro[frame_num].at<double>(h, w))
+					/ (para_C - para_D*this->m_iPro[frame_num].at<double>(h, w));
 			}
 
 			// 判断z是否在合法范围内
@@ -802,22 +774,142 @@ bool CCalculation::FillCoordinate(int i)
 				z = -100;
 				continue;
 			}
-
-			// 可视化部分：收集最大、最小值
-			if (z < min)
+			else
 			{
-				min = z;
+				this->m_zMat[frame_num].at<double>(h, w) = z;
 			}
-			if (z > max)
-			{
-				max = z;
-			}
-
-			this->m_zMat[i].at<double>(h, w) = z;
 		}
 	}
 
-	// 根据z求得x和y
+	return status;
+}
+
+
+bool CCalculation::Depth2Ipro(int frame_num)
+{
+	bool status = true;
+
+	this->m_iPro[frame_num].setTo(-100);
+	for (int h = 0; h < CAMERA_RESROW; h++)
+	{
+		for (int w = 0; w < CAMERA_RESLINE; w++)
+		{
+			double ipro = -100;
+			// check if this point is avaliable
+			if (this->m_zMat[frame_num].at<double>(h, w) < 0)
+			{
+				continue;
+			}
+			else
+			{
+				double para_A = this->m_cA;
+				double para_B = this->m_cB;
+				double para_C = this->m_cC.at<double>(h, w);
+				double para_D = this->m_cD.at<double>(h, w);
+				ipro = (para_A + para_C*this->m_zMat[frame_num].at<double>(h, w))
+					/ (para_B + para_D*this->m_zMat[frame_num].at<double>(h, w));
+			}
+
+			this->m_iPro[frame_num].at<double>(h, w) = ipro;
+		}
+	}
+
+	return status;
+}
+
+
+bool CCalculation::ProcessFrame(int frame_num)
+{
+	bool status = true;
+
+	// Hole filling
+	int ave_half_win = 20;
+	for (int h = ave_half_win; h < CAMERA_RESROW - ave_half_win; h++)
+	{
+		for (int w = ave_half_win; w < CAMERA_RESLINE - ave_half_win; w++)
+		{
+			double val = this->m_iPro[frame_num].at<double>(h, w);
+			//printf("val(%d, %d) = %f\n", h, w, val);
+			if (val < 0)
+			{
+				int num_of_none_hole = 0;
+				double value_of_none_hole = 0;
+				for (int u = -ave_half_win; u <= ave_half_win; u++)
+				{
+					for (int v = -ave_half_win; v <= ave_half_win; v++)
+					{
+						double ipro_val = this->m_iPro[frame_num].at<double>(h, w);
+						if (ipro_val > 0)
+						{
+							num_of_none_hole += 1;
+							value_of_none_hole += ipro_val;
+						}
+					}
+				}
+				if (num_of_none_hole != 0)
+				{
+					this->m_iPro[frame_num].at<double>(h, w) = value_of_none_hole / num_of_none_hole;
+				}
+			}
+		}
+	}
+
+	// bilateral filter in depth map to re-fix ipro_mat
+	if (status)
+	{
+		status = Ipro2Depth(frame_num);
+	}
+	if (status)
+	{
+		Mat from_z_mat;
+		Mat to_z_mat;
+		this->m_zMat[frame_num].convertTo(from_z_mat, CV_32FC1);
+		bilateralFilter(from_z_mat, to_z_mat, 5, 5 * 2, 5 / 2);
+		to_z_mat.convertTo(this->m_zMat[frame_num], CV_64FC1);
+		status = Depth2Ipro(frame_num);
+	}
+
+	// fill epipolar line
+	if (status)
+	{
+		status = this->FillCoordinate(frame_num);
+	}
+	if (status)
+	{
+		status = this->FilljPro(frame_num);
+	}
+	if (status)
+	{
+		status = this->CalculateEpipolarLine(frame_num);
+	}
+
+	// fill trace_h_, trace_w_
+	if (status)
+	{
+		for (int h = 0; h < CAMERA_RESROW; h++)
+		{
+			for (int w = 0; w < CAMERA_RESLINE; w++)
+			{
+				if (this->m_iPro[frame_num].at<double>(h, w) > 0)
+				{
+					this->trace_h_[frame_num].at<double>(h, w) = (double)h;
+					this->trace_w_[frame_num].at<double>(h, w) = (double)w;
+				}
+				else
+				{
+					this->trace_h_[frame_num].at<double>(h, w) = -100;
+					this->trace_w_[frame_num].at<double>(h, w) = -100;
+				}
+			}
+		}
+	}
+
+	return status;
+}
+
+
+bool CCalculation::FillCoordinate(int i)
+{
 	for (int h = 0; h < CAMERA_RESROW; h++)
 	{
 		for (int w = 0; w < CAMERA_RESLINE; w++)
@@ -844,20 +936,20 @@ bool CCalculation::FillCoordinate(int i)
 // 填充iX和iY，deltaX和deltaY
 bool CCalculation::TrackPoints(int frameNum)
 {
-	this->m_iH[frameNum].setTo(-100);
-	this->m_iW[frameNum].setTo(-100);
-	this->m_deltaH[frameNum].setTo(0);	// 蛋疼，反了，最后翻过来了一次，函数内部这里是正确的
-	this->m_deltaW[frameNum].setTo(0);
+	this->trace_h_[frameNum].setTo(-100);
+	this->trace_w_[frameNum].setTo(-100);
+	this->delta_trace_h_[frameNum].setTo(0);	
+	this->delta_trace_w_[frameNum].setTo(0);
 
 	if (frameNum == 0)
 	{
-		// 第0帧，初帧情况：
+		// first frame: view port
 		for (int h0 = this->m_hBegin; h0 < this->m_hEnd; h0++)
 		{
 			for (int w0 = this->m_wBegin; w0 < this->m_wEnd; w0++)
 			{
-				this->m_iH[frameNum].at<double>(h0, w0) = (double)h0;
-				this->m_iW[frameNum].at<double>(h0, w0) = (double)w0;
+				this->trace_h_[frameNum].at<double>(h0, w0) = (double)h0;
+				this->trace_w_[frameNum].at<double>(h0, w0) = (double)w0;
 			}
 		}
 	}
@@ -881,7 +973,7 @@ bool CCalculation::TrackPoints(int frameNum)
 		tmpMat.copyTo(now_frame_mat);
 
 		/// Test: Binary image
-		Mat mean_value_mat;
+		/*Mat mean_value_mat;
 		blur(key_frame_mat, mean_value_mat, Size(21, 21), Point(-1, -1));
 		for (int h = 0; h < CAMERA_RESROW; h++)
 		{
@@ -911,7 +1003,7 @@ bool CCalculation::TrackPoints(int frameNum)
 					now_frame_mat.at<uchar>(h, w) = 255;
 				}
 			}
-		}
+		}*/
 		/// Test: Binary image
 
 		// bound parameters for patch, search area
@@ -927,28 +1019,26 @@ bool CCalculation::TrackPoints(int frameNum)
 		int k = 0;
 
 		double maxMinVal = 0;
-		for (int h0 = this->m_hBegin; h0 < this->m_hEnd; h0++)
+		for (int h_key = 0; h_key < CAMERA_RESROW; h_key++)
 		{
-			if (h0%10 == 0)
+			if (h_key % 100 == 0)
 			{
 				cout << '.' << flush;
 			}
-			for (int w0 = this->m_wBegin; w0 < this->m_wEnd; w0++)
+			for (int w_key = 0; w_key < CAMERA_RESLINE; w_key++)
 			{
-				if (this->m_iPro[0].at<double>(h0, w0) <= 0)
+				if (this->m_iPro[key_frame].at<double>(h_key, w_key) <= 0)
 				{
-					// no data point in original mat, set to invalid
+					// no data point in key_frame, set to invalid
 					continue;
 				}
-				if (this->m_iH[frameNum - 1].at<double>(h0, w0) <= 0)
+				if (this->trace_h_[frameNum - 1].at<double>(h_key, w_key) <= 0)
 				{
 					// last frame is invalid then discard
 					continue;
 				}
 
 				// find key patch in key frame
-				int h_key = (int)this->m_iH[key_frame].at<double>(h0, w0);
-				int w_key = (int)this->m_iW[key_frame].at<double>(h0, w0);
 				key_patch_h_begin = h_key - patch_half_win;
 				key_patch_h_end = h_key + patch_half_win + 1;
 				key_patch_w_begin = w_key - patch_half_win;
@@ -963,8 +1053,8 @@ bool CCalculation::TrackPoints(int frameNum)
 				key_patch = (key_patch - min_val) / (max_val - min_val) * 255;
 
 				// find search area in now frame, according to last frame position
-				int h_last = (int)this->m_iH[frameNum - 1].at<double>(h0, w0);
-				int w_last = (int)this->m_iW[frameNum - 1].at<double>(h0, w0);
+				int h_last = (int)this->trace_h_[frameNum - 1].at<double>(h_key, w_key);
+				int w_last = (int)this->trace_w_[frameNum - 1].at<double>(h_key, w_key);
 				now_search_h_begin = h_last - search_half_win;
 				now_search_h_end = h_last + search_half_win + 1;
 				now_search_w_begin = w_last - search_half_win;
@@ -977,16 +1067,16 @@ bool CCalculation::TrackPoints(int frameNum)
 				h_mark_mat.setTo(0);
 
 				// 在范围内进行查找匹配
-				double A = this->m_lineA[0].at<double>(h0, w0);
-				double B = this->m_lineB[0].at<double>(h0, w0);
-				double C = this->m_lineC[0].at<double>(h0, w0);
+				double A = this->m_lineA[key_frame].at<double>(h_key, w_key);
+				double B = this->m_lineB[key_frame].at<double>(h_key, w_key);
+				double C = this->m_lineC[key_frame].at<double>(h_key, w_key);
 				double N = (double)SEARCH_WINDOW_SIZE * (double)SEARCH_WINDOW_SIZE;
 				Point minLoc;// Loc.x:W, Loc.y:H
 				double minVal = 99999999.0;
 				double kMatchThrehold = 6000.0;
 
 				/// Debug
-				if (h0 == 527 && w0 == 822)
+				if (h_key == 527 && w_key == 822)
 				{
 					//printf("Debug.\n");
 				}
@@ -1028,7 +1118,7 @@ bool CCalculation::TrackPoints(int frameNum)
 					continue;
 				}
 				/// Debug
-				if (h0 == 527 && w0 == 822)
+				if (h_key == 527 && w_key == 822)
 				{
 					//cout << error_result << endl;
 					//cout << h_mark_mat << endl;
@@ -1040,16 +1130,16 @@ bool CCalculation::TrackPoints(int frameNum)
 				}
 				
 				// mark now h, w
-				this->m_deltaH[frameNum].at<double>(h0, w0) = h_mark_mat.at<ushort>(minLoc.y, minLoc.x) - h_last;
-				this->m_deltaW[frameNum].at<double>(h0, w0) = minLoc.x - search_half_win;
+				this->delta_trace_h_[frameNum].at<double>(h_key, w_key) = h_mark_mat.at<ushort>(minLoc.y, minLoc.x) - h_last;
+				this->delta_trace_w_[frameNum].at<double>(h_key, w_key) = minLoc.x - search_half_win;
 				
 			}
 		}
 		printf("\n\t\tMaxMinVal: %0.2f", maxMinVal);
 
 		// 更新新的坐标对应关系
-		this->m_iH[frameNum] = this->m_iH[frameNum - 1] + this->m_deltaH[frameNum];
-		this->m_iW[frameNum] = this->m_iW[frameNum - 1] + this->m_deltaW[frameNum];
+		this->trace_h_[frameNum] = this->trace_h_[frameNum - 1] + this->delta_trace_h_[frameNum];
+		this->trace_w_[frameNum] = this->trace_w_[frameNum - 1] + this->delta_trace_w_[frameNum];
 	}
 
 	return true;
