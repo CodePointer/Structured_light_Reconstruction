@@ -214,6 +214,7 @@ bool CCalculation::Init()
 	this->trace_w_ = new Mat[DYNAFRAME_MAXNUM];
 	this->delta_trace_h_ = new Mat[DYNAFRAME_MAXNUM];
 	this->delta_trace_w_ = new Mat[DYNAFRAME_MAXNUM];
+	this->holes_mark_ = new Mat[DYNAFRAME_MAXNUM];
 	printf("finished.\n");
 
 	printf("\tAllocating mats...");
@@ -229,6 +230,7 @@ bool CCalculation::Init()
 		this->trace_w_[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
 		this->delta_trace_h_[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
 		this->delta_trace_w_[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
+		this->holes_mark_[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_8UC1);
 	}
 	printf("finished.\n");
 	
@@ -818,9 +820,108 @@ bool CCalculation::Depth2Ipro(int frame_num)
 }
 
 
+bool CCalculation::MarkHoles(int frame_num)
+{
+	bool status = true;
+
+	int kMaxHoleSize = 300;
+	// 0: UnChecked
+	// 1: Holes
+	// 2: Not_Holes
+	// 3: Checking
+	this->holes_mark_[frame_num].setTo(0);
+
+	// if ipro have value, then not holes
+	for (int h = 0; h < CAMERA_RESROW; h++)
+	{
+		for (int w = 0; w < CAMERA_RESLINE; w++)
+		{
+			if (this->m_iPro[frame_num].at<double>(h, w) > 0)
+			{
+				this->holes_mark_[frame_num].at<uchar>(h, w) = 2;
+			}
+		}
+	}
+
+	// Flood fills
+	for (int h = 0; h < CAMERA_RESROW; h++)
+	{
+		for (int w = 0; w < CAMERA_RESLINE; w++)
+		{
+			if (this->holes_mark_[frame_num].at<uchar>(h, w) == 0)
+			{
+				// Search, BFS
+				queue<Point2i> my_queue;
+				my_queue.push(Point2i(h, w));
+				int hole_size = 0;	// Count for the size of hole
+				while (!my_queue.empty())
+				{
+					Point2i pos = my_queue.front();
+					my_queue.pop();
+
+					if (this->holes_mark_[frame_num].at<uchar>(pos.x, pos.y) == 0)
+					{
+						this->holes_mark_[frame_num].at<uchar>(pos.x, pos.y) = 3;
+						hole_size += 1;
+						if (pos.x - 1 > 0)
+						{
+							my_queue.push(Point2i(pos.x - 1, pos.y));
+						}
+						if (pos.x + 1 < CAMERA_RESROW)
+						{
+							my_queue.push(Point2i(pos.x + 1, pos.y));
+						}
+						if (pos.y - 1 > 0)
+						{
+							my_queue.push(Point2i(pos.x, pos.y - 1));
+						}
+						if (pos.y + 1 < CAMERA_RESLINE)
+						{
+							my_queue.push(Point2i(pos.x, pos.y + 1));
+						}
+					}
+				}
+
+				// Decide whether this is a hole
+				uchar to_value = 1;
+				if (hole_size > kMaxHoleSize)
+				{
+					to_value = 2;
+				}
+				else
+				{
+					to_value = 1;
+				}
+
+				// Change checking status
+				for (int h_idx = 0; h_idx < CAMERA_RESROW; h_idx++)
+				{
+					for (int w_idx = 0; w_idx < CAMERA_RESLINE; w_idx++)
+					{
+						if (this->holes_mark_[frame_num].at<uchar>(h_idx, w_idx) == 3)
+						{
+							this->holes_mark_[frame_num].at<uchar>(h_idx, w_idx) = to_value;
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+	return status;
+}
+
+
 bool CCalculation::ProcessFrame(int frame_num)
 {
 	bool status = true;
+
+	// Check the hole
+	if (status)
+	{
+		status = this->MarkHoles(frame_num);
+	}
 
 	// Hole filling
 	int ave_half_win = 20;
@@ -828,9 +929,8 @@ bool CCalculation::ProcessFrame(int frame_num)
 	{
 		for (int w = ave_half_win; w < CAMERA_RESLINE - ave_half_win; w++)
 		{
-			double val = this->m_iPro[frame_num].at<double>(h, w);
 			//printf("val(%d, %d) = %f\n", h, w, val);
-			if (val < 0)
+			if (this->holes_mark_[frame_num].at<uchar>(h, w) == 1) // is hole
 			{
 				int num_of_none_hole = 0;
 				double value_of_none_hole = 0;
@@ -838,11 +938,10 @@ bool CCalculation::ProcessFrame(int frame_num)
 				{
 					for (int v = -ave_half_win; v <= ave_half_win; v++)
 					{
-						double ipro_val = this->m_iPro[frame_num].at<double>(h, w);
-						if (ipro_val > 0)
+						if (this->holes_mark_[frame_num].at<uchar>(h + u, w + v) == 1)
 						{
 							num_of_none_hole += 1;
-							value_of_none_hole += ipro_val;
+							value_of_none_hole += this->m_iPro[frame_num].at<double>(h + u, w + v);
 						}
 					}
 				}

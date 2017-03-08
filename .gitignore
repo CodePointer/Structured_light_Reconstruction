@@ -333,3 +333,5 @@ __pycache__/
 
 # End of https://www.gitignore.io/api/visualstudio,windows,c++
 *.props
+Reconstruction/properties/opencv3_x64d.props
+*.props

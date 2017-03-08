@@ -2,6 +2,7 @@
 #define _CCALCULATION_H_
 
 #include <fstream>
+#include <queue>
 #include "CSensorV.h"
 #include "CVisualization.h"
 
@@ -34,6 +35,9 @@ private:
 	Mat * trace_w_;	
 	Mat * delta_trace_h_;
 	Mat * delta_trace_w_;
+
+	// Holes Mark
+	Mat * holes_mark_;
 
 	// 每帧的点云信息
 	Mat * m_xMat;
@@ -92,6 +96,9 @@ private:
 	// Convert between ipro_mat & depth_mat
 	bool Ipro2Depth(int frame_num);
 	bool Depth2Ipro(int frame_num);
+
+	// Check the holes in the image
+	bool MarkHoles(int frame_num);
 
 	// Process key frame
 	bool ProcessFrame(int frame_num); 
