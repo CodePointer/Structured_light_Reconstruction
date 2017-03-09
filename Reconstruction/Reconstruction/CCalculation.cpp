@@ -160,6 +160,12 @@ bool CCalculation::Init()
 		fs["depth_mat_suffix"] >> this->depth_mat_suffix_;
 		CreateDir(this->depth_mat_path_);
 
+		fs["ipro_output_path"] >> tmp;
+		this->ipro_output_path = main_path + data_set_path + tmp;
+		fs["ipro_output_name"] >> this->ipro_output_name;
+		fs["ipro_output_suffix"] >> this->ipro_output_suffix;
+		CreateDir(this->ipro_output_path);
+
 		fs["point_cloud_path"] >> tmp;
 		this->point_cloud_path_ = main_path + data_set_path + tmp;
 		fs["point_cloud_name"] >> this->point_cloud_name_;
@@ -512,17 +518,23 @@ bool CCalculation::Result(string fileName, int i, bool view_port_only)
 			idx2str,
 			this->depth_mat_suffix_, this->m_zMat[i]);
 
+		// save ipro mat
+		WriteMatData(this->ipro_output_name,
+			this->ipro_output_name,
+			idx2str,
+			this->ipro_output_suffix, this->m_iPro[i]);
+
 		// save iH,iW
-		Mat iHv = this->trace_h_[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
-		Mat iWv = this->trace_w_[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
+		//Mat iHv = this->trace_h_[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
+		//Mat iWv = this->trace_w_[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
 		WriteMatData(this->trace_path_,
 			this->trace_name_ + "_iH",
 			idx2str,
-			this->trace_suffix_, iHv);
+			this->trace_suffix_, this->trace_h_[i]);
 		WriteMatData(this->trace_path_,
 			this->trace_name_ + "_iW",
 			idx2str,
-			this->trace_suffix_, iWv);
+			this->trace_suffix_, this->trace_w_[i]);
 	}
 	
 	return true;
@@ -953,20 +965,48 @@ bool CCalculation::ProcessFrame(int frame_num)
 		}
 	}
 
-	// bilateral filter in depth map to re-fix ipro_mat
+	// fix ipro
+	Mat ipro_tmp;
+	if (status)
+	{
+		stringstream ss;
+		string idx2str;
+		ss << frame_num;
+		ss >> idx2str;
+
+		FileStorage fs;
+		fs.open(this->ipro_mat_path_
+			+ this->ipro_mat_name_
+			+ idx2str
+			+ this->ipro_mat_suffix_, FileStorage::READ);
+		if (fs.isOpened())
+		{
+			fs["ipro_mat"] >> ipro_tmp;
+			fs.release();
+		}
+		else
+		{
+			status = false;
+		}
+	}
+	if (status)
+	{
+		for (int h = 0; h < CAMERA_RESROW; h++)
+		{
+			for (int w = 0; w < CAMERA_RESLINE; w++)
+			{
+				if (this->m_iPro[frame_num].at<double>(h, w) > 0)
+				{
+					this->m_iPro[frame_num].at<double>(h, w) = ipro_tmp.at<double>(h, w);
+				}
+			}
+		}
+	}
 	if (status)
 	{
 		status = Ipro2Depth(frame_num);
 	}
-	if (status)
-	{
-		Mat from_z_mat;
-		Mat to_z_mat;
-		this->m_zMat[frame_num].convertTo(from_z_mat, CV_32FC1);
-		bilateralFilter(from_z_mat, to_z_mat, 5, 5 * 2, 5 / 2);
-		to_z_mat.convertTo(this->m_zMat[frame_num], CV_64FC1);
-		status = Depth2Ipro(frame_num);
-	}
+	
 
 	// fill epipolar line
 	if (status)

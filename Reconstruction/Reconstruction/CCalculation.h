@@ -68,6 +68,9 @@ private:
 	string depth_mat_path_;
 	string depth_mat_name_;
 	string depth_mat_suffix_;
+	string ipro_output_path;
+	string ipro_output_name;
+	string ipro_output_suffix;
 	string point_cloud_path_;
 	string point_cloud_name_;
 	string point_cloud_suffix_;
