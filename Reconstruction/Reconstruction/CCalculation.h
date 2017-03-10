@@ -68,6 +68,9 @@ private:
 	string depth_mat_path_;
 	string depth_mat_name_;
 	string depth_mat_suffix_;
+	string ipro_output_path_;
+	string ipro_output_name_;
+	string ipro_output_suffix_;
 	string point_cloud_path_;
 	string point_cloud_name_;
 	string point_cloud_suffix_;
@@ -115,6 +118,7 @@ public:
 	bool Init();				// 初始化
 	bool CalculateFirst();		// 计算首帧
 	bool CalculateOther();		// 计算动态帧
+	bool FillJproGroundTruth();
 	bool Result(std::string fileName, int i, bool view_port_only);	// 记录结果
 };
 

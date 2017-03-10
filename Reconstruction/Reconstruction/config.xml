@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <opencv_storage>
-<main_path_win>F:/Structured_Light_Data/</main_path_win>
+<main_path_win>D:/Structured_Light_Data/</main_path_win>
 <main_path_linux>/home/rukun/Structured_Light_Data/</main_path_linux>
 <data_set_path>"20170213/StatueForward/"</data_set_path>
 <dyna_mat_path>dyna/</dyna_mat_path>
@@ -12,6 +12,9 @@
 <depth_mat_path>result/depth_mat/</depth_mat_path>
 <depth_mat_name>depth_mat</depth_mat_name>
 <depth_mat_suffix>".txt"</depth_mat_suffix>
+<ipro_output_path>result/ipro_mat/</ipro_output_path>
+<ipro_output_name>ipro_mat</ipro_output_name>
+<ipro_output_suffix>".txt"</ipro_output_suffix>
 <point_cloud_path>result/point_cloud/</point_cloud_path>
 <point_cloud_name>pc</point_cloud_name>
 <point_cloud_suffix>".txt"</point_cloud_suffix>

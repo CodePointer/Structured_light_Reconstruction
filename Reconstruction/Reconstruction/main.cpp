@@ -11,15 +11,20 @@ int main()
 
 	if (status)
 	{
-		myCalculation.Init();
+		status = myCalculation.Init();
+	}
+	/*if (status)
+	{
+		status = myCalculation.FillJproGroundTruth();
+		return 0;
+	}*/
+	if (status)
+	{
+		status = myCalculation.CalculateFirst();
 	}
 	if (status)
 	{
-		myCalculation.CalculateFirst();
-	}
-	if (status)
-	{
-		myCalculation.CalculateOther();
+		status = myCalculation.CalculateOther();
 	}
 	
 	return 0;
