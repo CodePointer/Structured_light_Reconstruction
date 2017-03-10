@@ -1,40 +1,36 @@
-hBegin = 450;
-hEnd = 650;
-wBegin = 700;
-wEnd = 900;
 warning('off');
 
+% set color_bar
+load('my_colorbar.mat');
+
 for frameIdx = 1:49
-    iH = load(['./result/trace_m/iH', num2str(frameIdx), '.txt']);
-    iW = load(['./result/trace_m/iW', num2str(frameIdx), '.txt']);
+    
+    % load images & i_pro
+    ipro_mat = load(['./result/ipro_mat/ipro_mat', num2str(frameIdx), '.txt']);
     Img = imread(['./dyna/dyna_mat', num2str(frameIdx), '.png']);
     
+    % set show image
     rgbImg = zeros(1024, 1280, 3);
     rgbImg(:,:,1) = double(Img) / 255.0;
     rgbImg(:,:,2) = double(Img) / 255.0;
     rgbImg(:,:,3) = double(Img) / 255.0;
     
-    hLen = hEnd - hBegin;
-    wLen = wEnd - wBegin;
-    for i = 1:(hEnd-hBegin)
-        for j = 1:(wEnd-wBegin)
-            h0 = i + hBegin;
-            w0 = j + wBegin;
-            hk = iH(i, j) + 1;
-            wk = iW(i, j) + 1;
-            
-            if (rgbImg(hk, wk, 3) == 1.0)
-                %fprintf('%d,%d\n', h, w);
+    % coloration
+    for h = 1:1024
+        for w = 1:1280
+            if ipro_mat(h, w) > 0
+                color_idx = (mod(uint32(ipro_mat(h, w)), 32));
+                color_idx = color_idx * 2 + 1;
+                rgbImg(h, w, 1) = my_colorbar(color_idx, 1, 1);
+                rgbImg(h, w, 2) = my_colorbar(color_idx, 1, 2);
+                rgbImg(h, w, 3) = my_colorbar(color_idx, 1, 3);
             end
-            
-            rgbImg(hk, wk, 1) = i / hLen;
-            rgbImg(hk, wk, 2) = j / wLen;
-            rgbImg(hk, wk, 3) = 1.0;
         end
     end
     
+    % Show
     imshow(rgbImg);
-    % imwrite(rgbImg, ['TrackResults/rgbImg', num2str(frameIdx), '.png']);
+    imwrite(rgbImg, ['analysis/program_result/show', num2str(frameIdx), '.png']);
     
     fprintf('%d frame.\n', frameIdx);
     

@@ -22,7 +22,7 @@ int main()
 	/// program parameters
 	
 	// main path
-	string main_path_win = "F:/Structured_Light_Data/";
+	string main_path_win = "D:/Structured_Light_Data/";
 	string main_path_linux = "/home/rukun/Structured_Light_Data/";
 	string data_set_path = "20170213/StatueForward/";
 

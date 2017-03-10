@@ -11,14 +11,16 @@ j = fix_w0 - wBegin;
 h0 = i + hBegin;
 w0 = j + wBegin;
 
-for frameIdx = 30:50
+
+
+for frameIdx = 1:50
     match_idx = frameIdx - mod(frameIdx, 5);
     if mod(frameIdx, 5) == 0
         match_idx = match_idx - 5;
     end
     Img0 = imread(['./dyna/dyna_mat', num2str(match_idx), '.png']);
-    iH = load(['./result/trace/iH', num2str(frameIdx), '.txt']);
-    iW = load(['./result/trace/iW', num2str(frameIdx), '.txt']);
+    iH = load(['./result/trace/trace_iH', num2str(frameIdx), '.txt']);
+    iW = load(['./result/trace/trace_iW', num2str(frameIdx), '.txt']);
     Img = imread(['./dyna/dyna_mat', num2str(frameIdx), '.png']);
     
     rgbImg = zeros(1024, 1280, 3);

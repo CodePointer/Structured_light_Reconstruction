@@ -161,10 +161,10 @@ bool CCalculation::Init()
 		CreateDir(this->depth_mat_path_);
 
 		fs["ipro_output_path"] >> tmp;
-		this->ipro_output_path = main_path + data_set_path + tmp;
-		fs["ipro_output_name"] >> this->ipro_output_name;
-		fs["ipro_output_suffix"] >> this->ipro_output_suffix;
-		CreateDir(this->ipro_output_path);
+		this->ipro_output_path_ = main_path + data_set_path + tmp;
+		fs["ipro_output_name"] >> this->ipro_output_name_;
+		fs["ipro_output_suffix"] >> this->ipro_output_suffix_;
+		CreateDir(this->ipro_output_path_);
 
 		fs["point_cloud_path"] >> tmp;
 		this->point_cloud_path_ = main_path + data_set_path + tmp;
@@ -402,7 +402,7 @@ bool CCalculation::CalculateOther()
 		{
 			printf("\tFillOtherProU:");
 			int key_frame_num = frameNum - ((frameNum - 1) % 5 + 1);
-			this->FillOtherProU(frameNum, key_frame_num);
+			status = this->FillOtherProU(frameNum, key_frame_num);
 			printf("finished.\n");
 		}
 
@@ -411,7 +411,8 @@ bool CCalculation::CalculateOther()
 		{
 			if (frameNum % 5 == 0)
 			{
-				printf("\tProcess key frame:");
+				printf("\tProcess key frame...");
+				fflush(stdout);
 				status = this->ProcessFrame(frameNum);
 				printf("finished.\n");
 			}
@@ -429,7 +430,16 @@ bool CCalculation::CalculateOther()
 		if (status)
 		{
 			printf("\tFillCoordinate:");
-			this->FillCoordinate(frameNum);
+			status = this->FillCoordinate(frameNum);
+			printf("finished.\n");
+		}
+
+		// Fill j pro
+		if (status)
+		{
+			printf("\tFill jpro_mat...");
+			fflush(stdout);
+			status = this->FilljPro(frameNum);
 			printf("finished.\n");
 		}
 
@@ -519,10 +529,16 @@ bool CCalculation::Result(string fileName, int i, bool view_port_only)
 			this->depth_mat_suffix_, this->m_zMat[i]);
 
 		// save ipro mat
-		WriteMatData(this->ipro_output_name,
-			this->ipro_output_name,
+		WriteMatData(this->ipro_output_path_,
+			this->ipro_output_name_,
 			idx2str,
-			this->ipro_output_suffix, this->m_iPro[i]);
+			this->ipro_output_suffix_, this->m_iPro[i]);
+
+		// save jpro mat
+		WriteMatData(this->ipro_output_path_,
+			"jpro_mat",
+			idx2str,
+			this->ipro_output_suffix_, this->m_jPro[i]);
 
 		// save iH,iW
 		//Mat iHv = this->trace_h_[i](Range(this->m_hBegin, this->m_hEnd), Range(this->m_wBegin, this->m_wEnd));
@@ -854,6 +870,35 @@ bool CCalculation::MarkHoles(int frame_num)
 			}
 		}
 	}
+	myDebug.Show(this->holes_mark_[frame_num], 0, true);
+
+	// if ipro have much of values (60%), then it's holes
+	int ave_half_win = 20;
+	for (int h = ave_half_win; h < CAMERA_RESROW - ave_half_win; h++)
+	{
+		for (int w = ave_half_win; w < CAMERA_RESLINE - ave_half_win; w++)
+		{
+			if (this->holes_mark_[frame_num].at<uchar>(h, w) == 0) // unchecked
+			{
+				int num_of_none_hole = 0;
+				for (int u = -ave_half_win; u <= ave_half_win; u++)
+				{
+					for (int v = -ave_half_win; v <= ave_half_win; v++)
+					{
+						if (this->m_iPro[frame_num].at<double>(h + u, w + v) > 0)
+						{
+							num_of_none_hole += 1;
+						}
+					}
+				}
+				if (num_of_none_hole > int(0.6 * (2 * ave_half_win + 1) * (2 * ave_half_win + 1)))
+				{
+					this->holes_mark_[frame_num].at<uchar>(h, w) = 1;
+				}
+			}
+		}
+	}
+	myDebug.Show(this->holes_mark_[frame_num], 0, true);
 
 	// Flood fills
 	for (int h = 0; h < CAMERA_RESROW; h++)
@@ -919,7 +964,7 @@ bool CCalculation::MarkHoles(int frame_num)
 			}
 		}
 	}
-
+	myDebug.Show(this->holes_mark_[frame_num], 0, true);
 
 	return status;
 }
@@ -1282,4 +1327,66 @@ bool CCalculation::TrackPoints(int frameNum)
 	}
 
 	return true;
+}
+
+
+bool CCalculation::FillJproGroundTruth()
+{
+	bool status = true;
+
+	for (int frame_num = 1; frame_num < 50; frame_num++)
+	{
+		printf("%d frame...\n", frame_num);
+
+		stringstream ss;
+		ss << frame_num;
+		string idx2str;
+		ss >> idx2str;
+
+		// Read ipro_mat from files
+		Mat vProjectorMat;
+		FileStorage fs(this->ipro_mat_path_
+			+ this->ipro_mat_name_
+			+ idx2str
+			+ this->ipro_mat_suffix_, FileStorage::READ);
+		fs["ipro_mat"] >> vProjectorMat;
+		fs.release();
+		for (int h = 0; h < CAMERA_RESROW; h++)
+		{
+			for (int w = 1; w < CAMERA_RESLINE - 1; w++)
+			{
+				double val = vProjectorMat.at<double>(h, w);
+				double val_left = vProjectorMat.at<double>(h, w - 1);
+				double val_right = vProjectorMat.at<double>(h, w + 1);
+
+				if ((val < 0) && (val_left > 0) && (val_right > 0))
+				{
+					vProjectorMat.at<double>(h, w) = (val_left + val_right) / 2;
+				}
+			}
+		}
+		vProjectorMat.copyTo(this->m_iPro[frame_num]);
+
+		// Fill Depth Mat
+		this->Ipro2Depth(frame_num);
+
+		// Fill Coordinates(x,y,z)
+		this->FillCoordinate(frame_num);
+
+		// Fill jpro_mat
+		this->FilljPro(frame_num);
+
+		// Save ipro.txt, jpro.txt
+		string ground_truth_path = "/home/rukun/Structured_Light_Data/20170213/StatueForward/GroundTruth/";
+		WriteMatData(ground_truth_path,
+			"ipro_mat",
+			idx2str,
+			".txt", this->m_iPro[frame_num]);
+		WriteMatData(ground_truth_path,
+			"jpro_mat",
+			idx2str,
+			".txt", this->m_jPro[frame_num]);
+	}
+
+	return status;
 }

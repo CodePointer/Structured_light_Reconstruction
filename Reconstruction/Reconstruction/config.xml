@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <opencv_storage>
-<main_path_win>F:/Structured_Light_Data/</main_path_win>
+<main_path_win>D:/Structured_Light_Data/</main_path_win>
 <main_path_linux>/home/rukun/Structured_Light_Data/</main_path_linux>
 <data_set_path>"20170213/StatueForward/"</data_set_path>
 <dyna_mat_path>dyna/</dyna_mat_path>
