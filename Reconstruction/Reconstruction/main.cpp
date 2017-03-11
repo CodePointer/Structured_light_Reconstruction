@@ -13,11 +13,11 @@ int main()
 	{
 		status = myCalculation.Init();
 	}
-	/*if (status)
+	if (status)
 	{
-		status = myCalculation.FillJproGroundTruth();
+		status = myCalculation.FillDepthGroundTruth();
 		return 0;
-	}*/
+	}
 	if (status)
 	{
 		status = myCalculation.CalculateFirst();

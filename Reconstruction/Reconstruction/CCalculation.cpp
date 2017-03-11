@@ -409,9 +409,9 @@ bool CCalculation::CalculateOther()
 		// process key frame
 		if (status)
 		{
-			if (frameNum % 5 == 0)
+			if (true)
 			{
-				printf("\tProcess key frame...");
+				printf("\tProcess frame...");
 				fflush(stdout);
 				status = this->ProcessFrame(frameNum);
 				printf("finished.\n");
@@ -870,10 +870,10 @@ bool CCalculation::MarkHoles(int frame_num)
 			}
 		}
 	}
-	myDebug.Show(this->holes_mark_[frame_num], 0, true);
+	//myDebug.Show(this->holes_mark_[frame_num], 0, true, 1.0, true, "ipro_value.png");
 
-	// if ipro have much of values (60%), then it's holes
-	int ave_half_win = 20;
+	// if ipro have much of values (51%), then it's holes
+	int ave_half_win = 10;
 	for (int h = ave_half_win; h < CAMERA_RESROW - ave_half_win; h++)
 	{
 		for (int w = ave_half_win; w < CAMERA_RESLINE - ave_half_win; w++)
@@ -891,14 +891,14 @@ bool CCalculation::MarkHoles(int frame_num)
 						}
 					}
 				}
-				if (num_of_none_hole > int(0.6 * (2 * ave_half_win + 1) * (2 * ave_half_win + 1)))
+				if (num_of_none_hole > int(0.55 * (2 * ave_half_win + 1) * (2 * ave_half_win + 1)))
 				{
 					this->holes_mark_[frame_num].at<uchar>(h, w) = 1;
 				}
 			}
 		}
 	}
-	myDebug.Show(this->holes_mark_[frame_num], 0, true);
+	//myDebug.Show(this->holes_mark_[frame_num], 0, true, 1.0, true, "first_mark.png");
 
 	// Flood fills
 	for (int h = 0; h < CAMERA_RESROW; h++)
@@ -964,7 +964,7 @@ bool CCalculation::MarkHoles(int frame_num)
 			}
 		}
 	}
-	myDebug.Show(this->holes_mark_[frame_num], 0, true);
+	//myDebug.Show(this->holes_mark_[frame_num], 0, true, 1.0, true, "last_mark.png");
 
 	return status;
 }
@@ -980,8 +980,15 @@ bool CCalculation::ProcessFrame(int frame_num)
 		status = this->MarkHoles(frame_num);
 	}
 
+	// Get depth_mat
+	if (status)
+	{
+		status = Ipro2Depth(frame_num);
+	}
+
 	// Hole filling
-	int ave_half_win = 20;
+	//myDebug.Show(this->m_zMat[frame_num], 0, true);
+	int ave_half_win = 10;
 	for (int h = ave_half_win; h < CAMERA_RESROW - ave_half_win; h++)
 	{
 		for (int w = ave_half_win; w < CAMERA_RESLINE - ave_half_win; w++)
@@ -995,94 +1002,73 @@ bool CCalculation::ProcessFrame(int frame_num)
 				{
 					for (int v = -ave_half_win; v <= ave_half_win; v++)
 					{
-						if (this->holes_mark_[frame_num].at<uchar>(h + u, w + v) == 1)
+						if (this->m_zMat[frame_num].at<double>(h + u, w + v) > 0)
 						{
 							num_of_none_hole += 1;
-							value_of_none_hole += this->m_iPro[frame_num].at<double>(h + u, w + v);
+							value_of_none_hole += this->m_zMat[frame_num].at<double>(h + u, w + v);
 						}
 					}
 				}
 				if (num_of_none_hole != 0)
 				{
-					this->m_iPro[frame_num].at<double>(h, w) = value_of_none_hole / num_of_none_hole;
+					/*printf("\n");
+					printf("%d, %f\n", num_of_none_hole, value_of_none_hole);
+					printf("\nFrom: %0.2f->", this->m_zMat[frame_num].at<double>(h, w));*/
+					this->m_zMat[frame_num].at<double>(h, w) = value_of_none_hole / num_of_none_hole;
+					/*printf("%0.2f\n", this->m_zMat[frame_num].at<double>(h, w));
+					system("PAUSE");*/
 				}
 			}
 		}
 	}
+	//myDebug.Show(this->m_zMat[frame_num], 0, true);
 
-	// fix ipro
-	Mat ipro_tmp;
+	// bilateral filter in depth map to re-fix ipro_mat
 	if (status)
 	{
-		stringstream ss;
-		string idx2str;
-		ss << frame_num;
-		ss >> idx2str;
-
-		FileStorage fs;
-		fs.open(this->ipro_mat_path_
-			+ this->ipro_mat_name_
-			+ idx2str
-			+ this->ipro_mat_suffix_, FileStorage::READ);
-		if (fs.isOpened())
-		{
-			fs["ipro_mat"] >> ipro_tmp;
-			fs.release();
-		}
-		else
-		{
-			status = false;
-		}
+		Mat from_z_mat;
+		Mat to_z_mat;
+		this->m_zMat[frame_num].convertTo(from_z_mat, CV_32FC1);
+		bilateralFilter(from_z_mat, to_z_mat, 5, 5 * 2, 5 / 2);
+		to_z_mat.convertTo(this->m_zMat[frame_num], CV_64FC1);
+		
+		status = Depth2Ipro(frame_num);
 	}
-	if (status)
+
+	// Key frame: fill epipolar line & set trace
+	if (frame_num % 5 == 0)
 	{
-		for (int h = 0; h < CAMERA_RESROW; h++)
+		// fill epipolar line
+		if (status)
 		{
-			for (int w = 0; w < CAMERA_RESLINE; w++)
+			status = this->FillCoordinate(frame_num);
+		}
+		if (status)
+		{
+			status = this->FilljPro(frame_num);
+		}
+		if (status)
+		{
+			status = this->CalculateEpipolarLine(frame_num);
+		}
+
+		// fill trace_h_, trace_w_
+		if (status)
+		{
+			for (int h = 0; h < CAMERA_RESROW; h++)
 			{
-				if (this->m_iPro[frame_num].at<double>(h, w) > 0)
+				for (int w = 0; w < CAMERA_RESLINE; w++)
 				{
-					this->m_iPro[frame_num].at<double>(h, w) = ipro_tmp.at<double>(h, w);
-				}
-			}
-		}
-	}
-	if (status)
-	{
-		status = Ipro2Depth(frame_num);
-	}
-	
-
-	// fill epipolar line
-	if (status)
-	{
-		status = this->FillCoordinate(frame_num);
-	}
-	if (status)
-	{
-		status = this->FilljPro(frame_num);
-	}
-	if (status)
-	{
-		status = this->CalculateEpipolarLine(frame_num);
-	}
-
-	// fill trace_h_, trace_w_
-	if (status)
-	{
-		for (int h = 0; h < CAMERA_RESROW; h++)
-		{
-			for (int w = 0; w < CAMERA_RESLINE; w++)
-			{
-				if (this->m_iPro[frame_num].at<double>(h, w) > 0)
-				{
-					this->trace_h_[frame_num].at<double>(h, w) = (double)h;
-					this->trace_w_[frame_num].at<double>(h, w) = (double)w;
-				}
-				else
-				{
-					this->trace_h_[frame_num].at<double>(h, w) = -100;
-					this->trace_w_[frame_num].at<double>(h, w) = -100;
+					if (this->m_iPro[frame_num].at<double>(h, w) > 0)
+					{
+						this->trace_h_[frame_num].at<double>(h, w) = (double)h;
+						this->trace_w_[frame_num].at<double>(h, w) = (double)w;
+					}
+					else
+					{
+						this->trace_h_[frame_num].at<double>(h, w) = -100;
+						this->trace_w_[frame_num].at<double>(h, w) = -100;
+					}
 				}
 			}
 		}
@@ -1386,6 +1372,58 @@ bool CCalculation::FillJproGroundTruth()
 			"jpro_mat",
 			idx2str,
 			".txt", this->m_jPro[frame_num]);
+	}
+
+	return status;
+}
+
+
+bool CCalculation::FillDepthGroundTruth()
+{
+	bool status = true;
+
+	for (int frame_num = 1; frame_num < 50; frame_num++)
+	{
+		printf("%d frame...\n", frame_num);
+
+		stringstream ss;
+		ss << frame_num;
+		string idx2str;
+		ss >> idx2str;
+
+		// Read ipro_mat from files
+		Mat vProjectorMat;
+		FileStorage fs(this->ipro_mat_path_
+			+ this->ipro_mat_name_
+			+ idx2str
+			+ this->ipro_mat_suffix_, FileStorage::READ);
+		fs["ipro_mat"] >> vProjectorMat;
+		fs.release();
+		for (int h = 0; h < CAMERA_RESROW; h++)
+		{
+			for (int w = 1; w < CAMERA_RESLINE - 1; w++)
+			{
+				double val = vProjectorMat.at<double>(h, w);
+				double val_left = vProjectorMat.at<double>(h, w - 1);
+				double val_right = vProjectorMat.at<double>(h, w + 1);
+
+				if ((val < 0) && (val_left > 0) && (val_right > 0))
+				{
+					vProjectorMat.at<double>(h, w) = (val_left + val_right) / 2;
+				}
+			}
+		}
+		vProjectorMat.copyTo(this->m_iPro[frame_num]);
+
+		// Fill Depth Mat
+		this->Ipro2Depth(frame_num);
+
+		// Save Depth.txt
+		string ground_truth_path = "/home/rukun/Structured_Light_Data/20170213/StatueForward/ground_truth/";
+		WriteMatData(ground_truth_path,
+			"depth_mat",
+			idx2str,
+			".txt", this->m_zMat[frame_num]);
 	}
 
 	return status;

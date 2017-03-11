@@ -119,6 +119,7 @@ public:
 	bool CalculateFirst();		// 计算首帧
 	bool CalculateOther();		// 计算动态帧
 	bool FillJproGroundTruth();
+	bool FillDepthGroundTruth();
 	bool Result(std::string fileName, int i, bool view_port_only);	// 记录结果
 };
 
