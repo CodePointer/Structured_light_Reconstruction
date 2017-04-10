@@ -2,7 +2,7 @@
 <opencv_storage>
 <main_path_win>E:/Structured_Light_Data/</main_path_win>
 <main_path_linux>/home/rukun/Structured_Light_Data/</main_path_linux>
-<data_set_path>"20170410/1/"</data_set_path>
+<data_set_path>"20170410/StatueForward/"</data_set_path>
 <dyna_mat_path>dyna/</dyna_mat_path>
 <dyna_mat_name>dyna_mat</dyna_mat_name>
 <dyna_mat_suffix>".png"</dyna_mat_suffix>

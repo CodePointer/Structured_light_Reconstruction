@@ -24,7 +24,7 @@ int main()
 	// main path
 	string main_path_win = "E:/Structured_Light_Data/";
 	string main_path_linux = "/home/rukun/Structured_Light_Data/";
-	string data_set_path = "20170410/1/";
+	string data_set_path = "20170410/StatueForward/";
 
 	// collected data path
 	string dyna_mat_path = "dyna/";
