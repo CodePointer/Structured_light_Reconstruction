@@ -16,6 +16,7 @@ int main()
 	if (status)
 	{
 		status = myCalculation.FillDepthGroundTruth();
+		status = myCalculation.FillJproGroundTruth();
 		return 0;
 	}
 	if (status)

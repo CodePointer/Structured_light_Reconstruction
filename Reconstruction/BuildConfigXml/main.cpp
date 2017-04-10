@@ -22,9 +22,9 @@ int main()
 	/// program parameters
 	
 	// main path
-	string main_path_win = "D:/Structured_Light_Data/";
+	string main_path_win = "E:/Structured_Light_Data/";
 	string main_path_linux = "/home/rukun/Structured_Light_Data/";
-	string data_set_path = "20170213/StatueForward/";
+	string data_set_path = "20170410/1/";
 
 	// collected data path
 	string dyna_mat_path = "dyna/";

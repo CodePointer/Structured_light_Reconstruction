@@ -987,7 +987,6 @@ bool CCalculation::ProcessFrame(int frame_num)
 	}
 
 	// Hole filling
-	//myDebug.Show(this->m_zMat[frame_num], 0, true);
 	int ave_half_win = 10;
 	for (int h = ave_half_win; h < CAMERA_RESROW - ave_half_win; h++)
 	{
@@ -996,7 +995,8 @@ bool CCalculation::ProcessFrame(int frame_num)
 			//printf("val(%d, %d) = %f\n", h, w, val);
 			if (this->holes_mark_[frame_num].at<uchar>(h, w) == 1) // is hole
 			{
-				int num_of_none_hole = 0;
+				// Average filter
+				/*int num_of_none_hole = 0;
 				double value_of_none_hole = 0;
 				for (int u = -ave_half_win; u <= ave_half_win; u++)
 				{
@@ -1011,26 +1011,40 @@ bool CCalculation::ProcessFrame(int frame_num)
 				}
 				if (num_of_none_hole != 0)
 				{
-					/*printf("\n");
-					printf("%d, %f\n", num_of_none_hole, value_of_none_hole);
-					printf("\nFrom: %0.2f->", this->m_zMat[frame_num].at<double>(h, w));*/
 					this->m_zMat[frame_num].at<double>(h, w) = value_of_none_hole / num_of_none_hole;
-					/*printf("%0.2f\n", this->m_zMat[frame_num].at<double>(h, w));
-					system("PAUSE");*/
+				}*/
+
+				// Nearest filter
+				double min_distance_to_none_hole = ave_half_win * ave_half_win * 2;
+				double value_of_none_hole = 0;
+				for (int u = -ave_half_win; u <= ave_half_win; u++)
+				{
+					for (int v = -ave_half_win; v <= ave_half_win; v++)
+					{
+						if (this->m_zMat[frame_num].at<double>(h + u, w + v) > 0)
+						{
+							double distance_to_none_hole = u*u + v*v;
+							if (distance_to_none_hole < min_distance_to_none_hole)
+							{
+								min_distance_to_none_hole = distance_to_none_hole;
+								value_of_none_hole = this->m_zMat[frame_num].at<double>(h + u, w + v);
+							}
+						}
+					}
 				}
+				this->m_zMat[frame_num].at<double>(h, w) = value_of_none_hole;
 			}
 		}
 	}
-	//myDebug.Show(this->m_zMat[frame_num], 0, true);
 
 	// bilateral filter in depth map to re-fix ipro_mat
 	if (status)
 	{
-		Mat from_z_mat;
+		/*Mat from_z_mat;
 		Mat to_z_mat;
 		this->m_zMat[frame_num].convertTo(from_z_mat, CV_32FC1);
 		bilateralFilter(from_z_mat, to_z_mat, 5, 5 * 2, 5 / 2);
-		to_z_mat.convertTo(this->m_zMat[frame_num], CV_64FC1);
+		to_z_mat.convertTo(this->m_zMat[frame_num], CV_64FC1);*/
 		
 		status = Depth2Ipro(frame_num);
 	}
@@ -1363,7 +1377,7 @@ bool CCalculation::FillJproGroundTruth()
 		this->FilljPro(frame_num);
 
 		// Save ipro.txt, jpro.txt
-		string ground_truth_path = "/home/rukun/Structured_Light_Data/20170213/StatueForward/GroundTruth/";
+		string ground_truth_path = "E:/Structured_Light_Data/20170213/StatueForward/GroundTruth/";
 		WriteMatData(ground_truth_path,
 			"ipro_mat",
 			idx2str,
@@ -1378,6 +1392,7 @@ bool CCalculation::FillJproGroundTruth()
 }
 
 
+// For test
 bool CCalculation::FillDepthGroundTruth()
 {
 	bool status = true;
@@ -1419,7 +1434,8 @@ bool CCalculation::FillDepthGroundTruth()
 		this->Ipro2Depth(frame_num);
 
 		// Save Depth.txt
-		string ground_truth_path = "/home/rukun/Structured_Light_Data/20170213/StatueForward/ground_truth/";
+		//string ground_truth_path = "/home/rukun/Structured_Light_Data/20170213/StatueForward/ground_truth/";
+		string ground_truth_path = "E:/Structured_Light_Data/20170410/1/GroundTruth/";
 		WriteMatData(ground_truth_path,
 			"depth_mat",
 			idx2str,
