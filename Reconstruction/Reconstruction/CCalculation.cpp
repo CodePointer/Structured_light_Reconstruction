@@ -736,7 +736,7 @@ bool CCalculation::CalculateEpipolarLine(int frame_num)
 			double y2 = Pp_oc.at<double>(1, 0) / Pp_oc.at<double>(2, 0);
 			double A = y2 - y1;
 			double B = x1 - x2;
-			double C = x2 * y1 -x1 * y2;
+			double C = x2 * y1 - x1 * y2;
 			this->m_lineA[frame_num].at<double>(h, w) = A;
 			this->m_lineB[frame_num].at<double>(h, w) = B;
 			this->m_lineC[frame_num].at<double>(h, w) = C;

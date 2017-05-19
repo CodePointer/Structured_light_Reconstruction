@@ -3,6 +3,7 @@
 #include <string>
 #include <strstream>
 #include <opencv2/opencv.hpp>
+#include <opencv2/highgui.hpp>
 
 
 using namespace std;
@@ -21,7 +22,7 @@ bool xml2txt(string xml_path,
 	Mat * mats;
 	mats = new Mat[num_mat_name];
 
-	for (int idx_frame = 1; idx_frame < num_frame; idx_frame++)
+	for (int idx_frame = 0; idx_frame < num_frame; idx_frame++)
 	{
 		strstream ss;
 		string idx2str;
@@ -76,26 +77,46 @@ bool xml2txt(string xml_path,
 
 int main()
 {
-	string xml_path = "D:/Structured_Light_Data/20170213/StatueForward/result/trace/";
-	string xml_name = "trace";
-	string txt_path = "D:/Structured_Light_Data/20170213/StatueForward/result/trace_m/";
-	string mat_names[2] = { "iH", "iW" };
+	string file_path = "E:/Structured_Light_Data/20170414/1/dyna/";
+	string file_name = "dyna_mat";
+	string file_suffix = ".png";
+
+	VideoWriter writer("1.avi", CV_FOURCC('X', 'V', 'I', 'D'), 6, Size(1280, 1024));
+	for (int idx = 0; idx < 31; idx++)
+	{
+		stringstream ss;
+		ss << idx;
+		string idx2str;
+		ss >> idx2str;
+
+		Mat img = imread(file_path + file_name + idx2str + file_suffix);
+		writer << img;
+	}
+	return 0;
+
+	/*string xml_path = "E:/Structured_Light_Data/20170410/StatueForward2/pro/";
+	string xml_name = "jpro_mat";
+	string txt_path = "E:/Structured_Light_Data/20170410/StatueForward2/ground_truth/";*/
+	string xml_path = "E:/Structured_Light_Data/20170410/";
+	string xml_name = "test";
+	string txt_path = "E:/Structured_Light_Data/20170410/";
+	/*string mat_names[2] = { "iH", "iW" };
 
 	xml2txt(xml_path,
 		xml_name,
 		txt_path,
 		mat_names,
 		2,
-		50);
+		50);*/
 
-	string mat_names_depth[1] = { "depth_mat" };
+	string mat_names_depth[2] = { "gray_mat", "phase_mat" };
 
-	xml2txt("D:/Structured_Light_Data/20170213/StatueForward/result/depth_mat/",
-		"depth_mat",
-		"D:/Structured_Light_Data/20170213/StatueForward/result/depth_mat_m/",
+	xml2txt(xml_path,
+		xml_name,
+		txt_path,
 		mat_names_depth,
-		1,
-		50);
+		2,
+		1);
 
 	system("PAUSE");
 	return 0;
