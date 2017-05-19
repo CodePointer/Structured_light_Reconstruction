@@ -77,7 +77,7 @@ bool xml2txt(string xml_path,
 
 int main()
 {
-	string file_path = "E:/Structured_Light_Data/20170414/1/dyna/";
+	/*string file_path = "E:/Structured_Light_Data/20170414/1/dyna/";
 	string file_name = "dyna_mat";
 	string file_suffix = ".png";
 
@@ -92,14 +92,14 @@ int main()
 		Mat img = imread(file_path + file_name + idx2str + file_suffix);
 		writer << img;
 	}
-	return 0;
+	return 0;*/
 
 	/*string xml_path = "E:/Structured_Light_Data/20170410/StatueForward2/pro/";
 	string xml_name = "jpro_mat";
 	string txt_path = "E:/Structured_Light_Data/20170410/StatueForward2/ground_truth/";*/
-	string xml_path = "E:/Structured_Light_Data/20170410/";
-	string xml_name = "test";
-	string txt_path = "E:/Structured_Light_Data/20170410/";
+	string xml_path = "E:/Structured_Light_Data/20170519/1/pro/";
+	string xml_name = "jpro_mat";
+	string txt_path = "E:/Structured_Light_Data/20170519/1/pro/";
 	/*string mat_names[2] = { "iH", "iW" };
 
 	xml2txt(xml_path,
@@ -109,13 +109,13 @@ int main()
 		2,
 		50);*/
 
-	string mat_names_depth[2] = { "gray_mat", "phase_mat" };
+	string mat_names_depth[1] = { "jpro_mat" };
 
 	xml2txt(xml_path,
 		xml_name,
 		txt_path,
 		mat_names_depth,
-		2,
+		1,
 		1);
 
 	system("PAUSE");
