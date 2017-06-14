@@ -18,7 +18,7 @@ CAMERA_HEIGHT = 1024;
 CAMERA_WIDTH = 1280;
 PROJECTOR_HEIGHT = 800;
 PROJECTOR_WIDTH = 1280;
-main_file_path = 'E:/Structured_Light_Data/20170520/1/';
+main_file_path = 'E:/Structured_Light_Data/20170610/1/';
 data_frame_num = 20;
 
 save parameters.mat

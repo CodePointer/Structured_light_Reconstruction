@@ -11,7 +11,7 @@ cam_img_file_name = 'camera_img';
 file_suffix = '.txt';
 cam_file_suffix = '.png';
 
-pattern = double(imread([main_file_path, 'randDot0.bmp'])) / 255.0;
+pattern = double(imread([main_file_path, '4RandDot0.png'])) / 255.0;
 mkdir([main_file_path, pro_x_file_path]);
 mkdir([main_file_path, pro_y_file_path]);
 mkdir([main_file_path, cam_img_file_path]);
@@ -71,7 +71,7 @@ for frame_idx = 1:data_frame_num
 %         fprintf(file, '\n');
 %                                                                                                                            
 %     end
-    fclose(file);
+%     fclose(file);
     imwrite(camera_img, [main_file_path, cam_img_file_path, cam_img_file_name, ...
         num2str(frame_idx), cam_file_suffix]);
     

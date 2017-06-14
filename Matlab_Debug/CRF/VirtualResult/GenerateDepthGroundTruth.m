@@ -1,6 +1,6 @@
 %% Input parameters
 load parameters.mat
-file_path = 'E:/Structured_Light_Data/20170520/1/depth_groundtruth/';
+file_path = [main_file_path, 'depth_gd/'];
 file_name = 'depth';
 file_suffix = '.txt';
 frame_num = 20;
@@ -24,4 +24,5 @@ for frame_idx = 1:frame_num
         fprintf(file, '\n');
     end
     fclose(file);
+    fprintf('%d frame finished.\n', frame_idx);
 end
