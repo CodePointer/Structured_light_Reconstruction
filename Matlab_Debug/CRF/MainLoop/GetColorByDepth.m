@@ -1,4 +1,4 @@
-function color = GetColorByDepth(x_c, y_c, depth, pattern)
+function [x_p, y_p] = GetCoordinateByDepth(x_c, y_c, depth, pattern)
     % inner parameters
     cameraMatrix = [ 2400.0, 0.0, 640.0;
         0.0, 2400.0, 512.0;
