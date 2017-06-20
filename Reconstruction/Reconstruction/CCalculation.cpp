@@ -5,7 +5,6 @@ using namespace std;
 
 CVisualization myDebug("Debug");
 
-
 CCalculation::CCalculation()
 {
 	this->m_sensor = NULL;
@@ -115,11 +114,11 @@ bool CCalculation::Init()
 
 	printf("Initialization:\n");
 
-	// È·±£²ÎÊýºÏ·¨
+	// È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½
 	if ((this->m_sensor != NULL))
 		return false;
 
-	// Éè¶¨Ïà¹ØÂ·¾¶²ÎÊý
+	// ï¿½è¶¨ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	this->inner_para_path_ = "";
 	this->inner_para_name_ = "parameters";
 	this->inner_para_suffix_ = ".yml";
@@ -187,13 +186,13 @@ bool CCalculation::Init()
 		fs.release();
 	}
 
-	// ¸ù¾ÝÊý¾ÝÉè¶¨ÊÓ¿Ú´óÐ¡£º
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½è¶¨ï¿½Ó¿Ú´ï¿½Ð¡ï¿½ï¿½
 	this->m_hBegin = 450;
 	this->m_hEnd = 650;
 	this->m_wBegin = 700;
 	this->m_wEnd = 900;
 
-	// ´´½¨ÐÂÔªËØ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½
 	printf("\tCreating sensor...");
 	if (status)
 	{
@@ -206,7 +205,7 @@ bool CCalculation::Init()
 	}
 	printf("finished.\n");
 
-	// ÉêÇë¿Õ¼ä:uxyz
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½:uxyz
 	printf("\tAllocating pointers...");
 	this->m_xMat = new Mat[DYNAFRAME_MAXNUM];
 	this->m_yMat = new Mat[DYNAFRAME_MAXNUM];
@@ -230,8 +229,8 @@ bool CCalculation::Init()
 		this->m_yMat[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
 		this->m_zMat[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
 		this->m_iPro[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
-		
-		
+
+
 		this->trace_h_[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
 		this->trace_w_[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
 		this->delta_trace_h_[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
@@ -239,11 +238,11 @@ bool CCalculation::Init()
 		this->holes_mark_[i].create(CAMERA_RESROW, CAMERA_RESLINE, CV_8UC1);
 	}
 	printf("finished.\n");
-	
-	// µ¼Èë±ê¶¨µÄÏµÍ³²ÎÊý
+
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ê¶¨ï¿½ï¿½ÏµÍ³ï¿½ï¿½ï¿½ï¿½
 	printf("\tImporting system parameters...");
-	fs.open(this->inner_para_path_ 
-		+ this->inner_para_name_ 
+	fs.open(this->inner_para_path_
+		+ this->inner_para_name_
 		+ this->inner_para_suffix_, FileStorage::READ);
 	fs["CamMat"] >> this->m_camMatrix;
 	fs["ProMat"] >> this->m_proMatrix;
@@ -251,13 +250,13 @@ bool CCalculation::Init()
 	fs["T"] >> this->m_T;
 	fs.release();
 
-	// Ìî³äC
+	// ï¿½ï¿½ï¿½ï¿½C
 	this->m_C.create(3, 4, CV_64FC1);
 	this->m_C.setTo(0);
 	this->m_camMatrix.copyTo(this->m_C.colRange(0, 3));
 	//cout << this->m_C << endl;
-	
-	// Ìî³äP
+
+	// ï¿½ï¿½ï¿½ï¿½P
 	Mat temp;
 	temp.create(3, 4, CV_64FC1);
 	this->m_R.copyTo(temp.colRange(0, 3));
@@ -267,7 +266,7 @@ bool CCalculation::Init()
 	cout << temp << endl;
 	cout << this->m_P << endl;*/
 
-	// Ìî³äABCD²ÎÊý
+	// ï¿½ï¿½ï¿½ï¿½ABCDï¿½ï¿½ï¿½ï¿½
 	this->m_cA = this->m_C.at<double>(0, 0) * this->m_C.at<double>(1, 1) * this->m_P.at<double>(0, 3);
 	this->m_cB = this->m_C.at<double>(0, 0) * this->m_C.at<double>(1, 1) * this->m_P.at<double>(2, 3);
 	this->m_cC.create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
@@ -294,7 +293,7 @@ bool CCalculation::CalculateFirst()
 {
 	bool status = true;
 
-	// ÅÐ¶Ï²ÎÊýÊÇ·ñºÏ·¨
+	// ï¿½Ð¶Ï²ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ï·ï¿½
 	if ((this->m_sensor == NULL))
 		return false;
 	if (this->m_C.empty() || this->m_P.empty())
@@ -308,7 +307,7 @@ bool CCalculation::CalculateFirst()
 		status = this->FillFirstProjectorU();
 		printf("finished.\n");
 	}
-	
+
 	if (status)
 	{
 		printf("\tFill depth_mat from ipro_mat...");
@@ -323,7 +322,7 @@ bool CCalculation::CalculateFirst()
 		printf("finished.\n");
 	}
 
-	// ¸ù¾ÝÊýÖµÌî³äjProjector
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½jProjector
 	if (status)
 	{
 		printf("\tFiil jpro_mat...");
@@ -331,7 +330,7 @@ bool CCalculation::CalculateFirst()
 		printf("finished.\n");
 	}
 
-	myDebug.ShowPeriod(this->m_iPro[0], 100, 0.5, true, 
+	myDebug.ShowPeriod(this->m_iPro[0], 100, 0.5, true,
 		this->point_show_path_
 		+ this->point_show_name_
 		+ "0"
@@ -356,15 +355,15 @@ bool CCalculation::CalculateFirst()
 			+ this->m_pcSuffix, 0, false);*/
 		printf("finished.\n");
 	}
-	
-	// ½øÐÐµÚÒ»Ö¡µÄ×¼±¸¹¤×÷£ºÌî³ä³õÊ¼µÄiX,iY¶ÔÓ¦¹ØÏµ
+
+	// ï¿½ï¿½ï¿½Ðµï¿½Ò»Ö¡ï¿½ï¿½×¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½iX,iYï¿½ï¿½Ó¦ï¿½ï¿½Ïµ
 	if (status)
 	{
 		printf("\tFilling iX & iY...");
 		this->TrackPoints(0);
 		printf("finished.\n");
 	}
-	
+
 	return true;
 }
 
@@ -373,13 +372,13 @@ bool CCalculation::CalculateOther()
 {
 	bool status = true;
 
-	// ÅÐ¶Ï²ÎÊýÊÇ·ñºÏ·¨
+	// ï¿½Ð¶Ï²ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ï·ï¿½
 	if ((this->m_sensor == NULL))
 		return false;
 	if (this->m_C.empty() || this->m_P.empty())
 		return false;
 
-	// ÖðÖ¡½øÐÐ¼ÆËã£º
+	// ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½Ð¼ï¿½ï¿½ã£º
 	for (int frameNum = 1; frameNum < DYNAFRAME_MAXNUM; frameNum += 1)
 	{
 		string idx2str;
@@ -389,7 +388,7 @@ bool CCalculation::CalculateOther()
 
 		printf("No.%d frame:\n", frameNum);
 
-		// trace point according to key_frame£º
+		// trace point according to key_frameï¿½ï¿½
 		if (status)
 		{
 			printf("\tPointTracking:");
@@ -426,7 +425,7 @@ bool CCalculation::CalculateOther()
 			printf("finished.\n");
 		}
 
-		// Ê¹ÓÃ¶ÔÓ¦Ö®ºóµÄµã½øÐÐ»¹Ô­
+		// Ê¹ï¿½Ã¶ï¿½Ó¦Ö®ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½Ð»ï¿½Ô­
 		if (status)
 		{
 			printf("\tFillCoordinate:");
@@ -443,7 +442,7 @@ bool CCalculation::CalculateOther()
 			printf("finished.\n");
 		}
 
-		// ²âÊÔÊä³ö£º
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		myDebug.ShowPeriod(this->m_iPro[frameNum], 100, 0.5, true,
 			this->point_show_path_
 			+ this->point_show_name_
@@ -451,7 +450,7 @@ bool CCalculation::CalculateOther()
 			+ this->point_show_suffix_
 		);
 
-		// ±£´æÊý¾Ý
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		if (status)
 		{
 			printf("\tWriteData...");
@@ -461,14 +460,14 @@ bool CCalculation::CalculateOther()
 				+ this->point_cloud_suffix_, frameNum, false);
 			printf("finished.\n");
 		}
-		
+
 	}
 
 	return true;
 }
 
 
-// ´æ´¢¡¢¼ÇÂ¼½á¹û
+// ï¿½æ´¢ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½
 bool CCalculation::Result(string fileName, int i, bool view_port_only)
 {
 	fstream file;
@@ -499,7 +498,7 @@ bool CCalculation::Result(string fileName, int i, bool view_port_only)
 	{
 		for (int v = vFrom; v < vTo; v++)
 		{
-			// ¸ù¾ÝzÖµ½øÐÐÉ¸Ñ¡
+			// ï¿½ï¿½ï¿½ï¿½zÖµï¿½ï¿½ï¿½ï¿½É¸Ñ¡
 			double valZ = this->m_zMat[i].at<double>(v, u);
 			if ((valZ < FOV_MIN_DISTANCE) || (valZ > FOV_MAX_DISTANCE))
 			{
@@ -514,7 +513,7 @@ bool CCalculation::Result(string fileName, int i, bool view_port_only)
 		}
 	}
 	file.close();
-	
+
 	if (i >= 0)
 	{
 		string idx2str;
@@ -552,17 +551,17 @@ bool CCalculation::Result(string fileName, int i, bool view_port_only)
 			idx2str,
 			this->trace_suffix_, this->trace_w_[i]);
 	}
-	
+
 	return true;
 }
 
 
-// Íê³ÉµÚÒ»Ö¡µÄvGrayºÍvPhase½âÂë¹¤×÷£¬»¹Ô­³öP_0¡£Ô­ÀíµÈÍ¬ÓÚ±ê¶¨ÖÐµÄ¹ý³Ì
+// ï¿½ï¿½ï¿½Éµï¿½Ò»Ö¡ï¿½ï¿½vGrayï¿½ï¿½vPhaseï¿½ï¿½ï¿½ë¹¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½P_0ï¿½ï¿½Ô­ï¿½ï¿½ï¿½ï¿½Í¬ï¿½Ú±ê¶¨ï¿½ÐµÄ¹ï¿½ï¿½ï¿½
 bool CCalculation::FillFirstProjectorU()
 {
 	bool status = true;
 
-	// ´´½¨ÁÙÊ±±äÁ¿
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
 	Mat sensorMat;
 	Mat vGrayMat;
 	Mat vPhaseMat;
@@ -575,7 +574,7 @@ bool CCalculation::FillFirstProjectorU()
 	fs["ipro_mat"] >> vProjectorMat;
 	fs.release();
 
-	// Ìî³ä²¿·ÖÏ¸Ð¡·ìÏ¶
+	// ï¿½ï¿½ï¿½ä²¿ï¿½ï¿½Ï¸Ð¡ï¿½ï¿½Ï¶
 	for (int h = 0; h < CAMERA_RESROW; h++)
 	{
 		for (int w = 1; w < CAMERA_RESLINE - 1; w++)
@@ -597,7 +596,7 @@ bool CCalculation::FillFirstProjectorU()
 }
 
 
-// ÒÑÓÐx,y,zµÄÇé¿öÏÂ£¬Ìî³äjPro
+// ï¿½ï¿½ï¿½ï¿½x,y,zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â£ï¿½ï¿½ï¿½ï¿½ï¿½jPro
 bool CCalculation::FilljPro(int frame_num)
 {
 	bool status = true;
@@ -619,7 +618,7 @@ bool CCalculation::FilljPro(int frame_num)
 	Mat Pp_op;
 	Mat Pp_p;
 
-	// Öð¸öÏñËØµãÉ¸²é
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½É¸ï¿½ï¿½
 	Mat PmRt = Pm * Rt;
 	this->m_jPro[frame_num].create(CAMERA_RESROW, CAMERA_RESLINE, CV_64FC1);
 	this->m_jPro[frame_num].setTo(-100);
@@ -627,7 +626,7 @@ bool CCalculation::FilljPro(int frame_num)
 	{
 		for (int w = 0; w < CAMERA_RESLINE; w++)
 		{
-			// ÅÐ¶ÏÊÇ·ñÓÐÖµ
+			// ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Öµ
 			double z = this->m_zMat[frame_num].at<double>(h, w);
 			if (z < 0)
 			{
@@ -636,18 +635,18 @@ bool CCalculation::FilljPro(int frame_num)
 			double x = this->m_xMat[frame_num].at<double>(h, w);
 			double y = this->m_yMat[frame_num].at<double>(h, w);
 
-			// Ìî³äÏà»úÊÀ½ç×ø±êÏµÖÐµÄ3Dµã×ø±ê
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½Ðµï¿½3Dï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			Pp_oc.at<double>(0, 0) = x;
 			Pp_oc.at<double>(1, 0) = y;
 			Pp_oc.at<double>(2, 0) = z;
 			Pp_oc.at<double>(3, 0) = 1.0;
 
-			// ×ª»»µ½Í¶Ó°ÒÇÊÀ½ç×ø±êÏµÖÐ
+			// ×ªï¿½ï¿½ï¿½ï¿½Í¶Ó°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½
 
-			// Í¶Ó°µ½Í¶Ó°ÒÇ2D×ø±êÏµÖÐ
+			// Í¶Ó°ï¿½ï¿½Í¶Ó°ï¿½ï¿½2Dï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½
 			Pp_p = PmRt * Pp_oc;
 
-			// Ìî³äj
+			// ï¿½ï¿½ï¿½ï¿½j
 			double i = Pp_p.at<double>(0, 0);
 			double j = Pp_p.at<double>(1, 0);
 			double omega = Pp_p.at<double>(2, 0);
@@ -659,12 +658,12 @@ bool CCalculation::FilljPro(int frame_num)
 }
 
 
-// ¼ÆËãÃ¿¸öµã¶ÔÓ¦µÄ¼«Ïß
+// ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½Ä¼ï¿½ï¿½ï¿½
 bool CCalculation::CalculateEpipolarLine(int frame_num)
 {
 	bool status = true;
 
-	// ¼ÆËãÏà¹Ø¾ØÕó
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ï¿½ï¿½
 	Mat Rt;
 	Rt.create(4, 4, CV_64FC1);
 	Rt.setTo(0);
@@ -683,7 +682,7 @@ bool CCalculation::CalculateEpipolarLine(int frame_num)
 	Mat CmRt_1;
 	CmRt_1 = Cm * Rt_1;
 
-	// Í¶Ó°Í¶Ó°ÒÇÔ­µãµ½Ïà»úÆ½Ãæ
+	// Í¶Ó°Í¶Ó°ï¿½ï¿½Ô­ï¿½ãµ½ï¿½ï¿½ï¿½ï¿½Æ½ï¿½ï¿½
 	Mat Op_op;
 	Op_op.create(4, 1, CV_64FC1);
 	Op_op.at<double>(0, 0) = 0;
@@ -695,7 +694,7 @@ bool CCalculation::CalculateEpipolarLine(int frame_num)
 	double x1 = Op_oc.at<double>(0, 0) / Op_oc.at<double>(2, 0);
 	double y1 = Op_oc.at<double>(1, 0) / Op_oc.at<double>(2, 0);
 
-	// Öð¸öÏñËØ²éÑ¯ÆäÔÚÏà»ú¿Õ¼äÖÐµÄÍ¶Ó°
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø²ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½ï¿½Ðµï¿½Í¶Ó°
 	Mat Pp_op, Pp_oc;
 	Pp_op.create(4, 1, CV_64FC1);
 	double assumeZ = 1.0;
@@ -713,7 +712,7 @@ bool CCalculation::CalculateEpipolarLine(int frame_num)
 	{
 		for (int w = 0; w < CAMERA_RESLINE; w++)
 		{
-			// ¼ÙÉèZµÄÇé¿öÏÂ£¬¼ÆËã¶ÔÓ¦µÄX,Y,Z
+			// ï¿½ï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½X,Y,Z
 			double i = this->m_iPro[frame_num].at<double>(h, w);
 			if (i < 0)
 			{
@@ -728,10 +727,10 @@ bool CCalculation::CalculateEpipolarLine(int frame_num)
 			Pp_op.at<double>(2, 0) = z;
 			Pp_op.at<double>(3, 0) = 1.0;
 
-			// Í¶Ó°ÖÁÏà»úÆ½Ãæ
+			// Í¶Ó°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ½ï¿½ï¿½
 			Pp_oc = CmRt_1 * Pp_op;
 
-			// ¼ÆËã¼«Ïß£ºABC
+			// ï¿½ï¿½ï¿½ã¼«ï¿½ß£ï¿½ABC
 			double x2 = Pp_oc.at<double>(0, 0) / Pp_oc.at<double>(2, 0);
 			double y2 = Pp_oc.at<double>(1, 0) / Pp_oc.at<double>(2, 0);
 			double A = y2 - y1;
@@ -747,12 +746,12 @@ bool CCalculation::CalculateEpipolarLine(int frame_num)
 }
 
 
-// Ìî³äºóÐøÖ¡ÖÐµÄProU¡£Ö±½Ó½«ÊÓ¿ÚÖÐµÄÃ¿¸öµãÓ³Éäµ½ºóÐøÖ¡ÖÐ¡£
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¡ï¿½Ðµï¿½ProUï¿½ï¿½Ö±ï¿½Ó½ï¿½ï¿½Ó¿ï¿½ï¿½Ðµï¿½Ã¿ï¿½ï¿½ï¿½ï¿½Ó³ï¿½äµ½ï¿½ï¿½ï¿½ï¿½Ö¡ï¿½Ð¡ï¿½
 bool CCalculation::FillOtherProU(int frame_num, int key_frame_num)
 {
 	bool status = true;
 
-	// Ìî³äProU[k]
+	// ï¿½ï¿½ï¿½ï¿½ProU[k]
 	this->m_iPro[frame_num].setTo(-100);
 	for (int h = 0; h < CAMERA_RESROW; h++)
 	{
@@ -781,13 +780,13 @@ bool CCalculation::Ipro2Depth(int frame_num)
 		for (int w = 0; w < CAMERA_RESLINE; w++)
 		{
 			double z = -100;
-			// Èç¹ûÊÇÃ»ÓÐÖµµÄ²¿·Ö£¬z¾ÍÔÝÊ±²»Ìî
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½Öµï¿½Ä²ï¿½ï¿½Ö£ï¿½zï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
 			if (this->m_iPro[frame_num].at<double>(h, w) < 0)
 			{
 				z = -100;
 				continue;
 			}
-			// ÓÐÖµµÄ²¿·Ö£¬¼ÆËãÉî¶È
+			// ï¿½ï¿½Öµï¿½Ä²ï¿½ï¿½Ö£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			else
 			{
 				double para_A = this->m_cA;
@@ -798,7 +797,7 @@ bool CCalculation::Ipro2Depth(int frame_num)
 					/ (para_C - para_D*this->m_iPro[frame_num].at<double>(h, w));
 			}
 
-			// ÅÐ¶ÏzÊÇ·ñÔÚºÏ·¨·¶Î§ÄÚ
+			// ï¿½Ð¶ï¿½zï¿½Ç·ï¿½ï¿½ÚºÏ·ï¿½ï¿½ï¿½Î§ï¿½ï¿½
 			if ((z < FOV_MIN_DISTANCE) || (z > FOV_MAX_DISTANCE))
 			{
 				z = -100;
@@ -1045,7 +1044,7 @@ bool CCalculation::ProcessFrame(int frame_num)
 		this->m_zMat[frame_num].convertTo(from_z_mat, CV_32FC1);
 		bilateralFilter(from_z_mat, to_z_mat, 5, 5 * 2, 5 / 2);
 		to_z_mat.convertTo(this->m_zMat[frame_num], CV_64FC1);*/
-		
+
 		status = Depth2Ipro(frame_num);
 	}
 
@@ -1117,12 +1116,12 @@ bool CCalculation::FillCoordinate(int i)
 }
 
 
-// Ìî³äiXºÍiY£¬deltaXºÍdeltaY
+// ï¿½ï¿½ï¿½ï¿½iXï¿½ï¿½iYï¿½ï¿½deltaXï¿½ï¿½deltaY
 bool CCalculation::TrackPoints(int frameNum)
 {
 	this->trace_h_[frameNum].setTo(-100);
 	this->trace_w_[frameNum].setTo(-100);
-	this->delta_trace_h_[frameNum].setTo(0);	
+	this->delta_trace_h_[frameNum].setTo(0);
 	this->delta_trace_w_[frameNum].setTo(0);
 
 	if (frameNum == 0)
@@ -1192,7 +1191,7 @@ bool CCalculation::TrackPoints(int frameNum)
 
 		// bound parameters for patch, search area
 		int search_half_win = (SEARCH_WINDOW_SIZE - 1) / 2;
-		int now_search_h_begin, now_search_h_end, now_search_w_begin, now_search_w_end;		// xk,ykµÄËÑË÷·¶Î§£¨¸ø¶¨ÖÐÐÄµã£©
+		int now_search_h_begin, now_search_h_end, now_search_w_begin, now_search_w_end;		// xk,ykï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµã£©
 		int patch_half_win = (MATCH_WINDOW_SIZE - 1) / 2;
 		Mat key_patch;
 		int key_patch_h_begin, key_patch_h_end, key_patch_w_begin, key_patch_w_end;
@@ -1250,7 +1249,7 @@ bool CCalculation::TrackPoints(int frameNum)
 				error_result.setTo(65536.0);
 				h_mark_mat.setTo(0);
 
-				// ÔÚ·¶Î§ÄÚ½øÐÐ²éÕÒÆ¥Åä
+				// ï¿½Ú·ï¿½Î§ï¿½Ú½ï¿½ï¿½Ð²ï¿½ï¿½ï¿½Æ¥ï¿½ï¿½
 				double A = this->m_lineA[key_frame].at<double>(h_key, w_key);
 				double B = this->m_lineB[key_frame].at<double>(h_key, w_key);
 				double C = this->m_lineC[key_frame].at<double>(h_key, w_key);
@@ -1312,16 +1311,16 @@ bool CCalculation::TrackPoints(int frameNum)
 				{
 					maxMinVal = minVal;
 				}
-				
+
 				// mark now h, w
 				this->delta_trace_h_[frameNum].at<double>(h_key, w_key) = h_mark_mat.at<ushort>(minLoc.y, minLoc.x) - h_last;
 				this->delta_trace_w_[frameNum].at<double>(h_key, w_key) = minLoc.x - search_half_win;
-				
+
 			}
 		}
 		printf("\n\t\tMaxMinVal: %0.2f", maxMinVal);
 
-		// ¸üÐÂÐÂµÄ×ø±ê¶ÔÓ¦¹ØÏµ
+		// ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½Ïµ
 		this->trace_h_[frameNum] = this->trace_h_[frameNum - 1] + this->delta_trace_h_[frameNum];
 		this->trace_w_[frameNum] = this->trace_w_[frameNum - 1] + this->delta_trace_w_[frameNum];
 	}
