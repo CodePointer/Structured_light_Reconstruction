@@ -30,11 +30,7 @@ function beliefField = FillInitialBeliefField(cameraImage, ...
                 ypro = xpro2ypro(w, h, xpro, lineA, lineB, lineC);
                 % Get color information
                 p_xy = GetColorByXYpro(xpro, ypro, pattern);
-                if abs(p_xy - c_xy) < 0.15
-                    alpha = 1;
-                else
-                    alpha = 0;
-                end
+                alpha = color_alpha(c_xy, p_xy);
                 % alpha = 1 - abs(p_xy - c_xy);
                 beliefField(h, w, d_idx) = alpha * exp(-Phi_p(delta_depth, c_xy, p_xy));
             end

@@ -55,11 +55,7 @@ function beliefField = BeliefFieldIteration(beliefFieldLast, ...
                         end
                     end
                 end
-                if abs(p_xy - c_xy) < 0.15
-                    alpha = 1;
-                else
-                    alpha = 0;
-                end
+                alpha = color_alpha(c_xy, p_xy);
                 beliefField(h, w, d_idx) = alpha * exp(-tmp_exp-sum_exp);
             end
             sum_value = sum(beliefField(h, w, :));
