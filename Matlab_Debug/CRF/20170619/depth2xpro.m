@@ -1,6 +1,5 @@
 function xpro = depth2xpro(x_c, y_c, depth)
-%DEPTH2XPRO 此处显示有关此函数的摘要
-%   此处显示详细说明
+%DEPTH2XPRO 
     cameraMatrix = [ 2321.35, 0.0, 639.50;
     0.0, 2326.22, 511.50;
     0.0, 0.0, 1.0];

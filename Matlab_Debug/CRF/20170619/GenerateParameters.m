@@ -18,8 +18,8 @@ CAMERA_HEIGHT = 1024;
 CAMERA_WIDTH = 1280;
 PROJECTOR_HEIGHT = 800;
 PROJECTOR_WIDTH = 1280;
-viewportMatrix = [200, 400;
-    400, 600];
+viewportMatrix = [120, 400;
+    330, 600];
 
 main_file_path = 'E:/Structured_Light_Data/20170613/1/';
 pro_x_file_path = 'pro/';
