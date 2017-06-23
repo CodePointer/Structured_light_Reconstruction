@@ -5,18 +5,25 @@ function beliefField = BeliefFieldIteration(beliefFieldLast, ...
     lineA, ...
     lineB, ...
     lineC, ...
+    norm_sigma_u, ...
+    norm_sigma_p, ...
     viewportMatrix, ...
     voxelSize, ...
     halfVoxelRange, ...
     halfNeighborRange)
 % TODO: Need to be upgrade to deltaDepth
 
-    beliefField = zeros(size(beliefFieldLast));
+    beliefField = cell(size(beliefFieldLast));
 
     % Iteration: for every voxel in the beliefField
+    Mu_mat = Mu_mat_generation(voxelSize, halfVoxelRange);
+    ij_mat = ij_alpha(halfNeighborRange, norm_sigma_p);
+
     for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
         for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
 
+            beliefField{h, w} = zeros(halfVoxelRange * 2 + 1, 1);
+            
             x_p = depth2xpro(w, h, now_depth_mat(h, w));
             y_p = xpro2ypro(w, h, x_p, lineA, lineB, lineC);
             c_xy = GetColorByXYpro(x_p, y_p, pattern);
@@ -31,38 +38,30 @@ function beliefField = BeliefFieldIteration(beliefFieldLast, ...
                 ypro = xpro2ypro(w, h, xpro, lineA, lineB, lineC);
                 p_xy = GetColorByXYpro(xpro, ypro, pattern);
                 % Set initial value
-                tmp_exp = Phi_p(delta_depth, c_xy, p_xy);
+                tmp_exp = Phi_u(delta_depth, norm_sigma_u);
                 % calculate sum
                 sum_exp = 0;
-                for hd = -halfNeighborRange:halfNeighborRange
-                    for wd = -halfNeighborRange:halfNeighborRange
-                        h_neighbor = h + hd;
-                        w_neighbor = w + wd;
+                for h_s = 1:halfNeighborRange*2 + 1
+                    for w_s = 1:halfNeighborRange*2 + 1
+                        h_neighbor = h + h_s - halfNeighborRange - 1;
+                        w_neighbor = w + w_s - halfNeighborRange - 1;
                         if (h_neighbor > viewportMatrix(2, 1)) ...
                             && (h_neighbor < viewportMatrix(2, 2)) ...
                             && (w_neighbor > viewportMatrix(1, 1)) ...
                             && (w_neighbor < viewportMatrix(1, 2))
-                            distance_value = K_distance(w, h, ...
-                                w_neighbor, h_neighbor);
-                            for d_idx_n = 1:2*halfVoxelRange+1
-                                delta_depth_n = (d_idx_n - halfVoxelRange + 1) * voxelSize;
-                                depth_n = last_depth_mat(h_neighbor, w_neighbor) + delta_depth_n;
-                                mu_value = Mu_depth(depth, depth_n);
-                                sum_exp = sum_exp + distance_value ...
-                                    * mu_value ...
-                                    * beliefFieldLast(h_neighbor, w_neighbor, d_idx_n);
-                            end
+                            sum_exp = ij_mat(h_s, w_s) ...
+                                * Mu_mat(d_idx,:) * beliefFieldLast{h_neighbor, w_neighbor};
                         end
                     end
                 end
                 alpha = color_alpha(c_xy, p_xy);
-                beliefField(h, w, d_idx) = alpha * exp(-tmp_exp-sum_exp);
+                beliefField{h, w}(d_idx) = alpha * exp(- tmp_exp - sum_exp);
             end
-            sum_value = sum(beliefField(h, w, :));
+            sum_value = sum(beliefField{h, w});
             if sum_value == 0
-                disp(h, w)
+                disp([h, w])
             end
-            beliefField(h, w, :) = beliefField(h, w, :) / sum_value;
+            beliefField{h, w} = beliefField{h, w} / sum_value;
         end
         if mod(h, 10) == 0
             fprintf('.')

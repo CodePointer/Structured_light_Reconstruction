@@ -11,7 +11,7 @@ function beliefField = FillInitialBeliefField(cameraImage, ...
     halfVoxelRange)
 
     [CAMERA_HEIGHT, CAMERA_WIDTH] = size(cameraImage);
-    beliefField = cell{CAMERA_HEIGHT, CAMERA_WIDTH};
+    beliefField = cell(CAMERA_HEIGHT, CAMERA_WIDTH);
     % beliefField = zeros(CAMERA_HEIGHT, CAMERA_WIDTH, halfVoxelRange * 2 + 1);
 
     % For every point in the QField
@@ -43,6 +43,9 @@ function beliefField = FillInitialBeliefField(cameraImage, ...
                 disp(h, w)
             end
             beliefField{h, w} = beliefField{h, w} / sum_value;
+        end
+        if mod(h, 10) == 0
+            fprintf('x')
         end
     end
 
