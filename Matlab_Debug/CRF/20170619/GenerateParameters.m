@@ -1,7 +1,7 @@
 clear;
 
 %% Inner Parameters
-cameraMatrix = [ 2321.35, 0.0, 639.50;
+camMat = [ 2321.35, 0.0, 639.50;
     0.0, 2326.22, 511.50;
     0.0, 0.0, 1.0];
 projectorMatrix = [ 1986.02, 0.0, 598.16;
@@ -21,7 +21,7 @@ PROJECTOR_WIDTH = 1280;
 viewportMatrix = [200, 400;
     400, 600];
 
-main_file_path = 'E:/Structured_Light_Data/20170613/1/';
+main_file_path = '/home/rukun/Structured_Light_Data/20170613/1/';
 pro_x_file_path = 'pro/';
 pro_x_file_name = 'ipro_mat';
 pro_y_file_path = 'pro/';
@@ -35,7 +35,7 @@ pattern = double(imread([main_file_path, '4RandDot0.png'])) / 255.0;
 
 % For calculation
 norm_sigma = 3;
-voxelSize = 0.1;
+voxelSize = 0.02;
 halfVoxelRange = 20;
 
 save parameters.mat
