@@ -334,3 +334,4 @@ __pycache__/
 
 # End of https://www.gitignore.io/api/visualstudio,windows,c++
 *.mat
+*.txt
