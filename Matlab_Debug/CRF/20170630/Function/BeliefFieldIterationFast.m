@@ -39,6 +39,9 @@ function total_field = BeliefFieldIterationFast(total_field_last, ...
         for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
             for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
                 psi_S_sum{i}{h, w} = zeros(halfVoxelRange * 2 + 1, 1);
+                if (h == 700) && (w == 400)
+                    fprintf('');
+                end
                 for h_s = 1:halfNeighborRange*2 + 1
                     for w_s = 1:halfNeighborRange*2 + 1
                         h_neighbor = h + h_s - halfNeighborRange - 1;
@@ -71,7 +74,7 @@ function total_field = BeliefFieldIterationFast(total_field_last, ...
                     if t == i
                         continue
                     else
-                        t_vec = t_mat(t, :);
+                        t_vec = t_mat(i, :);
                         psi_T_sum{i}{h, w} = psi_T_sum{i}{h, w} ...
                             + t_vec(t) * Message_send{t}{h, w};
                     end
