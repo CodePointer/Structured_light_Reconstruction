@@ -7,7 +7,7 @@ function [  ] = writepointcloud( depth_mats, ...
 %WRITEPOINTCLOUD 此处显示有关此函数的摘要
 %   此处显示详细说明
 
-    for t = 1:4
+    for t = 1:1
         total_file_name = [file_path, file_name, '_t', num2str(t), file_suffix];
         x_mat = zeros(size(depth_mats));
         y_mat = zeros(size(depth_mats));

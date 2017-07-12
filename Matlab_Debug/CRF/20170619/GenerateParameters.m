@@ -18,11 +18,11 @@ CAMERA_HEIGHT = 1024;
 CAMERA_WIDTH = 1280;
 PROJECTOR_HEIGHT = 800;
 PROJECTOR_WIDTH = 1280;
-viewportMatrix = [200, 400;
-    400, 600];
+viewportMatrix = [300, 500;
+    600, 800];
 
 % main_file_path = '/home/rukun/Structured_Light_Data/20170613/1/';
-main_file_path = 'E:/Structured_Light_Data/20170613/1/';
+main_file_path = 'E:/Structured_Light_Data/20170630/2/';
 pro_x_file_path = 'pro/';
 pro_x_file_name = 'ipro_mat';
 pro_y_file_path = 'pro/';
@@ -35,7 +35,7 @@ data_frame_num = 30;
 pattern = double(imread([main_file_path, '4RandDot0.png'])) / 255.0;
 
 % For calculation
-voxelSize = 0.02;
+voxelSize = 0.04;
 norm_sigma_u = voxelSize * 20;
 norm_sigma_p = 3;
 halfVoxelRange = 20;

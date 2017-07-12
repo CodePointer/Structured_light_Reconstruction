@@ -7,7 +7,7 @@ function depth_mats = debugGetDepthFromBeliefField(total_field, ...
     [CAMERA_HEIGHT, CAMERA_WIDTH] = size(total_field{1});
     depth_mats = cell(size(total_field));
     
-    for t = 1:4
+    for t = 1:1
         depth_mats{t} = zeros(CAMERA_HEIGHT, CAMERA_WIDTH);
         for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
             for w = viewportMatrix(1, 1):viewportMatrix(1, 2)

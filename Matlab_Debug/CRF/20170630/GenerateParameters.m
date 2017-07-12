@@ -21,8 +21,8 @@ PROJECTOR_WIDTH = 1280;
 viewportMatrix = [300, 500;
     600, 800];
 
-main_file_path = '/home/rukun/Structured_Light_Data/20170630/2/';
-% main_file_path = 'E:/Structured_Light_Data/20170630/2/';
+% main_file_path = '/home/rukun/Structured_Light_Data/20170630/2/';
+main_file_path = 'E:/Structured_Light_Data/20170630/2/';
 pro_x_file_path = 'pro/';
 pro_x_file_name = 'ipro_mat';
 pro_y_file_path = 'pro/';

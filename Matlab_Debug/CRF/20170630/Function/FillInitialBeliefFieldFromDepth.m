@@ -7,6 +7,7 @@ function beliefField = FillInitialBeliefFieldFromDepth(camera_image, ...
 
     [CAMERA_HEIGHT, CAMERA_WIDTH] = size(camera_image);
     beliefField = cell(CAMERA_HEIGHT, CAMERA_WIDTH);
+    omega = 1;
     epsilon = 0.01;
     
     % For every point in the QField
@@ -19,7 +20,10 @@ function beliefField = FillInitialBeliefFieldFromDepth(camera_image, ...
             if delta_depth_idx <= 0 || delta_depth_idx > 2 * halfVoxelRange + 1
                 delta_depth_idx = halfVoxelRange + 1;
             end
-            beliefField{h, w}(delta_depth_idx, 1) = 1;
+            for d = 1:halfVoxelRange*2+1
+                beliefField{h, w}(d, 1) = exp(-(delta_depth_idx - d)^2 / 2 * omega^2);
+            end
+            % beliefField{h, w}(delta_depth_idx, 1) = 1;
             
             sum_value = sum(beliefField{h, w});
             if sum_value == 0
