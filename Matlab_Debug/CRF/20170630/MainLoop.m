@@ -16,10 +16,10 @@ for i = 1:5
         pro_x_file_name, num2str(i), file_suffix]);
     ypro_mats{i, 1} = load([main_file_path, pro_y_file_path, ...
         pro_y_file_name, num2str(i), file_suffix]);
-    
-    xpro_mats{i, 1} = HoleFilling(xpro_mats{i, 1}, 3, viewportMatrix);
-    ypro_mats{i, 1} = HoleFilling(ypro_mats{i, 1}, 3, viewportMatrix);
-    
+
+    xpro_mats{i, 1} = HoleFilling(xpro_mats{i, 1}, 2, viewportMatrix);
+    ypro_mats{i, 1} = HoleFilling(ypro_mats{i, 1}, 2, viewportMatrix);
+
     [depth_mats{i, 1}, valid_mats{i, 1}] = FillDepthMat(xpro_mats{i, 1}, ...
         ypro_mats{i, 1}, viewportMatrix);
 end

@@ -17,16 +17,28 @@ function total_field = BeliefFieldIterationFast(total_field_last, ...
     [CAMERA_HEIGHT, CAMERA_WIDTH] = size(total_field_last{1});
 
     % Iteration: for every voxel in the beliefField
+    Mu_mat = Mu_mat_generation(voxelSize, halfVoxelRange);
     ij_mat = ij_alpha(halfNeighborRange, norm_sigma_p);
+
+    % Calculate Message_send matrix
+    Message_sendS = cell(size(total_field_last));
+    for i = 1:1
+        Message_sendS{i, 1} = cell(CAMERA_HEIGHT, CAMERA_WIDTH);
+        for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
+            for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
+                Message_sendS{i, 1}{h, w} = Mu_mat * total_field_last{i, 1}{h, w};
+            end
+        end
+    end
 
     % Calculate Sum of \psi_S for every pixel
     psi_S_sum = cell(size(total_field_last));
     for i = 1:1
-        psi_S_sum{i, 1} = cell(size(total_field_last));
+        psi_S_sum{i, 1} = cell(size(CAMERA_HEIGHT, CAMERA_WIDTH));
         for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
             for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
                 psi_S_sum{i, 1}{h, w} = zeros(halfVoxelRange * 2 + 1, 1);
-                depth_origin = depth_mats{i, 1}(h, w);
+                % depth_origin = depth_mats{i, 1}(h, w);
                 for h_s = 1:halfNeighborRange*2 + 1
                     for w_s = 1:halfNeighborRange*2 + 1
                         h_neighbor = h + h_s - halfNeighborRange - 1;
@@ -35,13 +47,12 @@ function total_field = BeliefFieldIterationFast(total_field_last, ...
                                 && (h_neighbor < viewportMatrix(2, 2)) ...
                                 && (w_neighbor > viewportMatrix(1, 1)) ...
                                 && (w_neighbor < viewportMatrix(1, 2))
-                            depth_neighbor = depth_mats{i, 1}(h_neighbor, w_neighbor);
-                            mu_mat = Mu_mat_cal(depth_origin, depth_neighbor, ...
-                                voxelSize, halfVoxelRange);
-                            psi_S_sum{i}{h, w} = psi_S_sum{i}{h, w} ...
+                            % depth_neighbor = depth_mats{i, 1}(h_neighbor, w_neighbor);
+                            % mu_mat = Mu_mat_cal(depth_origin, depth_neighbor, ...
+                            %     voxelSize, halfVoxelRange);
+                            psi_S_sum{i, 1}{h, w} = psi_S_sum{i, 1}{h, w} ...
                                 + ij_mat(h_s, w_s) ...
-                                * mu_mat ...
-                                * total_field_last{i, 1}{h_neighbor, w_neighbor};
+                                * Message_sendS{i, 1}{h_neighbor, w_neighbor};
                         end
                     end
                 end
@@ -55,13 +66,15 @@ function total_field = BeliefFieldIterationFast(total_field_last, ...
 
     % Calculate sum
     for i = 1:1
-        total_field{i} = cell(CAMERA_HEIGHT, CAMERA_WIDTH);
+        total_field{i, 1} = cell(CAMERA_HEIGHT, CAMERA_WIDTH);
         for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
             for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
                 total_field{i}{h, w} = zeros(halfVoxelRange * 2 + 1, 1);
+
                 x_p = depth2xpro(w, h, depth_mats{i + 1}(h, w));
                 y_p = xpro2ypro(w, h, x_p, lineA, lineB, lineC);
                 c_xy = GetColorByXYpro(x_p, y_p, pattern);
+
                 for d_idx = 1:halfVoxelRange * 2 + 1
                     % Calculate depth value
                     delta_depth = (d_idx - halfVoxelRange + 1) * voxelSize;

@@ -35,14 +35,14 @@ data_frame_num = 30;
 pattern = double(imread([main_file_path, '4RandDot0.png'])) / 255.0;
 
 % For calculation
-voxelSize = 0.02;
-norm_sigma_u = voxelSize * 40;
+voxelSize = 0.04;
+norm_sigma_u = voxelSize * 20;
 norm_sigma_t = 1;
-norm_sigma_p = 1;
-halfVoxelRange = 40;
+norm_sigma_p = 3;
+halfVoxelRange = 20;
 halfNeighborRange = 7;
 omega_u = 1.0;
-omega_s = 0.0;
+omega_s = 1.0;
 omega_t = 1.0;
 
 save parameters.mat
