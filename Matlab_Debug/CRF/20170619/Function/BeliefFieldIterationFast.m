@@ -24,6 +24,10 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
     for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
         for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
             Message_send{h, w} = Mu_mat * beliefFieldLast{h, w};
+            if h == 700 && w == 400
+                tmp_ms = Message_send{h, w};
+                save message_send.mat tmp_ms
+            end
         end
     end
 
@@ -43,6 +47,10 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
                             + ij_mat(h_s, w_s) * Message_send{h_neighbor, w_neighbor};
                     end
                 end
+            end
+            if h == 700 && w == 400
+                tmp_se = sum_exp{h, w};
+                save sum_exp.mat tmp_se
             end
         end
         if mod(h, 10) == 0
@@ -71,6 +79,10 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
                 % Set initial value
                 tmp_exp = Phi_u(delta_depth, norm_sigma_u);
                 beliefField{h, w}(d_idx) = alpha * exp(-tmp_exp-sum_exp{h, w}(d_idx));
+            end
+            if h == 700 && w == 400
+                tmp_bf = beliefField{h, w};
+                save belief_field.mat tmp_bf
             end
 
             sum_value = sum(beliefField{h, w});

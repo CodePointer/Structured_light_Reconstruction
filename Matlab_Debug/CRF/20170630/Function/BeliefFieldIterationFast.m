@@ -1,4 +1,5 @@
 function total_field = BeliefFieldIterationFast(total_field_last, ...
+    camera_image, ...
     pattern, ...
     depth_mats, ...
     lineA, ...
@@ -19,21 +20,26 @@ function total_field = BeliefFieldIterationFast(total_field_last, ...
     % Iteration: for every voxel in the beliefField
     Mu_mat = Mu_mat_generation(voxelSize, halfVoxelRange);
     ij_mat = ij_alpha(halfNeighborRange, norm_sigma_p);
+    t_mat = t_alpha(4, norm_sigma_t);
 
     % Calculate Message_send matrix
     Message_sendS = cell(size(total_field_last));
-    for i = 1:1
+    for i = 1:4
         Message_sendS{i, 1} = cell(CAMERA_HEIGHT, CAMERA_WIDTH);
         for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
             for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
                 Message_sendS{i, 1}{h, w} = Mu_mat * total_field_last{i, 1}{h, w};
+%                 if h == 700 && w == 400
+%                     tmp_ms = Message_sendS{i, 1}{h, w};
+%                     save message_send.mat tmp_ms
+%                 end
             end
         end
     end
 
     % Calculate Sum of \psi_S for every pixel
     psi_S_sum = cell(size(total_field_last));
-    for i = 1:1
+    for i = 1:4
         psi_S_sum{i, 1} = cell(size(CAMERA_HEIGHT, CAMERA_WIDTH));
         for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
             for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
@@ -56,24 +62,55 @@ function total_field = BeliefFieldIterationFast(total_field_last, ...
                         end
                     end
                 end
+%                 if h == 700 && w == 400
+%                     psi_s_sum = psi_S_sum{i, 1}{h, w};
+%                     save psi_s_sum.mat psi_s_sum;
+%                 end
             end
-            if mod(h, 10) == 0
+            if mod(h, 40) == 0
                 fprintf('s');
             end
         end
+        fprintf(',');
+    end
+    fprintf('\n');
+    
+    % Calculate \psi_T for every pixel
+    psi_T_sum = cell(size(total_field_last));
+    for i = 1:4
+        psi_T_sum{i, 1} = cell(CAMERA_HEIGHT, CAMERA_WIDTH);
+        for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
+            for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
+                psi_T_sum{i}{h, w} = zeros(halfVoxelRange*2+1, 1);
+                for t = 1:4
+                    if t == i
+                        continue
+                    else
+                        t_vec = t_mat(i, :);
+                        psi_T_sum{i, 1}{h, w} = psi_T_sum{i, 1}{h, w} ...
+                            + t_vec(t) * Message_sendS{t}{h, w};
+                    end
+                end
+            end
+            if mod(h, 40) == 0
+                fprintf('t');
+            end
+        end
+        fprintf(',');
     end
     fprintf('\n');
 
     % Calculate sum
-    for i = 1:1
+    for i = 1:4
         total_field{i, 1} = cell(CAMERA_HEIGHT, CAMERA_WIDTH);
         for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
             for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
                 total_field{i}{h, w} = zeros(halfVoxelRange * 2 + 1, 1);
 
-                x_p = depth2xpro(w, h, depth_mats{i + 1}(h, w));
-                y_p = xpro2ypro(w, h, x_p, lineA, lineB, lineC);
-                c_xy = GetColorByXYpro(x_p, y_p, pattern);
+%                 x_p = depth2xpro(w, h, depth_mats{i + 1}(h, w));
+%                 y_p = xpro2ypro(w, h, x_p, lineA, lineB, lineC);
+%                 c_xy = GetColorByXYpro(x_p, y_p, pattern);
+                c_xy = camera_image(h, w);
 
                 for d_idx = 1:halfVoxelRange * 2 + 1
                     % Calculate depth value
@@ -87,8 +124,9 @@ function total_field = BeliefFieldIterationFast(total_field_last, ...
                     % Set initial value
                     tmp_exp = Phi_u(delta_depth, norm_sigma_u);
                     psi_s_exp = psi_S_sum{i}{h, w}(d_idx);
+                    psi_t_exp = psi_T_sum{i}{h, w}(d_idx);
                     total_field{i}{h, w}(d_idx) = alpha * exp( -tmp_exp ...
-                        -psi_s_exp);
+                        -psi_s_exp -psi_t_exp);
                 end
                 sum_value = sum(total_field{i}{h, w});
                 if sum_value == 0
@@ -96,10 +134,11 @@ function total_field = BeliefFieldIterationFast(total_field_last, ...
                 end
                 total_field{i}{h, w} = total_field{i}{h, w} / sum_value;
             end
-            if mod(h, 10) == 0
+            if mod(h, 40) == 0
                 fprintf('u')
             end
         end
+        fprintf(',');
     end
     fprintf('\n');
 

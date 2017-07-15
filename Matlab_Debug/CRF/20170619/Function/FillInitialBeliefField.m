@@ -19,6 +19,10 @@ function beliefField = FillInitialBeliefField(cameraImage, ...
         for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
 
             beliefField{h, w} = zeros(halfVoxelRange * 2 + 1, 1);
+            
+            if h == 700 && w == 400
+                fprintf('');
+            end
 
 %             x_p = depth2xpro(w, h, now_depth_mat(h, w));
 %             y_p = xpro2ypro(w, h, x_p, lineA, lineB, lineC);

@@ -20,10 +20,14 @@ function beliefField = FillInitialBeliefField(cameraImage, ...
 
             beliefField{h, w} = zeros(halfVoxelRange * 2 + 1, 1);
 
-            x_p = depth2xpro(w, h, now_depth_mat(h, w));
-            y_p = xpro2ypro(w, h, x_p, lineA, lineB, lineC);
-            c_xy = GetColorByXYpro(x_p, y_p, pattern);
-            % c_xy = cameraImage(h, w);
+            if h == 700 && w == 400
+                fprintf('');
+            end
+            
+            % x_p = depth2xpro(w, h, now_depth_mat(h, w));
+            % y_p = xpro2ypro(w, h, x_p, lineA, lineB, lineC);
+            % c_xy = GetColorByXYpro(x_p, y_p, pattern);
+            c_xy = cameraImage(h, w);
 
             for d_idx = 1:halfVoxelRange * 2 + 1
                 % Calculate depth value
