@@ -1,4 +1,5 @@
 function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
+    camera_image, ...
     pattern, ...
     last_depth_mat, ...
     now_depth_mat, ...
@@ -63,9 +64,10 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
         for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
             beliefField{h, w} = zeros(halfVoxelRange * 2 + 1, 1);
 
-            x_p = depth2xpro(w, h, now_depth_mat(h, w));
-            y_p = xpro2ypro(w, h, x_p, lineA, lineB, lineC);
-            c_xy = GetColorByXYpro(x_p, y_p, pattern);
+%             x_p = depth2xpro(w, h, now_depth_mat(h, w));
+%             y_p = xpro2ypro(w, h, x_p, lineA, lineB, lineC);
+%             c_xy = GetColorByXYpro(x_p, y_p, pattern);
+            c_xy = camera_image(h, w);
 
             for d_idx = 1:halfVoxelRange * 2 + 1
                 % Calculate depth value
@@ -78,7 +80,7 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
                 alpha = color_alpha(c_xy, p_xy);
                 % Set initial value
                 tmp_exp = Phi_u(delta_depth, norm_sigma_u);
-                beliefField{h, w}(d_idx) = alpha * exp(-tmp_exp-sum_exp{h, w}(d_idx));
+                beliefField{h, w}(d_idx) = exp(-alpha*tmp_exp-sum_exp{h, w}(d_idx));
             end
             if h == 700 && w == 400
                 tmp_bf = beliefField{h, w};
