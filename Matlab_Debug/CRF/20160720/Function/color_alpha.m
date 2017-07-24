@@ -23,9 +23,9 @@ function alpha = color_alpha(c_xy, p_xy)
 
     difference = norm(c_xy_color - p_xy_color);
     if difference == 0
-        alpha = 0.00001;
+        alpha = 1;
     else
-        alpha = 100;
+        alpha = 1000;
     end
 %       difference = min(1/6, abs(c_xy - p_xy));
 %       epsilon = 0.001;

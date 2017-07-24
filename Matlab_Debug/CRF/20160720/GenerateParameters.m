@@ -18,31 +18,33 @@ CAMERA_HEIGHT = 1024;
 CAMERA_WIDTH = 1280;
 PROJECTOR_HEIGHT = 800;
 PROJECTOR_WIDTH = 1280;
-viewportMatrix = [300, 500;
-    600, 800];
+viewportMatrix = [400, 600;
+    300, 500];
 
-main_file_path = '/home/rukun/Structured_Light_Data/20170630/2/';
-% main_file_path = 'E:/Structured_Light_Data/20170630/2/';
+% main_file_path = 'E:/Structured_Light_Data/20170724/Calibration_Square/';
+% main_file_path = '/home/rukun/Structured_Light_Data/20170720/Sphere_2RandDot/';
+main_file_path = 'E:/Structured_Light_Data/20170720/Sphere_2RandDot/';
 pro_x_file_path = 'pro/';
 pro_x_file_name = 'ipro_mat';
 pro_y_file_path = 'pro/';
 pro_y_file_name = 'jpro_mat';
 cam_img_file_path = 'dyna/';
-cam_img_file_name = '4RandDot';
+cam_img_file_name = 'dyna_mat';
 file_suffix = '.txt';
 cam_file_suffix = '.png';
+start_frame_num = 12;
 data_frame_num = 30;
-pattern = double(imread([main_file_path, '4RandDot0.png'])) / 255.0;
+pattern = double(imread([main_file_path, '2RandDot0.png'])) / 255.0;
 
 % For calculation
-calculation_parameters.voxelSize = 0.04;
-calculation_parameters.norm_sigma_u = calculation_parameters.voxelSize * 20;
-calculation_parameters.norm_sigma_t = 1;
-calculation_parameters.norm_sigma_p = 3;
-calculation_parameters.halfVoxelRange = 20;
-calculation_parameters.halfNeighborRange = 7;
-calculation_parameters.omega_u = 1.0;
-calculation_parameters.omega_s = 1.0;
-calculation_parameters.omega_t = 0.0;
+voxelSize = 0.04;
+norm_sigma_u = voxelSize * 20;
+norm_sigma_t = 1;
+norm_sigma_p = 5;
+halfVoxelRange = 20;
+halfNeighborRange = 7;
+omega_u = 1.0;
+omega_s = 1.0;
+omega_t = 1.0;
 
 save parameters.mat

@@ -1,7 +1,7 @@
 function [ Result_mat ] = HoleFilling( raw_mat, ...
     half_search_size, ...
     viewportMatrix)
-
+    
     Result_mat = raw_mat;
     for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
         for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
@@ -27,3 +27,4 @@ function [ Result_mat ] = HoleFilling( raw_mat, ...
     end
 
 end
+
