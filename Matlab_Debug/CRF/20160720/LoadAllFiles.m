@@ -22,5 +22,5 @@ for frame_idx = start_frame_num:data_frame_num
     camera_image{frame_idx, 1} = imread([main_file_path, cam_img_file_path, ...
         cam_img_file_name, num2str(frame_idx), cam_file_suffix]);
     camera_image{frame_idx, 1} = double(camera_image{frame_idx, 1}) / 255.0;
-    camera_image{frame_idx, 1} = NormalizeCameraImage(camera_image{frame_idx, 1}, viewportMatrix);
+    % camera_image{frame_idx, 1} = NormalizeCameraImage(camera_image{frame_idx, 1}, viewportMatrix);
 end

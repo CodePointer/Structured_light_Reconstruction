@@ -1,5 +1,13 @@
 % load parameters.mat
 warning('off');
+main_file_path = 'E:/Structured_Light_Data/20170724/Calibration_Square/';
+pro_x_file_path = 'pro_txt/';
+pro_x_file_name = 'ipro_mat';
+pro_y_file_path = 'pro_txt/';
+pro_y_file_name = 'jpro_mat';
+file_suffix = '.txt';
+CAMERA_HEIGHT = 1024;
+CAMERA_WIDTH = 1280;
 % 
 lineA = zeros(CAMERA_HEIGHT, CAMERA_WIDTH);
 lineB = zeros(CAMERA_HEIGHT, CAMERA_WIDTH);
