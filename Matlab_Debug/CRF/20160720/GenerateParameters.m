@@ -21,9 +21,9 @@ PROJECTOR_WIDTH = 1280;
 viewportMatrix = [400, 600;
     300, 500];
 
-% main_file_path = 'E:/Structured_Light_Data/20170724/Calibration_Square/';
-% main_file_path = '/home/rukun/Structured_Light_Data/20170720/Sphere_2RandDot/';
-main_file_path = 'E:/Structured_Light_Data/20170720/Sphere_2RandDot/';
+% main_file_path = '/home/rukun/Structured_Light_Data/20170724/Calibration_Square/';
+main_file_path = '/home/rukun/Structured_Light_Data/20170720/Sphere_2RandDot/';
+% main_file_path = 'E:/Structured_Light_Data/20170720/Sphere_2RandDot/';
 pro_x_file_path = 'pro/';
 pro_x_file_name = 'ipro_mat';
 pro_y_file_path = 'pro/';
@@ -33,15 +33,15 @@ cam_img_file_name = 'dyna_mat';
 file_suffix = '.txt';
 cam_file_suffix = '.png';
 start_frame_num = 12;
-data_frame_num = 30;
+data_frame_num = 20;
 pattern = double(imread([main_file_path, '2RandDot0.png'])) / 255.0;
 
 % For calculation
 voxelSize = 0.04;
-norm_sigma_u = voxelSize * 20;
+norm_sigma_u = voxelSize * 40;
 norm_sigma_t = 1;
-norm_sigma_p = 5;
-halfVoxelRange = 20;
+norm_sigma_p = 3;
+halfVoxelRange = 10;
 halfNeighborRange = 7;
 omega_u = 1.0;
 omega_s = 1.0;

@@ -22,8 +22,8 @@ camera_image{frame_idx, 1} = double(camera_image{frame_idx, 1}) / 255.0;
 
 
 %% Calculation
-match_mat = zeros(CAMERA_HEIGHT, CAMERA_WIDTH);
-sum_error = 0;
+match_mat = ones(CAMERA_HEIGHT, CAMERA_WIDTH);
+sum_right = 0;
 for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
     for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
         xpro = xpro_mat(h, w);
@@ -32,10 +32,13 @@ for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
         p_xy = GetColorByXYpro(xpro, ypro, pattern);
         c_xy = camera_image{frame_idx, 1}(h, w);
         match_mat(h, w) = color_alpha(c_xy, p_xy);
+%         if abs(c_xy - 0.5) < 0.2
+%             match_mat(h, w) = 0.5;
+%         end
         if match_mat(h, w) > 10
             match_mat(h, w) = 0;
         else
-            sum_error = sum_error + 1;
+            sum_right = sum_right + 1;
         end
     end
 end
