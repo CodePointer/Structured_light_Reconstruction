@@ -1,5 +1,6 @@
 function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
     camera_image, ...
+    mask_mat, ...
     pattern, ...
     last_depth_mat, ...
     lineA, ...
@@ -23,7 +24,9 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
     Message_send = cell(size(beliefFieldLast));
     for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
         for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
-            Message_send{h, w} = Mu_mat * beliefFieldLast{h, w};
+            if mask_mat(h, w) == 1
+                Message_send{h, w} = Mu_mat * beliefFieldLast{h, w};
+            end
             % if h == 700 && w == 400
             %     tmp_ms = Message_send{h, w};
             %     save message_send.mat tmp_ms
@@ -35,6 +38,9 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
     for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
         for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
             sum_exp{h, w} = zeros(halfVoxelRange * 2 + 1, 1);
+            if mask_mat(h, w) == 0
+                continue
+            end
             for h_s = 1:halfNeighborRange*2 + 1
                 for w_s = 1:halfNeighborRange*2 + 1
                     h_neighbor = h + h_s - halfNeighborRange - 1;
@@ -43,8 +49,10 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
                         && (h_neighbor < viewportMatrix(2, 2)) ...
                         && (w_neighbor > viewportMatrix(1, 1)) ...
                         && (w_neighbor < viewportMatrix(1, 2))
-                        sum_exp{h, w} = sum_exp{h, w} ...
-                            + ij_mat(h_s, w_s) * Message_send{h_neighbor, w_neighbor};
+                        if mask_mat(h_neighbor, w_neighbor) == 1
+                            sum_exp{h, w} = sum_exp{h, w} ...
+                                + ij_mat(h_s, w_s) * Message_send{h_neighbor, w_neighbor};
+                        end
                     end
                 end
             end
@@ -67,6 +75,9 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
 %             y_p = xpro2ypro(w, h, x_p, lineA, lineB, lineC);
 %             c_xy = GetColorByXYpro(x_p, y_p, pattern);
             c_xy = camera_image(h, w);
+            if mask_mat(h, w) == 0
+                continue
+            end
 
             for d_idx = 1:halfVoxelRange * 2 + 1
                 % Calculate depth value
