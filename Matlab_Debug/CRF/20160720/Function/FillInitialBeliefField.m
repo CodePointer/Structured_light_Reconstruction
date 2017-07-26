@@ -39,7 +39,7 @@ function beliefField = FillInitialBeliefField(cameraImage, ...
                 p_xy = GetColorByXYpro(xpro, ypro, pattern);
                 alpha = color_alpha(c_xy, p_xy);
                 % alpha = 1 - abs(p_xy - c_xy);
-                beliefField{h, w}(d_idx) = exp(- alpha * Phi_u(delta_depth, norm_sigma_u));
+                beliefField{h, w}(d_idx) = exp(- max(alpha, Phi_u(delta_depth, norm_sigma_u)));
             end
             % Normalize
             sum_value = sum(beliefField{h, w});

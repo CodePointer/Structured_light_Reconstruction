@@ -40,11 +40,11 @@ pattern = double(imread([main_file_path, '2RandDot0.png'])) / 255.0;
 voxelSize = 0.04;
 norm_sigma_u = voxelSize * 40;
 norm_sigma_t = 1;
-norm_sigma_p = 5;
+norm_sigma_p = 12;
 halfVoxelRange = 20;
-halfNeighborRange = 10;
+halfNeighborRange = 30;
 omega_u = 1.0;
-omega_s = 1.0;
+omega_s = 10.0;
 omega_t = 1.0;
 
 save parameters.mat

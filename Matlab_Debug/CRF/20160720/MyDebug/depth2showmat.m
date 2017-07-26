@@ -1,9 +1,9 @@
 function [ show_mat ] = depth2showmat( depth_mat, cameraMatrix, viewportMatrix )
     show_mat = zeros(size(depth_mat));
-    
-    gaussFilter = fspecial('gaussian', [7, 7], 1.6);
-    depth_mat = imfilter(depth_mat, gaussFilter, 'replicate');
-    
+
+    % gaussFilter = fspecial('gaussian', [7, 7], 1.6);
+    % depth_mat = imfilter(depth_mat, gaussFilter, 'replicate');
+
     x_mat = zeros(size(depth_mat));
     y_mat = zeros(size(depth_mat));
     for h = viewportMatrix(2, 1):viewportMatrix(2, 2)

@@ -24,9 +24,7 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
     Message_send = cell(size(beliefFieldLast));
     for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
         for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
-            if mask_mat(h, w) == 1
-                Message_send{h, w} = Mu_mat * beliefFieldLast{h, w};
-            end
+            Message_send{h, w} = Mu_mat * beliefFieldLast{h, w};
             % if h == 700 && w == 400
             %     tmp_ms = Message_send{h, w};
             %     save message_send.mat tmp_ms
@@ -90,7 +88,7 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
                 alpha = color_alpha(c_xy, p_xy);
                 % Set initial value
                 tmp_exp = Phi_u(delta_depth, norm_sigma_u);
-                beliefField{h, w}(d_idx) = exp(-alpha*tmp_exp-sum_exp{h, w}(d_idx));
+                beliefField{h, w}(d_idx) = exp(-max(alpha, tmp_exp) -sum_exp{h, w}(d_idx));
             end
             % if h == 700 && w == 400
             %     tmp_bf = beliefField{h, w};
