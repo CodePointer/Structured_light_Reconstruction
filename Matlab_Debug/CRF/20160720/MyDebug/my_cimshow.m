@@ -2,6 +2,11 @@ function [] = my_cimshow(delta_depth_mat, mask_mat, viewportMatrix)
 
     [CAMERA_HEIGHT, CAMERA_WIDTH] = size(delta_depth_mat);
     show_color_mat = zeros(CAMERA_HEIGHT, CAMERA_WIDTH, 3);
+    
+    [mask_size_h, mask_size_w] = size(mask_mat);
+    if mask_size_h == 0 && mask_size_w == 0
+        mask_mat = ones(CAMERA_HEIGHT, CAMERA_WIDTH);
+    end
 
     for h = viewportMatrix(2,1):viewportMatrix(2,2)
         for w = viewportMatrix(1,1):viewportMatrix(1,2)

@@ -18,12 +18,14 @@ CAMERA_HEIGHT = 1024;
 CAMERA_WIDTH = 1280;
 PROJECTOR_HEIGHT = 800;
 PROJECTOR_WIDTH = 1280;
-viewportMatrix = [400, 600;
-    300, 500];
+% viewportMatrix = [400, 600;
+%     300, 500];
+viewportMatrix = [600, 800;
+    200, 400];
 
 % main_file_path = '/home/rukun/Structured_Light_Data/20170724/Calibration_Square/';
 % main_file_path = '/home/rukun/Structured_Light_Data/20170720/Sphere_2RandDot/';
-main_file_path = 'E:/Structured_Light_Data/20170720/Sphere_2RandDot/';
+main_file_path = 'E:/Structured_Light_Data/20170720/Statue_2RandDot/';
 pro_x_file_path = 'pro/';
 pro_x_file_name = 'ipro_mat';
 pro_y_file_path = 'pro/';
@@ -32,7 +34,7 @@ cam_img_file_path = 'dyna/';
 cam_img_file_name = 'dyna_mat';
 file_suffix = '.txt';
 cam_file_suffix = '.png';
-start_frame_num = 12;
+start_frame_num = 1;
 data_frame_num = 20;
 pattern = double(imread([main_file_path, '2RandDot0.png'])) / 255.0;
 

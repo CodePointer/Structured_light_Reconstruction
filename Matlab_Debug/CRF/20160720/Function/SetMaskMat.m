@@ -23,9 +23,9 @@ function [ mask_mat ] = SetMaskMat( last_camera_image, now_camera_image, viewpor
     mask_mat3 = zeros(size(last_camera_image));
     for h = viewportMatrix(2,1):viewportMatrix(2,2)
         for w = viewportMatrix(1,1):viewportMatrix(1,2)
-            if now_camera_image(h, w) < 0.3 && last_camera_image(h, w) > 0.7
+            if now_camera_image(h, w) < 0.4 && last_camera_image(h, w) > 0.6
                 mask_mat3(h, w) = 1;
-            elseif now_camera_image(h, w) > 0.7 && last_camera_image(h, w) < 0.3
+            elseif now_camera_image(h, w) > 0.6 && last_camera_image(h, w) < 0.4
                 mask_mat3(h, w) = 1;
             end
         end

@@ -1,23 +1,16 @@
-delta_depth_mat = tmp_delta_depth_mat;
-last_camera_mat = camera_image{frame_idx-1, 1};
-now_camera_mat = camera_image{frame_idx, 1};
-
-color_mat = zeros(size(last_camera_mat));
-for h = viewportMatrix(2,1):viewportMatrix(2,2)
-    for w = viewportMatrix(1,1):viewportMatrix(1,2)
-        if abs(now_camera_mat(h, w) - 0.5) < 0.2
-            color_mat(h, w) = 1;
-        end
-    end
+%% Load part
+delta_depth_mats = cell(20, 1);
+mask_mats = cell(20, 1);
+for i = 2:17
+    load(['depth_mat/delta_frame_', num2str(i), '.mat']);
+    delta_depth_mats{i, 1} = total_delta_depth_mat;
+    load(['depth_mat/mask_mat', num2str(i), '.mat']);
+    mask_mats{i, 1} = mask_mat;
 end
 
-
-tmp_show_mat = zeros(size(last_camera_mat));
-for h = viewportMatrix(2,1):viewportMatrix(2,2)
-    for w = viewportMatrix(1,1):viewportMatrix(1,2)
-        if abs(now_camera_mat(h, w) - 0.5) > 0.2
-            tmp_show_mat(h, w) = tmp_delta_depth_mat(h, w);
-        end
-    end
-end
-figure, my_imshow(tmp_show_mat, viewportMatrix, true);
+%% Show part
+h = 200 + 95 - 1;
+w = 600 + 142 - 1;
+show_vec = GetDeltaDepthVectorOnPoint(h, w, 2, 17, delta_depth_mats, mask_mats);
+figure;
+plot(show_vec(:,1), show_vec(:,2));
