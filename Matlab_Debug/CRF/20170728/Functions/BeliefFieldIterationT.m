@@ -100,7 +100,7 @@ function belief_field = BeliefFieldIterationT(belief_field_last, ...
         for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
             for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
                 belief_field{l, 1}{h, w} = zeros(2*cal_para.hVoxelRange + 1, 1);
-                c_xy = camera_image{l, 1}(h, w);
+                c_xy = camera_image{l + 1, 1}(h, w);
 
                 if mask_mats{l, 1}(h, w) == 0
                     continue

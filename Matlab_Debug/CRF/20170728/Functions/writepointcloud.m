@@ -1,4 +1,4 @@
-function [  ] = writepointcloud( depth, cameraMatrix, file_name, viewportMatrix )
+function [  ] = writepointcloud( depth, cameraMatrix, file_name, viewportMatrix, mask_mat )
 %WRITEPOINTCLOUD 此处显示有关此函数的摘要
 %   此处显示详细说明
     point_cloud = [];
@@ -7,7 +7,7 @@ function [  ] = writepointcloud( depth, cameraMatrix, file_name, viewportMatrix 
     fid = fopen(file_name, 'w');
     for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
         for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
-            if depth(h, w) > 0 && depth(h, w) < 40.0
+            if depth(h, w) > 0 && depth(h, w) < 40.0 && mask_mat(h, w) == 1
                 x_mat(h, w) = depth(h, w) * (w - cameraMatrix(1, 3)) ...
                     / cameraMatrix(1, 1);
                 y_mat(h, w) = depth(h, w) * (h - cameraMatrix(2, 3)) ...

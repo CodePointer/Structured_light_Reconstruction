@@ -44,7 +44,7 @@ calculate_parameters.norm_sigma_t = 2.0;
 calculate_parameters.hMaskSRange = 5;
 calculate_parameters.omega_u = 1.0;
 calculate_parameters.omega_p = 10.0;
-calculate_parameters.omega_t = 10.0;
+calculate_parameters.omega_t = 0.0;
 calculate_parameters.k_nearest = 8;
 epipolar_parameters.A = lineA;
 epipolar_parameters.B = lineB;
@@ -71,6 +71,16 @@ end
 
 
 %% Check
-for iter_idx = 1:10
-    
+tmp_delta_depth_mats = GetDeltaDepthsFromBeliefField(total_belief_field, ...
+    mask_mats, ...
+    calculate_parameters, ...
+    viewportMatrix);
+total_mask_mat = zeros(CAMERA_HEIGHT, CAMERA_WIDTH);
+for i = 2:6
+    total_mask_mat = total_mask_mat + mask_mats{i-1, 1};
 end
+total_mask_mat = (total_mask_mat > 0);
+for i = 2:6
+    depth_mats{i, 1} = depth_mats{i-1, 1} + tmp_delta_depth_mats{i-1, 1};
+end
+fprintf('Check finished.\n');
