@@ -1,8 +1,8 @@
 start_frame_num = 1;
-end_frame_num = 17;
+end_frame_num = 20;
 half_window_size = 10;
-h_qry = 200 + 101 - 1;
-w_qry = 600 + 101 - 1;
+h_qry = 200 + 35 - 1;
+w_qry = 600 + 116 - 1;
 
 for frame_idx = start_frame_num+1:end_frame_num
     fprintf('%d -> %d\n', frame_idx-1, frame_idx);
@@ -29,5 +29,10 @@ for frame_idx = start_frame_num+1:end_frame_num
 
     big_show_mat = imresize(show_mat, 10.0, 'nearest');
     imshow(big_show_mat);
+    
+    half_show_mat = show_mat;
+    half_show_mat(1:2*half_window_size, :, :) = camera_image{frame_idx, 1}(h_qry, w_qry);
+    half_big_show_mat = imresize(half_show_mat, 10.0, 'nearest');
+    imwrite(half_big_show_mat, ['image', num2str(frame_idx), '.png']);
 
 end

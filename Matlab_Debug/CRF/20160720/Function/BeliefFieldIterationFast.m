@@ -96,7 +96,7 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
                 alpha = color_alpha(c_xy, p_xy);
                 % Set initial value
                 tmp_exp = Phi_u(delta_depth, norm_sigma_u);
-                beliefField{h, w}(d_idx) = exp(-max(alpha, tmp_exp) - 10 * sum_exp{h, w}(d_idx));
+                beliefField{h, w}(d_idx) = exp(-max(alpha, tmp_exp) - 1 * sum_exp{h, w}(d_idx));
             end
             % if h == 700 && w == 400
             %     tmp_bf = beliefField{h, w};

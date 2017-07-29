@@ -5,10 +5,10 @@ for frame_idx = start_frame_num+1:1:data_frame_num
     % Initial
     fprintf('F%d:', frame_idx);
     last_frame_idx = last_frame_idx + 1;
-    mask_mat = SetMaskMat(camera_image{frame_idx-1, 1}, ...
+    mask_mat = SetMaskMat(camera_image{last_frame_idx, 1}, ...
         camera_image{frame_idx, 1}, ...
         viewportMatrix);
-    if sum(sum(mask_mat(viewportMatrix(2,1):viewportMatrix(2,2), viewportMatrix(1,1):viewportMatrix(1,2)))) < 200
+    if sum(sum(mask_mat(viewportMatrix(2,1):viewportMatrix(2,2), viewportMatrix(1,1):viewportMatrix(1,2)))) < 400
         depth_mats{frame_idx, 1} = depth_mats{frame_idx-1, 1};
         last_frame_idx = last_frame_idx - 1;
         continue;

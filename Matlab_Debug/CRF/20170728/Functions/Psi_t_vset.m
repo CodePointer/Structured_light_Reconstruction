@@ -54,7 +54,10 @@ function v_i_set_mat = Psi_t_vset(belief_field, ...
                             end
                         end
                     end
-                    v_i_set_mat{h, w}(l, 1) = v_i_tmp / total_weight;
+                    if total_weight == 0
+                        v_i_set_mat{h, w}(l, 1) = 0;
+                    end
+%                     v_i_set_mat{h, w}(l, 1) = v_i_tmp / total_weight;
                 end
             end
         end

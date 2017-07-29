@@ -112,7 +112,7 @@ function belief_field = BeliefFieldIterationT(belief_field_last, ...
                 end
 
                 if h == 285 && w == 720 && l == 5
-                    disp([h, w, l]);
+                    fprintf('');
                 end
                 
                 for d_idx = 1:cal_para.hVoxelRange * 2 + 1
