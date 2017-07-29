@@ -39,6 +39,11 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
             if mask_mat(h, w) == 0
                 continue
             end
+            
+            if h == 285 && w == 720
+                fprintf('');
+            end
+            
             for h_s = 1:halfNeighborRange*2 + 1
                 for w_s = 1:halfNeighborRange*2 + 1
                     h_neighbor = h + h_s - halfNeighborRange - 1;
@@ -69,6 +74,9 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
         for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
             beliefField{h, w} = zeros(halfVoxelRange * 2 + 1, 1);
 
+            if h == 285 && w ==720
+                fprintf('');
+            end
 %             x_p = depth2xpro(w, h, now_depth_mat(h, w));
 %             y_p = xpro2ypro(w, h, x_p, lineA, lineB, lineC);
 %             c_xy = GetColorByXYpro(x_p, y_p, pattern);
@@ -88,7 +96,7 @@ function beliefField = BeliefFieldIterationFast(beliefFieldLast, ...
                 alpha = color_alpha(c_xy, p_xy);
                 % Set initial value
                 tmp_exp = Phi_u(delta_depth, norm_sigma_u);
-                beliefField{h, w}(d_idx) = exp(-max(alpha, tmp_exp) -sum_exp{h, w}(d_idx));
+                beliefField{h, w}(d_idx) = exp(-max(alpha, tmp_exp) - 10 * sum_exp{h, w}(d_idx));
             end
             % if h == 700 && w == 400
             %     tmp_bf = beliefField{h, w};

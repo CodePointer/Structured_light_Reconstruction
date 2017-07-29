@@ -13,7 +13,7 @@ function belief_field = BeliefFieldIterationT(belief_field_last, ...
 
     % Iteration: for every voxel in the beliefField
     Mu_mat = Mu_mat_generation(cal_para.voxelSize, cal_para.hVoxelRange);
-    ij_mat_p = ij_alpha(cal_para.hNborRange, cal_para.norm_sigma_u);
+    ij_mat_p = ij_alpha(cal_para.hNborRange, cal_para.norm_sigma_p);
 
     % Calculate Message_send matrix for psi_p
     Message_sends = cell(LAYER_NUM, 1);
@@ -28,7 +28,7 @@ function belief_field = BeliefFieldIterationT(belief_field_last, ...
 
     % psi_p calculation
     psi_p_exp = cell(LAYER_NUM, 1);
-    for l = 1:LAYER_NUM
+    for l = LAYER_NUM:-1:1
         psi_p_exp{l, 1} = cell(CAMERA_HEIGHT, CAMERA_WIDTH);
         for h = viewportMatrix(2, 1):viewportMatrix(2, 2)
             for w = viewportMatrix(1, 1):viewportMatrix(1, 2)
@@ -36,6 +36,11 @@ function belief_field = BeliefFieldIterationT(belief_field_last, ...
                 if mask_mats{l, 1}(h, w) == 0
                     continue
                 end
+                
+                if h == 285 && w == 720 && l == 5
+                    fprintf('');
+                end
+                
                 for h_s = 1:cal_para.hNborRange*2 + 1
                     for w_s = 1:cal_para.hNborRange*2 + 1
                         h_nbor = h + h_s - cal_para.hNborRange - 1;
@@ -106,6 +111,10 @@ function belief_field = BeliefFieldIterationT(belief_field_last, ...
                     continue
                 end
 
+                if h == 285 && w == 720 && l == 5
+                    disp([h, w, l]);
+                end
+                
                 for d_idx = 1:cal_para.hVoxelRange * 2 + 1
                     % Psi_u: Calculate depth value
                     delta_depth = (d_idx - cal_para.hVoxelRange - 1) * cal_para.voxelSize;
