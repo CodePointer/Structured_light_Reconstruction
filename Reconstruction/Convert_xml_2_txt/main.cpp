@@ -97,9 +97,9 @@ int main()
 	/*string xml_path = "E:/Structured_Light_Data/20170410/StatueForward2/pro/";
 	string xml_name = "jpro_mat";
 	string txt_path = "E:/Structured_Light_Data/20170410/StatueForward2/ground_truth/";*/
-	string xml_path = "E:/Structured_Light_Data/20170720/Statue_2RandDot/pro/";
-	string xml_name = "jpro_mat";
-	string txt_path = "E:/Structured_Light_Data/20170720/Statue_2RandDot/pro/";
+	string xml_path = "E:/Structured_Light_Data/20170915/EpipolarCalibration/pro/";
+	string xml_name = "ypro_mat";
+	string txt_path = "E:/Structured_Light_Data/20170915/EpipolarCalibration/pro_txt/";
 	/*string mat_names[2] = { "iH", "iW" };
 
 	xml2txt(xml_path,
@@ -116,7 +116,7 @@ int main()
 		txt_path,
 		mat_names_depth,
 		1,
-		1);
+		21);
 
 	system("PAUSE");
 	return 0;
