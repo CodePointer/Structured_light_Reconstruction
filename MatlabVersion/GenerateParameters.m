@@ -30,5 +30,8 @@ img_file_name = 'pattern_3size6color';
 img_file_suffix = '.png';
 total_frame_num = 20;
 pattern = imread([main_file_path, 'pattern_3size6color.png']);
+PROJECTOR_RANGE_HEIGHT = 51;
+PROJECTOR_RANGE_WIDTH = 51;
+pro_range = [769, 919; 445, 595]; % matlab coordinates
 
 save GeneralPara.mat
