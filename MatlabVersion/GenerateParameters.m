@@ -19,17 +19,16 @@ CAMERA_HEIGHT = 1024;
 CAMERA_WIDTH = 1280;
 PROJECTOR_HEIGHT = 800;
 PROJECTOR_WIDTH = 1280;
-main_file_path = 'E:/Structured_Light_Data/20170915/EpipolarCalibration/';
+main_file_path = 'E:/Structured_Light_Data/20170919/EpipolarCalibration/';
 xpro_file_path = 'pro_txt/';
-xpro_file_name = 'ipro_mat';
+xpro_file_name = 'xpro_mat';
 ypro_file_path = 'pro_txt/';
-ypro_file_name = 'jpro_mat';
+ypro_file_name = 'ypro_mat';
 pro_file_suffix = '.txt';
 img_file_path = 'dyna/';
 img_file_name = 'pattern_3size6color';
 img_file_suffix = '.png';
 total_frame_num = 20;
 pattern = imread([main_file_path, 'pattern_3size6color.png']);
-pro_range = [846, 996; 405, 555];
 
 save GeneralPara.mat
