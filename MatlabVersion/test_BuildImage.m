@@ -12,7 +12,7 @@ ypro_mat = load([main_file_path, ypro_file_path, ...
     ypro_file_name, num2str(0), pro_file_suffix]);
 
 % Intersection For xpro_mat & ypro_mat
-intersect_range = [376, 1036; 349, 757];
+intersect_range = [253, 1037; 210, 746];
 for h = intersect_range(2, 1):intersect_range(2, 2)
     for w = intersect_range(1, 1):intersect_range(1, 2)
         if xpro_mat(h, w) < 0
@@ -36,7 +36,7 @@ for h = 1:CAMERA_HEIGHT
         end
     end
 end
-search_range = [549, 815; 404, 665];
+search_range = intersect_range;
 valid_mask(831:end, :) = 0;
 
 % Fill Correspondence mat
