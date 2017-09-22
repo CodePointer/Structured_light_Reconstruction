@@ -1,4 +1,4 @@
-function [depth_mat, corres_points] = fun_InitDepthMat(FilePath, ProInfo, CamInfo, CalibMat)
+function [depth_mat, corres_points, opt_mat] = fun_InitDepthMat(FilePath, ProInfo, CamInfo, CalibMat)
 % Calculate first depth mat
 
     % Read xpro_mat, ypro_mat, opt_mat
@@ -19,7 +19,7 @@ function [depth_mat, corres_points] = fun_InitDepthMat(FilePath, ProInfo, CamInf
     depth_mat = zeros(ProInfo.RANGE_HEIGHT, ProInfo.RANGE_WIDTH);
 
     % Intersect xpro_mat, ypro_mat
-    intersect_range = [253, 1037; 210, 746];
+    intersect_range = [430, 700; 470, 700];
     for h = intersect_range(2,1):intersect_range(2,2)
         for w = intersect_range(1,1):intersect_range(1,2)
             if xpro_mat(h,w) < 0
@@ -71,6 +71,9 @@ function [depth_mat, corres_points] = fun_InitDepthMat(FilePath, ProInfo, CamInf
                 end
             end
             [h_min, w_min] = find(match_res == min(min(match_res)));
+            if size(h_min, 1) > 1
+                continue;
+            end
             corres_points{h,w} = corres_points{h,w} + [h_min-2, w_min-2];
         end
     end

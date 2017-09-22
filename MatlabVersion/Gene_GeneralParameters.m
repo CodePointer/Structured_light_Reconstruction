@@ -72,7 +72,13 @@ ParaSet.gauss = [0,1,1;
     1043.29, 1.308, 1.308;
     1382.99, 1.254, 1.254;
     1728.74, 1.254, 1.254] * 1;
-ParaSet.gauss(:, 1) = ParaSet.gauss(:, 1) * 1;
+sigma = [2.0; 2.0; 2.0; 2.0; 2.0; 2.0];
+% color = [47; 91; 111; 145; 156; 208];
+color = [0; 9; 14; 21; 28; 36];
+ParaSet.gauss = zeros(6, 3);
+ParaSet.gauss(:, 1) = color.*(sigma.^2) * 2 * pi;
+ParaSet.gauss(:, 2:3) = [sigma, sigma];
+% ParaSet.gauss(:, 1) = ParaSet.gauss(:, 1) * 1;
 
 save('GeneralPara.mat', ...
     'CalibMat', 'CamInfo', 'ProInfo', ...
