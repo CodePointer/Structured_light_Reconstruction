@@ -1,4 +1,4 @@
-function [depth_mat, corres_points, opt_mat] = fun_InitDepthMat(FilePath, ProInfo, CamInfo, CalibMat)
+function [depth_mat, corres_points, opt_mat] = fun_InitDepthMat(FilePath, ProInfo, ParaSet)
 % Calculate first depth mat
 
     % Read xpro_mat, ypro_mat, opt_mat
@@ -79,22 +79,13 @@ function [depth_mat, corres_points, opt_mat] = fun_InitDepthMat(FilePath, ProInf
     end
 
     % Calculate depth mat
-    proMat = CalibMat.proMat;
-    camMat = CalibMat.camMat;
-    A = proMat(1,1) * proMat(2,2) * camMat(1,4);
-    B = proMat(1,1) * proMat(2,2) * camMat(3,4);
     for h = 1:ProInfo.RANGE_HEIGHT
         for w = 1:ProInfo.RANGE_WIDTH
-            x_p = w + ProInfo.pro_range(1,1) - 1;
-            y_p = h + ProInfo.pro_range(2,1) - 1;
+            k = (h-1)*ProInfo.RANGE_WIDTH + w;
             x_c = corres_points{h,w}(1,2);
-            C = (x_p - proMat(1,3)) * proMat(2,2) * camMat(1,1) ...
-                + (y_p - proMat(2,3)) * proMat(1,1) * camMat(1,2) ...
-                + proMat(1,1) * proMat(2,2) * camMat(1,3);
-            D = (x_p - proMat(1,3)) * proMat(2,2) * camMat(3,1) ...
-                + (y_p - proMat(2,3)) * proMat(1,1) * camMat(3,2) ...
-                + proMat(1,1) * proMat(2,2) * camMat(3,3);
-            depth_mat(h, w) = - (A-B*x_c) / (C-D*x_c);
+            M = ParaSet.M(k, :);
+            D = ParaSet.D(k, :);
+            depth_mat(h, w) = - (D(1)-D(3)*x_c) / (M(1)-M(3)*x_c);
         end
     end
 end

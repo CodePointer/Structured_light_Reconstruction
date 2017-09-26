@@ -97,9 +97,9 @@ int main()
 	/*string xml_path = "E:/Structured_Light_Data/20170410/StatueForward2/pro/";
 	string xml_name = "jpro_mat";
 	string txt_path = "E:/Structured_Light_Data/20170410/StatueForward2/ground_truth/";*/
-	string xml_path = "E:/Structured_Light_Data/20170919/SquareMovement/pro/";
+	string xml_path = "E:/Structured_Light_Data/20170919/SphereMovement4/pro/";
 	string xml_name = "ypro_mat";
-	string txt_path = "E:/Structured_Light_Data/20170919/SquareMovement/pro_txt/";
+	string txt_path = "E:/Structured_Light_Data/20170919/SphereMovement4/pro_txt/";
 	/*string mat_names[2] = { "iH", "iW" };
 
 	xml2txt(xml_path,

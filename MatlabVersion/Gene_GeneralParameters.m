@@ -80,6 +80,29 @@ ParaSet.gauss(:, 1) = color.*(sigma.^2) * 2 * pi;
 ParaSet.gauss(:, 2:3) = [sigma, sigma];
 % ParaSet.gauss(:, 1) = ParaSet.gauss(:, 1) * 1;
 
+ParaSet.gradOpt = sparse(ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH, ...
+    ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH);
+for h = 1:ProInfo.RANGE_HEIGHT-1
+    for w = 1:ProInfo.RANGE_WIDTH-1
+        idx = (h-1)*ProInfo.RANGE_WIDTH + w;
+        idx_nbor = [];
+        if h-1 >= 1
+            idx_nbor = [idx_nbor; (h-1-1)*ProInfo.RANGE_WIDTH + w];
+        end
+        if h+1 <= ProInfo.RANGE_HEIGHT
+            idx_nbor = [idx_nbor; (h+1-1)*ProInfo.RANGE_WIDTH + w];
+        end
+        if w-1 >= 1
+            idx_nbor = [idx_nbor; (h-1)*ProInfo.RANGE_WIDTH + w-1];
+        end
+        if w+1 <= ProInfo.RANGE_WIDTH
+            idx_nbor = [idx_nbor; (h-1)*ProInfo.RANGE_WIDTH + w+1];
+        end
+        ParaSet.gradOpt(idx, idx) = 4;
+        ParaSet.gradOpt(idx, idx_nbor) = -1 * 4 / size(idx_nbor, 1);
+    end
+end
+
 save('GeneralPara.mat', ...
     'CalibMat', 'CamInfo', 'ProInfo', ...
     'FilePath', 'ParaSet', 'total_frame_num', 'pattern');
