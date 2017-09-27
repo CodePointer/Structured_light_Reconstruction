@@ -12,7 +12,7 @@ corres_mats = cell(total_frame_num, 1);
 tmp_image = double(imread([FilePath.main_file_path, ...
     FilePath.img_file_path, ...
     FilePath.img_file_name, ...
-    num2str(11), ...
+    num2str(1), ...
     FilePath.img_file_suffix]));
 cam_mats{1, 1} = tmp_image(CamInfo.cam_range(2,1):CamInfo.cam_range(2,2), ...
     CamInfo.cam_range(1,1):CamInfo.cam_range(1,2));
@@ -26,6 +26,19 @@ cam_mats{2, 1} = tmp_image(CamInfo.cam_range(2,1):CamInfo.cam_range(2,2), ...
 opt_mat = optical_mat(CamInfo.cam_range(2,1):CamInfo.cam_range(2,2), ...
     CamInfo.cam_range(1,1):CamInfo.cam_range(1,2));
 
+show_mat = zeros(CamInfo.RANGE_HEIGHT, CamInfo.RANGE_WIDTH, 3);
+show_mat(:, :, 1) = double(cam_mats{1,1}) / 255;
+show_mat(:, :, 2) = show_mat(:, :, 1);
+show_mat(:, :, 3) = show_mat(:, :, 1);
+for h = 1:51
+    for w = 1:51
+        h_c = corres_mats{1,1}{h,w}(1,1) - CamInfo.cam_range(2,1) + 1;
+        w_c = corres_mats{1,1}{h,w}(1,2) - CamInfo.cam_range(1,1) + 1;
+        show_mat(h_c, w_c, :) = 0.0;
+        show_mat(h_c, w_c, 1) = 1.0;
+    end
+end
+
 % Prepare for Optimization
 color_table = zeros(ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH, 1);
 sigma_table = zeros(ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH, 2);
@@ -34,13 +47,18 @@ for pvec_idx = 1:ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH
     w_pro = ParaSet.coord_pro(pvec_idx,2);
     x_pro = ProInfo.pro_range(1,1) + (w_pro-1)*3 + 1;
     y_pro = ProInfo.pro_range(2,1) + (h_pro-1)*3 + 1;
-    color_index = round((pattern(y_pro, x_pro)-60)/35);
-    if color_index == 0
-        color_index = 1;
-    end
-    color_table(pvec_idx, 1) = ParaSet.gauss(color_index, 1);
-    sigma_table(pvec_idx, 1) = ParaSet.gauss(color_index, 2);
-    sigma_table(pvec_idx, 2) = ParaSet.gauss(color_index, 3);
+%     color_index = round((pattern(y_pro, x_pro)-60)/35);
+%     if color_index == 0
+%         color_index = 1;
+%     end
+%     color_table(pvec_idx, 1) = ParaSet.gauss(color_index, 1);
+%     sigma_table(pvec_idx, 1) = ParaSet.gauss(color_index, 2);
+%     sigma_table(pvec_idx, 2) = ParaSet.gauss(color_index, 3);
+    x_cam = corres_mats{1,1}{h_pro,w_pro}(1,2) - CamInfo.cam_range(1,1) + 1;
+    y_cam = corres_mats{1,1}{h_pro,w_pro}(1,1) - CamInfo.cam_range(2,1) + 1;
+    sigma_table(pvec_idx, :) = 2;
+    color_table(pvec_idx,1) = (cam_mats{1,1}(y_cam, x_cam)-40) ...
+        * 2 * pi * sigma_table(pvec_idx,1) * sigma_table(pvec_idx,2);
 end
 last_depth_vec = reshape(depth_mats{1,1}', ...
     ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH, 1);
@@ -61,20 +79,23 @@ C_set(:,3) = ParaSet.M(:,3).*last_depth_vec + ParaSet.D(:,3);
     EpiLine, ...
     C_set, ...
     ParaSet);
-projected_vec = sum(projected_vecmat, 2) + 20;
-iterative_vecs = cell(20, 1);
+projected_vec = sum(projected_vecmat, 2);
+iter_times = 40;
+iterative_vecs = cell(iter_times, 1);
 iterative_vecs{1,1} = projected_vec;
-error_value = zeros(20, 1);
+error_value = zeros(iter_times, 1);
 error_value(1,1) = fun_ErrorFunction(image_vec, ...
     projected_vec, ...
     valid_index, ...
     last_depth_vec, ...
     delta_depth_vec, ...
     ParaSet);
-alpha = 0.1;
+alpha = 0.5;
 theta = 1;
+fprintf('iter1: error=%.2f\n', error_value(1,1));
+fun_ShowImage(projected_vec, CamInfo)
 
-for iter_idx = 2:20
+for iter_idx = 2:iter_times
     % Set derv direction
     fprintf(['iter', num2str(iter_idx), ':']);
     projected_derv_vecmat = fun_ProjectedImageDerv(projected_vecmat, ...
@@ -108,7 +129,7 @@ for iter_idx = 2:20
         EpiLine, ...
         C_set, ...
         ParaSet);
-    projected_vec = sum(projected_vecmat, 2) + 20;
+    projected_vec = sum(projected_vecmat, 2);
     iterative_vecs{iter_idx,1} = projected_vec;
     error_value(iter_idx,1) = fun_ErrorFunction(image_vec, ...
         projected_vec, ...
