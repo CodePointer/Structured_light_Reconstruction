@@ -3,5 +3,5 @@ function [] = fun_ShowImage(projected_vec, CamInfo)
 
     cam_mat = reshape(projected_vec, ...
         CamInfo.RANGE_WIDTH, CamInfo.RANGE_HEIGHT)';
-    imshow(cam_mat, []);
+    imshow(uint8(cam_mat));
 end

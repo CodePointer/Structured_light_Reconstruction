@@ -1,4 +1,7 @@
-function [depth_mat, corres_points, opt_mat] = fun_InitDepthMat(FilePath, ProInfo, ParaSet)
+function [depth_mat, corres_points, opt_mat] = fun_InitDepthMat(FilePath, ...
+    CamInfo, ...
+    ProInfo, ...
+    ParaSet)
 % Calculate first depth mat
 
     % Read xpro_mat, ypro_mat, opt_mat
@@ -19,7 +22,10 @@ function [depth_mat, corres_points, opt_mat] = fun_InitDepthMat(FilePath, ProInf
     depth_mat = zeros(ProInfo.RANGE_HEIGHT, ProInfo.RANGE_WIDTH);
 
     % Intersect xpro_mat, ypro_mat
-    intersect_range = [430, 700; 470, 700];
+    intersect_range = [CamInfo.cam_range(1,1) - 1, ...
+        CamInfo.cam_range(1,2) + 1; ...
+        CamInfo.cam_range(2,1) - 1, ...
+        CamInfo.cam_range(2,2) + 1];
     for h = intersect_range(2,1):intersect_range(2,2)
         for w = intersect_range(1,1):intersect_range(1,2)
             if xpro_mat(h,w) < 0
@@ -53,8 +59,8 @@ function [depth_mat, corres_points, opt_mat] = fun_InitDepthMat(FilePath, ProInf
 
     % Use opt_mat to refine depth information
     template_mat = cell(2, 1);
-    template_mat{1, 1} = [93, 87, 93; 87, 75, 87; 93, 87, 93;];
-    template_mat{2, 1} = [130, 144, 130; 144, 161, 144; 130, 144, 130];
+    template_mat{1, 1} = [67, 52, 67; 52, 46, 52; 67, 52, 67;];
+    template_mat{2, 1} = [100, 113, 100; 113, 124, 113; 100, 113, 100];
     for h = 1:ProInfo.RANGE_HEIGHT
         for w = 1:ProInfo.RANGE_WIDTH
             xpro_center = (w-1)*3 + ProInfo.pro_range(1,1);
