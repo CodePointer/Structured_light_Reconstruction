@@ -59,8 +59,12 @@ function [depth_mat, corres_points, opt_mat] = fun_InitDepthMat(FilePath, ...
 
     % Use opt_mat to refine depth information
     template_mat = cell(2, 1);
+    % Square
     template_mat{1, 1} = [67, 52, 67; 52, 46, 52; 67, 52, 67;];
     template_mat{2, 1} = [100, 113, 100; 113, 124, 113; 100, 113, 100];
+    template_mat{1,1} = mapminmax(template_mat{1,1});
+    template_mat{2,1} = mapminmax(template_mat{2,1});
+    % Sphere
     for h = 1:ProInfo.RANGE_HEIGHT
         for w = 1:ProInfo.RANGE_WIDTH
             xpro_center = (w-1)*3 + ProInfo.pro_range(1,1);
@@ -73,6 +77,7 @@ function [depth_mat, corres_points, opt_mat] = fun_InitDepthMat(FilePath, ...
                     w_center = corres_points{h, w}(1,2) + w_s;
                     opt_part = double(opt_mat(h_center-1:h_center+1, ...
                         w_center-1:w_center+1));
+                    opt_part = mapminmax(opt_part);
                     match_res(h_s+2,w_s+2) = sum(sum((template_mat{t_idx,1} - opt_part).^2));
                 end
             end

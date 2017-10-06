@@ -1,44 +1,64 @@
-% load GeneralPara.mat
+% Load parameters
+clear;
+load EpipolarPara.mat
+load GeneralPara.mat
 
-% x_pro_mat = load('E:/Structured_Light_Data/20170927/wqy/pro_txt/xpro_mat0.txt');
+% Read information of 1st frame
+cam_mats = cell(total_frame_num, 1);
+depth_mats = cell(total_frame_num, 1);
+valid_mats = cell(total_frame_num, 1);
+corres_mats = cell(total_frame_num, 1);
+[depth_mats{1,1}, corres_mats{1,1}, optical_mat] = fun_InitDepthMat(FilePath, ...
+    CamInfo, ...
+    ProInfo, ...
+    ParaSet);
+tmp_image = double(imread([FilePath.main_file_path, ...
+    FilePath.img_file_path, ...
+    FilePath.img_file_name, ...
+    num2str(1), ...
+    FilePath.img_file_suffix]));
+cam_mats{1, 1} = tmp_image(CamInfo.cam_range(2,1):CamInfo.cam_range(2,2), ...
+    CamInfo.cam_range(1,1):CamInfo.cam_range(1,2));
+tmp_image = double(imread([FilePath.main_file_path, ...
+    FilePath.img_file_path, ...
+    FilePath.img_file_name, ...
+    num2str(12), ...
+    FilePath.img_file_suffix]));
+cam_mats{2, 1} = tmp_image(CamInfo.cam_range(2,1):CamInfo.cam_range(2,2), ...
+    CamInfo.cam_range(1,1):CamInfo.cam_range(1,2));
+opt_mat = optical_mat(CamInfo.cam_range(2,1):CamInfo.cam_range(2,2), ...
+    CamInfo.cam_range(1,1):CamInfo.cam_range(1,2));
 
-ProMat = CalibMat.pro * [CalibMat.rot, CalibMat.trans];
-depth_mat = ones(1024, 1280)*1000;
-% mask = zeros(1024, 1280);
-% mask(depth_mat < 0) = 1;
-
-fid = fopen('wqy.txt', 'wt+');
-for x_cam = 1:1280
-    for y_cam = 1:1024
-        x_pro = x_pro_mat(y_cam, x_cam);
-        if (x_pro < 0)
-            continue;
-        end
-        tmp_vec = [(x_cam - CalibMat.cam(1,3)) / CalibMat.cam(1,1);
-            (y_cam - CalibMat.cam(2,3)) / CalibMat.cam(2,2);
-            1];
-        M = ProMat(:,1:3) * tmp_vec;
-        D = ProMat(:,4);
-        
-        z_wrd = - (D(1) - D(3)*x_pro) / (M(1) - M(3)*x_pro);
-        x_wrd = (x_cam - CalibMat.cam(1,3)) / CalibMat.cam(1,1) * z_wrd;
-        y_wrd = (y_cam - CalibMat.cam(2,3)) / CalibMat.cam(2,2) * z_wrd;
-        depth_mat(y_cam, x_cam) = z_wrd;
-        
-        fprintf(fid, '%.2f, %.2f, %.2f\n', x_wrd, y_wrd, z_wrd);
+show_mat = zeros(CamInfo.RANGE_HEIGHT, CamInfo.RANGE_WIDTH, 3);
+show_mat(:, :, 1) = double(opt_mat) / 255;
+show_mat(:, :, 2) = show_mat(:, :, 1);
+show_mat(:, :, 3) = show_mat(:, :, 1);
+for h = 1:51
+    for w = 1:51
+        h_c = corres_mats{1,1}{h,w}(1,1) - CamInfo.cam_range(2,1) + 1;
+        w_c = corres_mats{1,1}{h,w}(1,2) - CamInfo.cam_range(1,1) + 1;
+        show_mat(h_c, w_c, :) = 0.0;
+        show_mat(h_c, w_c, 1) = 1.0;
     end
 end
-fclose(fid);
 
-for h = 1:1024
-    for w = 2:1279
-        if depth_mat(h, w) > 990
-            if depth_mat(h, w-1) < 990 && depth_mat(h, w+1) < 990
-                depth_mat(h, w) = (depth_mat(h,w-1)+depth_mat(h,w+1))/2;
-            end
-        end
+epi_corres_mat = cell(51,51);
+for h_pro = 1:ProInfo.RANGE_HEIGHT
+    for w_pro = 1:ProInfo.RANGE_WIDTH
+        pvec_idx = (h_pro-1)*ProInfo.RANGE_WIDTH+w_pro;
+        A = EpiLine.lineA(h_pro, w_pro);
+        B = EpiLine.lineB(h_pro, w_pro);
+        M = ParaSet.M(pvec_idx,:);
+        projected_x = corres_mats{1,1}{h_pro,w_pro}(1,2);
+        projected_y = round(-A/B * projected_x + 1/B);
+        epi_corres_mat{h_pro,w_pro} = [projected_y, projected_x];
     end
 end
-
-% depth_mat(depth_mat < 0) = 1000;
-imshow(-depth_mat, [-303, -73])
+for h = 1:51
+    for w = 1:51
+        h_c = epi_corres_mat{h,w}(1,1) - CamInfo.cam_range(2,1) + 1;
+        w_c = epi_corres_mat{h,w}(1,2) - CamInfo.cam_range(1,1) + 1;
+        show_mat(h_c, w_c, :) = 0.0;
+        show_mat(h_c, w_c, 2) = 1.0;
+    end
+end
