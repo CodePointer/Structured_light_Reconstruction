@@ -16,21 +16,17 @@ CalibMat.trans = [9.4886;
 CalibMat.proMat = [CalibMat.pro, zeros(3, 1)];
 CalibMat.camMat = CalibMat.cam * [inv(CalibMat.rot), -CalibMat.trans];
 
-% CamInfo set
+% Other Set
 CamInfo.HEIGHT = 1024;
 CamInfo.WIDTH = 1280;
 CamInfo.cam_range = [571, 838; 443, 699];
 CamInfo.RANGE_HEIGHT = CamInfo.cam_range(2,2) - CamInfo.cam_range(2,1) + 1;
 CamInfo.RANGE_WIDTH = CamInfo.cam_range(1,2) - CamInfo.cam_range(1,1) + 1;
-
-% ProInfo set
 ProInfo.HEIGHT = 800;
 ProInfo.WIDTH = 1280;
 ProInfo.RANGE_HEIGHT = 51;
 ProInfo.RANGE_WIDTH = 51;
 ProInfo.pro_range = [769, 919; 445, 595]; % matlab coordinates
-
-% FilePath
 FilePath.main_file_path = 'E:/Structured_Light_Data/20170927/PartSphereMovement/';
 FilePath.optical_path = 'pro/';
 FilePath.optical_name = 'pattern_optflow';
@@ -44,9 +40,9 @@ FilePath.img_file_path = 'dyna/';
 % FilePath.img_file_name = 'pattern_3size6color';
 FilePath.img_file_name = 'dyna_mat';
 FilePath.img_file_suffix = '.png';
-FilePath.output_file_name = 'pc';
+total_frame_num = 20;
+pattern = imread([FilePath.main_file_path, 'part_pattern_3size4color.png']);
 
-% Other ParaSet
 ParaSet.coord_cam = zeros(CamInfo.RANGE_HEIGHT*CamInfo.RANGE_WIDTH, 2);
 for h = 1:CamInfo.RANGE_HEIGHT
     for w = 1:CamInfo.RANGE_WIDTH
@@ -107,10 +103,6 @@ for h = 1:ProInfo.RANGE_HEIGHT-1
     end
 end
 
-total_frame_num = 30;
-max_iter_num = 15;
-pattern = imread([FilePath.main_file_path, 'part_pattern_3size4color.png']);
-
 save('GeneralPara.mat', ...
     'CalibMat', 'CamInfo', 'ProInfo', ...
-    'FilePath', 'ParaSet', 'total_frame_num', 'max_iter_num', 'pattern');
+    'FilePath', 'ParaSet', 'total_frame_num', 'pattern');
