@@ -29,7 +29,7 @@ function [show_mat] = fun_DrawCenterPoint(background_vec, ...
         B = EpiLine.lineB(h_pro,w_pro);
         x_cam = (M(1)*depth + D(1)) / (M(3)*depth + D(3));
         y_cam = -A/B * x_cam + 1/B;
-        y_cam = (M(2)*depth + D(2)) / (M(3)*depth + D(3));
+        % y_cam = (M(2)*depth + D(2)) / (M(3)*depth + D(3));
         h_cam = round(y_cam) - CamInfo.cam_range(2,1) + 1;
         w_cam = round(x_cam) - CamInfo.cam_range(1,1) + 1;
 

@@ -29,6 +29,7 @@ function [color_table, sigma_table, C_set] = fun_SetParaByFrame(cam_vec, ...
         cvec_idx = (h_cam-1)*CamInfo.RANGE_WIDTH + w_cam;
 
         sigma_table(pvec_idx,:) = 2;
+%         fprintf('x_cam=%d,y_cam=%d,h_cam=%d,w_cam=%d,cvec_idx=%d\n', x_cam,y_cam,h_cam,w_cam,cvec_idx);
         color_table(pvec_idx,1) = (cam_vec(cvec_idx)-40) ...
             * 2 * pi * sigma_table(pvec_idx,1) * sigma_table(pvec_idx,2);
         C_set(pvec_idx,:) = M*depth + D;

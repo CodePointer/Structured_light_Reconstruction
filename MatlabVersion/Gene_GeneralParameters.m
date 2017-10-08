@@ -13,13 +13,13 @@ CalibMat.rot = [0.9826, 0.009897, -0.1856;
 CalibMat.trans = [9.4886;
     -1.6272;
     3.3267];
-CalibMat.proMat = [CalibMat.pro, zeros(3, 1)];
+CalibMat.proMat = [CalibMat.pro, zeros(3,1)];
 CalibMat.camMat = CalibMat.cam * [inv(CalibMat.rot), -CalibMat.trans];
 
 % CamInfo set
 CamInfo.HEIGHT = 1024;
 CamInfo.WIDTH = 1280;
-CamInfo.cam_range = [571, 838; 443, 699];
+CamInfo.cam_range = [512, 807; 442, 704];
 CamInfo.RANGE_HEIGHT = CamInfo.cam_range(2,2) - CamInfo.cam_range(2,1) + 1;
 CamInfo.RANGE_WIDTH = CamInfo.cam_range(1,2) - CamInfo.cam_range(1,1) + 1;
 
@@ -31,7 +31,7 @@ ProInfo.RANGE_WIDTH = 51;
 ProInfo.pro_range = [769, 919; 445, 595]; % matlab coordinates
 
 % FilePath
-FilePath.main_file_path = 'E:/Structured_Light_Data/20170927/PartSphereMovement/';
+FilePath.main_file_path = 'E:/Structured_Light_Data/20171008/PartSphereMovement2/';
 FilePath.optical_path = 'pro/';
 FilePath.optical_name = 'pattern_optflow';
 FilePath.optical_suffix = '.png';
