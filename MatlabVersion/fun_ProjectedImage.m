@@ -29,8 +29,8 @@ function [projected_vecmat, valid_index] = fun_ProjectedImage(delta_depth_vec, .
             projected_x = (M(1)*delta_depth_vec(pvec_idx) + C_set(pvec_idx,1)) ...
                 / (M(3)*delta_depth_vec(pvec_idx) + C_set(pvec_idx,3));
             projected_y = -A/B * projected_x + 1/B;
-            for dlt_h = -6:6
-                for dlt_w = -6:6
+            for dlt_h = -8:8
+                for dlt_w = -8:8
                     w_cam = round(projected_x) + dlt_w ...
                         - CamInfo.cam_range(1,1) + 1;
                     h_cam = round(projected_y) + dlt_h ...

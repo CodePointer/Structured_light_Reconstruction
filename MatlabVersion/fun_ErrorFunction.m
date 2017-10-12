@@ -15,7 +15,8 @@ function error_value = fun_ErrorFunction(image_vec, ...
     end
 
     % Data Term
-    data_vec = (projected_vec - image_vec.*valid_vec);
+    % data_vec = (projected_vec - image_vec.*valid_vec);
+    data_vec = (projected_vec - image_vec);
     data_value = sum(data_vec.^2);
 
     % Regular Term

@@ -86,8 +86,8 @@ ParaSet.gauss(:, 2:3) = [sigma, sigma];
 
 ParaSet.gradOpt = sparse(ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH, ...
     ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH);
-for h = 1:ProInfo.RANGE_HEIGHT-1
-    for w = 1:ProInfo.RANGE_WIDTH-1
+for h = 1:ProInfo.RANGE_HEIGHT
+    for w = 1:ProInfo.RANGE_WIDTH
         idx = (h-1)*ProInfo.RANGE_WIDTH + w;
         idx_nbor = [];
         if h-1 >= 1
@@ -107,8 +107,8 @@ for h = 1:ProInfo.RANGE_HEIGHT-1
     end
 end
 
-total_frame_num = 30;
-max_iter_num = 15;
+total_frame_num = 20;
+max_iter_num = 100;
 pattern = imread([FilePath.main_file_path, 'part_pattern_3size4color.png']);
 
 save('GeneralPara.mat', ...
