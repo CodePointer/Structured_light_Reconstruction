@@ -78,7 +78,6 @@ fprintf('finished.\n');
 % Fill Neighbor valid points
 fprintf('\tFilling valid points...');
 valid_index = cell(cr_height*cr_width, 3);
-valid_index_size = 0;
 for h_cam = 1:cr_height
     for w_cam = 1:cr_width
         x_cam = w_cam + cam_range_mat(1,1) - 1;
@@ -90,12 +89,12 @@ for h_cam = 1:cr_height
 
         for dlt_h = -4:1:4
             for dlt_w = -4:1:4
-                w_center = round(projected_x) - ProInfo.range_mat(1,1) + 1;
-                h_center = round(projected_y) - ProInfo.range_mat(2,1) + 1;
+                w_center = round((projected_x-ProInfo.range_mat(1,1))/3+1);
+                h_center = round((projected_y-ProInfo.range_mat(2,1))/3+1);
                 w_pro = w_center + dlt_w;
                 h_pro = h_center + dlt_h;
-                x_pro = w_pro-1 + ProInfo.range_mat(1,1);
-                y_pro = h_pro-1 + ProInfo.range_mat(2,1);
+                x_pro = (w_pro-1)*3 + ProInfo.range_mat(1,1);
+                y_pro = (h_pro-1)*3 + ProInfo.range_mat(2,1);
 
                 if (h_pro>=1) && (h_pro<=ProInfo.RANGE_HEIGHT) ...
                     && (w_pro>=1) && (w_pro<=ProInfo.RANGE_WIDTH)
@@ -104,7 +103,6 @@ for h_cam = 1:cr_height
                         [x_pro, y_pro]];
                     valid_index{cvec_idx,3} = [valid_index{cvec_idx,3}; ...
                         pvec_idx];
-                    valid_index_size = valid_index_size + 1;
                 end
             end
         end
@@ -113,13 +111,12 @@ end
 fprintf('finished.\n');
 
 ParaTable.sigma = ones(ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH+1,2);
-ParaTable.sigma = ParaTable.sigma * 1;
+ParaTable.sigma = ParaTable.sigma * 1.505;
 
 % Fill information
 fprintf('\tFill data mat...');
-data_mat_index = zeros(valid_index_size, 2);
-data_mat_value = zeros(valid_index_size, 1);
-now_idx = 0;
+data_mat = zeros(cr_height*cr_width, ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH+1);
+data_mat(:,end) = 1;
 for cvec_idx = 1:cr_height*cr_width
     projected_x = valid_index{cvec_idx,1}(1);
     projected_y = valid_index{cvec_idx,1}(2);
@@ -131,27 +128,20 @@ for cvec_idx = 1:cr_height*cr_width
         sigma_y = ParaTable.sigma(pvec_idx,2);
         exp_val = - 1/(2*sigma_x^2) * (x_pro - projected_x)^2 ...
             - 1/(2*sigma_y^2) * (y_pro - projected_y)^2;
-        now_idx = now_idx + 1;
-        data_mat_index(now_idx,:) = [cvec_idx,pvec_idx];
-        data_mat_value(now_idx,1) = 1/(2*pi*sigma_x*sigma_y) ...
+        data_mat(cvec_idx,pvec_idx) = 1/(2*pi*sigma_x*sigma_y) ...
             * exp(exp_val);
     end
 end
-data_mat_index = [data_mat_index; ...
-    [(1:cr_height*cr_width)', ...
-    ones(cr_height*cr_width,1)*(ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH+1)]];
-data_mat_value = [data_mat_value; ...
-    ones(cr_height*cr_width,1)];
-data_mat = sparse(data_mat_index(:,1), data_mat_index(:,2), data_mat_value);
 fprintf('finished.\n');
 
 % Optimization
 fprintf('\tLeast squares...')
-tmp_color = data_mat \ (cam_vec);
+sDataMat = sparse(data_mat);
+tmp_color = sDataMat \ (cam_vec);
 fprintf('finished.\n');
 
 % Storation
-cam_vec_est = data_mat * tmp_color;
+cam_vec_est = sDataMat * tmp_color;
 error_value = norm((cam_vec_est-cam_vec));
 fprintf('\tError=%.2f\n', error_value);
 

@@ -26,9 +26,9 @@ CamInfo.RANGE_WIDTH = CamInfo.range_mat(1,2) - CamInfo.range_mat(1,1) + 1;
 % ProInfo set
 ProInfo.HEIGHT = 800;
 ProInfo.WIDTH = 1280;
-ProInfo.RANGE_HEIGHT = 51;
-ProInfo.RANGE_WIDTH = 51;
 ProInfo.range_mat = [769, 919; 445, 595]; % matlab coordinates
+ProInfo.RANGE_HEIGHT = ProInfo.range_mat(2,2) - ProInfo.range_mat(2,1) + 1;
+ProInfo.RANGE_WIDTH = ProInfo.range_mat(1,2) - ProInfo.range_mat(1,1) + 1;
 
 % FilePath
 FilePath.main_file_path = 'E:/Structured_Light_Data/20171008/PartSphereMovement2/';
@@ -44,7 +44,9 @@ FilePath.img_file_path = 'dyna/';
 % FilePath.img_file_name = 'pattern_3size6color';
 FilePath.img_file_name = 'dyna_mat';
 FilePath.img_file_suffix = '.png';
+FilePath.output_file_path = 'result/';
 FilePath.output_file_name = 'pc';
+FilePath.output_file_suffix = '.txt';
 
 % Other ParaSet
 ParaSet.coord_cam = zeros(CamInfo.RANGE_HEIGHT*CamInfo.RANGE_WIDTH, 2);

@@ -27,8 +27,8 @@ function [projected_derv] = fun_ProjectedImageDerv(projected_vecmat, ...
             pvec_idx = valid_index{cvec_idx,1}(p_num,1);
             w_pro = ParaSet.coord_pro(pvec_idx,2);
             h_pro = ParaSet.coord_pro(pvec_idx,1);
-            x_pro = (w_pro-1)*3 + ProInfo.range_mat(1,1);
-            y_pro = (h_pro-1)*3 + ProInfo.range_mat(2,1);
+            x_pro = (w_pro-1) + ProInfo.range_mat(1,1);
+            y_pro = (h_pro-1) + ProInfo.range_mat(2,1);
             sigma_x = ParaTable.sigma(pvec_idx,1);
             sigma_y = ParaTable.sigma(pvec_idx,2);
 
@@ -46,6 +46,6 @@ function [projected_derv] = fun_ProjectedImageDerv(projected_vecmat, ...
     end
 
     % derv
-    projected_derv = diag(projected_derv_vec);
+    projected_derv = sparse(diag(projected_derv_vec));
 
 end
