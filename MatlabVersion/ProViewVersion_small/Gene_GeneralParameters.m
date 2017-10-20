@@ -27,8 +27,8 @@ CamInfo.RANGE_WIDTH = CamInfo.range_mat(1,2) - CamInfo.range_mat(1,1) + 1;
 ProInfo.HEIGHT = 800;
 ProInfo.WIDTH = 1280;
 ProInfo.range_mat = [769, 919; 445, 595]; % matlab coordinates
-ProInfo.RANGE_HEIGHT = ProInfo.range_mat(2,2) - ProInfo.range_mat(2,1) + 1;
-ProInfo.RANGE_WIDTH = ProInfo.range_mat(1,2) - ProInfo.range_mat(1,1) + 1;
+ProInfo.RANGE_HEIGHT = (ProInfo.range_mat(2,2) - ProInfo.range_mat(2,1))/3 + 1;
+ProInfo.RANGE_WIDTH = (ProInfo.range_mat(1,2) - ProInfo.range_mat(1,1))/3 + 1;
 
 % FilePath
 FilePath.main_file_path = 'E:/Structured_Light_Data/20171008/PartSphereMovement2/';

@@ -3,17 +3,17 @@ clear;
 % CamInfo set
 CamInfo.HEIGHT = 1024;
 CamInfo.WIDTH = 1280;
-CamInfo.range_mat = [571, 838; 443, 699];
-CamInfo.RANGE_HEIGHT = CamInfo.range_mat(2,2) - CamInfo.range_mat(2,1) + 1;
-CamInfo.RANGE_WIDTH = CamInfo.range_mat(1,2) - CamInfo.range_mat(1,1) + 1;
+CamInfo.cam_range = [571, 838; 443, 699];
+CamInfo.RANGE_HEIGHT = CamInfo.cam_range(2,2) - CamInfo.cam_range(2,1) + 1;
+CamInfo.RANGE_WIDTH = CamInfo.cam_range(1,2) - CamInfo.cam_range(1,1) + 1;
 CamInfo.inter_range = [128, 1092; 252, 768];
 
 % ProInfo set
 ProInfo.HEIGHT = 800;
 ProInfo.WIDTH = 1280;
-ProInfo.range_mat = [769, 919; 445, 595]; % matlab coordinates
-ProInfo.RANGE_HEIGHT = ProInfo.range_mat(2,2) - ProInfo.range_mat(2,1) + 1;
-ProInfo.RANGE_WIDTH = ProInfo.range_mat(1,2) - ProInfo.range_mat(1,1) + 1;
+ProInfo.RANGE_HEIGHT = 51;
+ProInfo.RANGE_WIDTH = 51;
+ProInfo.pro_range = [769, 919; 445, 595]; % matlab coordinates
 
 % FilePath
 FilePath.main_file_path = 'E:/Structured_Light_Data/20171008/EpiLineCalib/';
