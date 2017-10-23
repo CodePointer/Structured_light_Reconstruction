@@ -89,4 +89,6 @@ function [projected_vecmat, valid_index] = fun_ProjectedImage(delta_depth_vec, .
         end
     end
     projected_vecmat = sparse(vecmat_idx(:,1), vecmat_idx(:,2), vecmat_val);
+    projected_vecmat(CamInfo.RANGE_HEIGHT*CamInfo.RANGE_WIDTH, ...
+        ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH) = 0;
 end

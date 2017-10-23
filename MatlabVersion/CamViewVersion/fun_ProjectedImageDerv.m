@@ -47,5 +47,6 @@ function [projected_derv] = fun_ProjectedImageDerv(projected_vecmat, ...
 
     % derv
     projected_derv = sparse(diag(projected_derv_vec));
-
+    projected_derv(CamInfo.RANGE_HEIGHT*CamInfo.RANGE_WIDTH, ...
+        ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH) = 0;
 end
