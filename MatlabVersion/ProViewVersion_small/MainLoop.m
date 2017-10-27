@@ -76,7 +76,7 @@ for frm_idx = 2:total_frame_num
         delta_depth_vecs{frm_idx,1}, ...
         ParaSet);
     fprintf('.');
-    fprintf('error=%.2f\n', error_value(frm_idx,1));
+    fprintf('error=%.4e\n', error_value(frm_idx,1));
 %     show_mat = fun_DrawDeltaCenterPoint(cam_vecs{frm_idx,1}, ...
 %         depth_vecs{frm_idx-1,1}, ...
 %         delta_depth_vecs{frm_idx,1}, ...
@@ -144,7 +144,8 @@ for frm_idx = 2:total_frame_num
             valid_index = test_valid_index;
             projected_vec = test_projected_vec;
             delta_depth_vecs{frm_idx,1} = new_delta_vec;
-            fprintf('.error=%.2f\n', error_value(frm_idx,itr_idx));
+            fprintf('.error=%.4e;\t%.2e\n', error_value(frm_idx,itr_idx), ...
+                error_value(frm_idx,itr_idx)-error_value(frm_idx,itr_idx-1));
             if error_value(frm_idx,itr_idx-1) - error_value(frm_idx,itr_idx) < 5e3
                 break;
             end
@@ -157,11 +158,8 @@ for frm_idx = 2:total_frame_num
             ProInfo, ...
             EpiLine, ...
             ParaSet);
-%         figure(1), imshow(uint8(show_mat));
-
-        if alpha < 0.05
-            break;
-        end
+        resized_show_mat = imresize(show_mat, 3, 'nearest');
+        figure(1), imshow(uint8(resized_show_mat));
     end
 
     % Part 3: set depth_vec

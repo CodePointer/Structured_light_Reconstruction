@@ -24,7 +24,7 @@ fprintf('finished.\n');
 % Iteration Part
 error_value = zeros(total_frame_num, max_iter_num);
 alpha = 4;
-theta = [1e4; 1e2];
+theta = [1e4; 1e3];
 envir_light = ParaTable.color(end);
 for frm_idx = 1+flow_size:total_frame_num
     flw_sta = frm_idx - flow_size + 1;
@@ -51,7 +51,7 @@ for frm_idx = 1+flow_size:total_frame_num
         theta, ...
         ParaSet);
     fprintf('.');
-    fprintf('error=%.2f\n', error_value(frm_idx,1));
+    fprintf('error=%.2e\n', error_value(frm_idx,1));
 
     % Iteration Part
     for itr_idx = 2:max_iter_num
@@ -78,7 +78,7 @@ for frm_idx = 1+flow_size:total_frame_num
         fprintf('.');
         % Calculate new value
         [test_projected_vecmats, test_valid_indexs] ...
-            = fun_ProjectedImage(depth_vecs(flw_sta:flw_end,1), ...
+            = fun_ProjectedImage(test_depth_vecs, ...
             ParaTable, ...
             CamInfo, ...
             ProInfo, ...
@@ -101,7 +101,7 @@ for frm_idx = 1+flow_size:total_frame_num
             valid_indexs = test_valid_indexs;
             cam_est_vecs(flw_sta:flw_end,1) = test_cam_est_vecs;
             depth_vecs(flw_sta:flw_end,1) = test_depth_vecs;
-            fprintf('.error=%.2f\t%.2f\n', error_value(frm_idx,itr_idx), ...
+            fprintf('.error=%.2e\t%.2e\n', error_value(frm_idx,itr_idx), ...
                 error_value(frm_idx,itr_idx)-error_value(frm_idx,itr_idx-1));
             if error_value(frm_idx,itr_idx-1) - error_value(frm_idx,itr_idx) < 1e4
                 break;
