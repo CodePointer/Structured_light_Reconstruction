@@ -6,7 +6,7 @@ load ParaEpi.mat
 % ParaTable.color = zeros(ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH,1);
 
 % Prepare for parameter calculation
-fprintf('Pre-processing:\n');
+% fprintf('Pre-processing:\n');
 
 % Load information
 frame_idx = 0;
@@ -26,6 +26,11 @@ ypro_mat = load([FilePath.main_file_path, ...
     FilePath.ypro_file_name, ...
     num2str(frame_idx), ...
     FilePath.pro_file_suffix]);
+opt_mat = imread([FilePath.main_file_path, ...
+    FilePath.optical_path, ...
+    FilePath.optical_name, ...
+    num2str(frame_idx), ...
+    FilePath.optical_suffix]);
 fprintf('finished.\n');
 
 % Search range_area
@@ -75,35 +80,91 @@ for w = cam_range_mat(1,1):cam_range_mat(1,2)
 end
 fprintf('finished.\n');
 
+% Find correspondence points
+fprintf('\tFind correspondence points...');
+corres_points = cell(ProInfo.RANGE_HEIGHT, ProInfo.RANGE_WIDTH);
+for x_cam = cam_range_mat(1,1):cam_range_mat(1,2)
+    for y_cam = cam_range_mat(2,1):cam_range_mat(2,2)
+        xpro_int = round(xpro_mat(y_cam,x_cam)+1);
+        ypro_int = round(ypro_mat(y_cam,x_cam)+1);
+        if (xpro_int >= ProInfo.range_mat(1,1)) ...
+            && (xpro_int <= ProInfo.range_mat(1,2)) ...
+            && (ypro_int >= ProInfo.range_mat(2,1)) ...
+            && (ypro_int <= ProInfo.range_mat(2,2))
+            if (mod(xpro_int-ProInfo.range_mat(1,1),3) == 0) ...
+                && (mod(ypro_int-ProInfo.range_mat(2,1),3) == 0)
+                h_pro = (ypro_int - ProInfo.range_mat(2,1)) / 3 + 1;
+                w_pro = (xpro_int - ProInfo.range_mat(1,1)) / 3 + 1;
+                corres_points{h_pro, w_pro} = [x_cam; y_cam];
+            end
+        end
+    end
+end
+fprintf('finished.\n');
+
+% Use opt_mat to refine correspondence
+fprintf('\tOptical flow for calibration...');
+template_mat = cell(2,1);
+template_mat{1,1} = [67, 52, 67; 52, 46, 52; 67, 52, 67;];
+template_mat{2,1} = [100, 113, 100; 113, 124, 113; 100, 113, 100];
+template_mat{1,1} = mapminmax(template_mat{1,1});
+template_mat{2,1} = mapminmax(template_mat{2,1});
+for h_pro = 1:ProInfo.RANGE_HEIGHT
+    for w_pro = 1:ProInfo.RANGE_WIDTH
+        xpro_center = (w_pro-1)*3 + ProInfo.range_mat(1,1);
+        ypro_center = (h_pro-1)*3 + ProInfo.range_mat(2,1);
+        t_idx = mod((xpro_center+ypro_center-32-8-4)/3, 2) + 1;
+        match_res = zeros(3, 3);
+        for h_s = -1:1
+            for w_s = -1:1
+                x_center = corres_points{h_pro, w_pro}(1,1) + w_s;
+                y_center = corres_points{h_pro, w_pro}(2,1) + h_s;
+                opt_part = double(opt_mat(y_center-1:y_center+1, ...
+                    x_center-1:x_center+1));
+                opt_part = mapminmax(opt_part);
+                match_res(h_s+2,w_s+2) = sum(sum((template_mat{t_idx,1} - opt_part).^2));
+            end
+        end
+        [h_min, w_min] = find(match_res == min(min(match_res)));
+        if size(h_min, 1) > 1
+            continue;
+        end
+        corres_points{h_pro,w_pro} = corres_points{h_pro,w_pro} ...
+            + [h_min-2, w_min-2];
+    end
+end
+fprintf('finished.\n');
+
 % Fill Neighbor valid points
 fprintf('\tFilling valid points...');
-valid_index = cell(cr_height*cr_width, 3);
+valid_index = cell(ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH, 3);
 valid_index_size = 0;
-for h_cam = 1:cr_height
-    for w_cam = 1:cr_width
-        x_cam = w_cam + cam_range_mat(1,1) - 1;
-        y_cam = h_cam + cam_range_mat(2,1) - 1;
-        cvec_idx = (h_cam-1)*cr_width + w_cam;
-        projected_x = xpro_mat(y_cam,x_cam) + 1;
-        projected_y = ypro_mat(y_cam,x_cam) + 1;
-        valid_index{cvec_idx,1} = [projected_x, projected_y];
+for h_pro = 1:ProInfo.RANGE_HEIGHT
+    for w_pro = 1:ProInfo.RANGE_WIDTH
+        pvec_idx = (h_pro-1)*ProInfo.RANGE_WIDTH + w_pro;
+        projected_x = corres_points{h_pro,w_pro}(1,1);
+        projected_y = corres_points{h_pro,w_pro}(2,1);
+        valid_index{pvec_idx,1} = [projected_x, projected_y];
 
         for dlt_h = -4:1:4
             for dlt_w = -4:1:4
-                w_center = round(projected_x) - ProInfo.range_mat(1,1) + 1;
-                h_center = round(projected_y) - ProInfo.range_mat(2,1) + 1;
-                w_pro = w_center + dlt_w;
-                h_pro = h_center + dlt_h;
-                x_pro = w_pro-1 + ProInfo.range_mat(1,1);
-                y_pro = h_pro-1 + ProInfo.range_mat(2,1);
+                x_center = round(projected_x);
+                y_center = round(projected_y);
+                x_cam = x_center + dlt_w;
+                y_cam = y_center + dlt_h;
 
-                if (h_pro>=1) && (h_pro<=ProInfo.RANGE_HEIGHT) ...
-                    && (w_pro>=1) && (w_pro<=ProInfo.RANGE_WIDTH)
-                    pvec_idx = (h_pro-1)*ProInfo.RANGE_WIDTH + w_pro;
-                    valid_index{cvec_idx,2} = [valid_index{cvec_idx,2}; ...
-                        [x_pro, y_pro]];
-                    valid_index{cvec_idx,3} = [valid_index{cvec_idx,3}; ...
-                        pvec_idx];
+                if (x_cam>=cam_range_mat(1,1)) ...
+                    && (x_cam<=cam_range_mat(1,2)) ...
+                    && (y_cam>=cam_range_mat(2,1)) ...
+                    && (y_cam<=cam_range_mat(2,2)) ...
+                    valid_index{pvec_idx,2} = [valid_index{pvec_idx,2}; ...
+                        [x_cam, y_cam]];
+
+                    h_cam = y_cam - cam_range_mat(2,1) + 1;
+                    w_cam = x_cam - cam_range_mat(1,1) + 1;
+                    cvec_idx = (h_cam-1)*cr_width + w_cam;
+                    valid_index{pvec_idx,3} = [valid_index{pvec_idx,3}; ...
+                        cvec_idx];
                     valid_index_size = valid_index_size + 1;
                 end
             end
@@ -113,45 +174,47 @@ end
 fprintf('finished.\n');
 
 ParaTable.sigma = ones(ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH+1,2);
-ParaTable.sigma = ParaTable.sigma * 1;
+ParaTable.sigma = ParaTable.sigma * 1.8;
 
 % Fill information
 fprintf('\tFill data mat...');
 data_mat_index = zeros(valid_index_size, 2);
 data_mat_value = zeros(valid_index_size, 1);
 now_idx = 0;
-for cvec_idx = 1:cr_height*cr_width
-    projected_x = valid_index{cvec_idx,1}(1);
-    projected_y = valid_index{cvec_idx,1}(2);
-    for p_num = 1:size(valid_index{cvec_idx,2},1)
-        pvec_idx = valid_index{cvec_idx,3}(p_num);
-        x_pro = valid_index{cvec_idx,2}(p_num,1);
-        y_pro = valid_index{cvec_idx,2}(p_num,2);
+for pvec_idx = 1:ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH
+    projected_x = valid_index{pvec_idx,1}(1);
+    projected_y = valid_index{pvec_idx,1}(2);
+    for p_num = 1:size(valid_index{pvec_idx,2},1)
+        cvec_idx = valid_index{pvec_idx,3}(p_num);
+        x_cam = valid_index{pvec_idx,2}(p_num,1);
+        y_cam = valid_index{pvec_idx,2}(p_num,2);
         sigma_x = ParaTable.sigma(pvec_idx,1);
         sigma_y = ParaTable.sigma(pvec_idx,2);
-        exp_val = - 1/(2*sigma_x^2) * (x_pro - projected_x)^2 ...
-            - 1/(2*sigma_y^2) * (y_pro - projected_y)^2;
+        exp_val = - 1/(2*sigma_x^2) * (x_cam - projected_x)^2 ...
+            - 1/(2*sigma_y^2) * (y_cam - projected_y)^2;
         now_idx = now_idx + 1;
         data_mat_index(now_idx,:) = [cvec_idx,pvec_idx];
         data_mat_value(now_idx,1) = 1/(2*pi*sigma_x*sigma_y) ...
             * exp(exp_val);
     end
 end
-data_mat_index = [data_mat_index; ...
-    [(1:cr_height*cr_width)', ...
-    ones(cr_height*cr_width,1)*(ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH+1)]];
-data_mat_value = [data_mat_value; ...
-    ones(cr_height*cr_width,1)];
+% data_mat_index = [data_mat_index; ...
+%     [(1:cr_height*cr_width)', ...
+%     ones(cr_height*cr_width,1)*(ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH+1)]];
+% data_mat_value = [data_mat_value; ...
+%     ones(cr_height*cr_width,1)];
 data_mat = sparse(data_mat_index(:,1), data_mat_index(:,2), data_mat_value);
+data_mat(cr_height*cr_width, ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH) = 0;
 fprintf('finished.\n');
 
 % Optimization
 fprintf('\tLeast squares...')
-tmp_color = data_mat \ (cam_vec);
+envir_light = 15;
+tmp_color = data_mat \ (cam_vec-envir_light);
 fprintf('finished.\n');
 
 % Storation
-cam_vec_est = data_mat * tmp_color;
+cam_vec_est = data_mat * tmp_color + envir_light;
 error_value = norm((cam_vec_est-cam_vec));
 fprintf('\tError=%.2f\n', error_value);
 
