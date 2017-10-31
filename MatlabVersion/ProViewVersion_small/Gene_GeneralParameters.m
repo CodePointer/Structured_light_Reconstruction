@@ -1,37 +1,40 @@
 clear;
 
 % Cam Pro Inner parameters
-CalibMat.cam = [ 2460.98, 0.0, 639.50;
-    0.0, 2462.24, 511.50;
+CalibMat.cam = [ 2621.64, 0.0, 639.50;
+    0.0, 2617.266, 511.50;
     0.0, 0.0, 1.0];
-CalibMat.pro = [ 1808.35, 0.0, 787.53;
-    0.0, 1813.76, 649.98;
+CalibMat.pro = [ 1208.89, 0.0, 348.71;
+    0.0, 1290.41, 461.99;
     0.0, 0.0, 1.0];
-CalibMat.rot = [0.9826, 0.009897, -0.1856;
-    -0.02213, 0.9977, -0.06398;
-    0.1845, 0.06697, 0.9805];
-CalibMat.trans = [9.4886;
-    -1.6272;
-    3.3267];
+CalibMat.rot = [0.9855, 0.004844, 0.1696;
+    -0.01243, 0.9990, 0.04372;
+    -0.1692, -0.04520, 0.9845];
+CalibMat.trans = [5.3706;
+    -2.0255;
+    -17.1650];
 CalibMat.proMat = [CalibMat.pro, zeros(3,1)];
 CalibMat.camMat = CalibMat.cam * [inv(CalibMat.rot), -CalibMat.trans];
 
 % CamInfo set
 CamInfo.HEIGHT = 1024;
 CamInfo.WIDTH = 1280;
-CamInfo.range_mat = [512, 807; 442, 704];
+CamInfo.range_mat = [287, 631; 408, 727];
 CamInfo.RANGE_HEIGHT = CamInfo.range_mat(2,2) - CamInfo.range_mat(2,1) + 1;
 CamInfo.RANGE_WIDTH = CamInfo.range_mat(1,2) - CamInfo.range_mat(1,1) + 1;
 
 % ProInfo set
 ProInfo.HEIGHT = 800;
 ProInfo.WIDTH = 1280;
-ProInfo.range_mat = [769, 919; 445, 595]; % matlab coordinates
-ProInfo.RANGE_HEIGHT = (ProInfo.range_mat(2,2) - ProInfo.range_mat(2,1))/3 + 1;
-ProInfo.RANGE_WIDTH = (ProInfo.range_mat(1,2) - ProInfo.range_mat(1,1))/3 + 1;
+ProInfo.range_mat = [711, 911; 401, 601]; % matlab coordinates
+ProInfo.pix_size = 2;
+ProInfo.RANGE_HEIGHT = (ProInfo.range_mat(2,2) - ProInfo.range_mat(2,1)) ...
+    / ProInfo.pix_size;
+ProInfo.RANGE_WIDTH = (ProInfo.range_mat(1,2) - ProInfo.range_mat(1,1)) ...
+    / ProInfo.pix_size;
 
 % FilePath
-FilePath.main_file_path = 'E:/Structured_Light_Data/20171008/PartSphereMovement2/';
+FilePath.main_file_path = 'E:/Structured_Light_Data/20171031/SphereMovement_part/';
 FilePath.optical_path = 'pro/';
 FilePath.optical_name = 'pattern_optflow';
 FilePath.optical_suffix = '.png';
@@ -41,12 +44,13 @@ FilePath.ypro_file_path = 'pro_txt/';
 FilePath.ypro_file_name = 'ypro_mat';
 FilePath.pro_file_suffix = '.txt';
 FilePath.img_file_path = 'dyna/';
-% FilePath.img_file_name = 'pattern_3size6color';
+% FilePath.img_file_name = 'pattern_3size4color';
 FilePath.img_file_name = 'dyna_mat';
 FilePath.img_file_suffix = '.png';
 FilePath.output_file_path = 'result/';
 FilePath.output_file_name = 'pc';
 FilePath.output_file_suffix = '.txt';
+pattern = imread([FilePath.main_file_path, 'part_pattern_2size4color0.png']);
 
 % Other ParaSet
 ParaSet.coord_cam = zeros(CamInfo.RANGE_HEIGHT*CamInfo.RANGE_WIDTH, 2);
@@ -111,7 +115,7 @@ end
 
 total_frame_num = 20;
 max_iter_num = 100;
-pattern = imread([FilePath.main_file_path, 'part_pattern_3size4color.png']);
+
 
 save('GeneralPara.mat', ...
     'CalibMat', 'CamInfo', 'ProInfo', ...

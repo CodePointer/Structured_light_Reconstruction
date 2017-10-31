@@ -97,26 +97,35 @@ int main()
 	/*string xml_path = "E:/Structured_Light_Data/20170410/StatueForward2/pro/";
 	string xml_name = "jpro_mat";
 	string txt_path = "E:/Structured_Light_Data/20170410/StatueForward2/ground_truth/";*/
-	string xml_path = "E:/Structured_Light_Data/20171008/ColorCalib/pro/";
-	string xml_name = "ypro_mat";
-	string txt_path = "E:/Structured_Light_Data/20171008/ColorCalib/pro_txt/";
-	/*string mat_names[2] = { "iH", "iW" };
+	string xml_path = "E:/Structured_Light_Data/20171031/StatueMovement_part/pro/";
+	string txt_path = "E:/Structured_Light_Data/20171031/StatueMovement_part/pro_txt/";
+	int total_frame = 1;
 
-	xml2txt(xml_path,
-		xml_name,
-		txt_path,
-		mat_names,
-		2,
-		50);*/
-	
-	string mat_names_depth[1] = { "ypro_mat" };
+	// Create Folder
+	string tmp_path = txt_path;
+	for (int i = 0; i < tmp_path.length(); i++) {
+		if (tmp_path[i] == '/')
+			tmp_path[i] = '\\';
+	}
+	system((string("mkdir ") + tmp_path).c_str());
 
+	string xml_name = "xpro_mat";
+	string mat_names_depth[1] = { "xpro_mat" };
 	xml2txt(xml_path,
 		xml_name,
 		txt_path,
 		mat_names_depth,
 		1,
-		15);
+		total_frame);
+
+	xml_name = "ypro_mat";
+	mat_names_depth[0] = "ypro_mat";
+	xml2txt(xml_path,
+		xml_name,
+		txt_path,
+		mat_names_depth,
+		1,
+		total_frame);
 
 	system("PAUSE");
 	return 0;

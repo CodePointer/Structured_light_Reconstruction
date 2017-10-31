@@ -8,4 +8,12 @@
 %     end
 % end
 
-MainLoop;
+% MainLoop;
+img = zeros(1024,1280);
+for h_pro = 1:ProInfo.RANGE_HEIGHT
+    for w_pro = 1:ProInfo.RANGE_WIDTH
+        h_cam = round(corres_mat{h_pro,w_pro}(1,2));
+        w_cam = round(corres_mat{h_pro,w_pro}(1,1));
+        img(h_cam,w_cam) = 1.0;
+    end
+end

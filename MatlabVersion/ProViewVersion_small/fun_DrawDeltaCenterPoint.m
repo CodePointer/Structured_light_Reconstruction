@@ -19,8 +19,8 @@ function [show_mat] = fun_DrawDeltaCenterPoint(backgd_vec, ...
     for pvec_idx = 1:ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH
         h_pro = ParaSet.coord_pro(pvec_idx,1);
         w_pro = ParaSet.coord_pro(pvec_idx,2);
-        x_pro = (w_pro-1)*3 + ProInfo.range_mat(1,1);
-        y_pro = (h_pro-1)*3 + ProInfo.range_mat(2,1);
+        x_pro = (w_pro-1)*ProInfo.pix_size + ProInfo.range_mat(1,1);
+        y_pro = (h_pro-1)*ProInfo.pix_size + ProInfo.range_mat(2,1);
         depth = depth_vec(pvec_idx);
         new_depth = depth_vec(pvec_idx) + delta_depth_vec(pvec_idx);
 

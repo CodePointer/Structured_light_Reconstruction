@@ -19,8 +19,8 @@ function [show_mat] = fun_DrawCenterPoint(background_vec, ...
     for pvec_idx = 1:ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH
         h_pro = ParaSet.coord_pro(pvec_idx,1);
         w_pro = ParaSet.coord_pro(pvec_idx,2);
-        x_pro = (w_pro-1)*3 + ProInfo.pro_range(1,1);
-        y_pro = (h_pro-1)*3 + ProInfo.pro_range(2,1);
+        x_pro = (w_pro-1)*ProInfo.pix_size + ProInfo.pro_range(1,1);
+        y_pro = (h_pro-1)*ProInfo.pix_size + ProInfo.pro_range(2,1);
         depth = depth_vec(pvec_idx);
 
         M = ParaSet.M(pvec_idx,:);
