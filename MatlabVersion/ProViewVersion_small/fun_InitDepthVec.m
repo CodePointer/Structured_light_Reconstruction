@@ -1,4 +1,5 @@
-function [depth_vec, corres_points, opt_mat] = fun_InitDepthVec(FilePath, ...
+function [depth_coarse_vec, depth_fine_vec, ...
+    corres_points, opt_mat] = fun_InitDepthVec(FilePath, ...
     CamInfo, ...
     ProInfo, ...
     ParaSet)
@@ -19,7 +20,8 @@ function [depth_vec, corres_points, opt_mat] = fun_InitDepthVec(FilePath, ...
         FilePath.optical_path, ...
         FilePath.optical_name, ...
         FilePath.optical_suffix]);
-    depth_vec = zeros(ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH, 1);
+    depth_coarse_vec = zeros(ProInfo.RANGE_C_HEIGHT*ProInfo.RANGE_C_WIDTH, 1);
+    depth_fine_vec = zeros(ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH,1);
 
     % Intersect xpro_mat, ypro_mat
     intersect_range = [CamInfo.range_mat(1,1) - 1, ...
@@ -66,49 +68,56 @@ function [depth_vec, corres_points, opt_mat] = fun_InitDepthVec(FilePath, ...
         end
     end
 
-    % Use opt_mat to refine depth information
-%     template_mat = cell(2, 1);
-%     % Square
-%     template_mat{1, 1} = [67, 52, 67; 52, 46, 52; 67, 52, 67;];
-%     template_mat{2, 1} = [100, 113, 100; 113, 124, 113; 100, 113, 100];
-%     template_mat{1,1} = mapminmax(template_mat{1,1});
-%     template_mat{2,1} = mapminmax(template_mat{2,1});
-%     % Sphere
-%     for h = 1:ProInfo.RANGE_HEIGHT
-%         for w = 1:ProInfo.RANGE_WIDTH
-%             xpro_center = (w-1)*3 + ProInfo.range_mat(1,1);
-%             ypro_center = (h-1)*3 + ProInfo.range_mat(2,1);
-%             t_idx = mod((xpro_center+ypro_center-32-8-4)/3, 2) + 1;
-%             match_res = zeros(3, 3);
-%             for h_s = -1:1
-%                 for w_s = -1:1
-%                     h_center = corres_points{h, w}(1,1) + h_s;
-%                     w_center = corres_points{h, w}(1,2) + w_s;
-%                     opt_part = double(opt_mat(h_center-1:h_center+1, ...
-%                         w_center-1:w_center+1));
-%                     opt_part = mapminmax(opt_part);
-%                     match_res(h_s+2,w_s+2) = sum(sum((template_mat{t_idx,1} - opt_part).^2));
-%                 end
-%             end
-%             [h_min, w_min] = find(match_res == min(min(match_res)));
-%             if size(h_min, 1) > 1
-%                 continue;
-%             end
-%             corres_points{h,w} = corres_points{h,w} + [h_min-2, w_min-2];
-%         end
-%     end
-
-    % Calculate depth mat
+    % Calculate depth_fine mat
     for h = 1:ProInfo.RANGE_HEIGHT
         for w = 1:ProInfo.RANGE_WIDTH
             pvec_idx = (h-1)*ProInfo.RANGE_WIDTH + w;
-            if size(corres_points{h,w},1) == 0
-                corres_points{h,w} = (corres_points{h-1,w}+corres_points{h+1,w})/2;
+            if size(corres_points{h,w},1) > 0
+                x_c = corres_points{h,w}(1,1);
+                M = ParaSet.M(pvec_idx, :);
+                D = ParaSet.D(pvec_idx, :);
+                depth_fine_vec(pvec_idx,1) = - (D(1)-D(3)*x_c) / (M(1)-M(3)*x_c);
             end
-            x_c = corres_points{h,w}(1,1);
-            M = ParaSet.M(pvec_idx, :);
-            D = ParaSet.D(pvec_idx, :);
-            depth_vec(pvec_idx,1) = - (D(1)-D(3)*x_c) / (M(1)-M(3)*x_c);
+        end
+    end
+
+    % Calculate depth_coarse mat
+    for h = 1:ProInfo.RANGE_C_HEIGHT
+        for w = 1:ProInfo.RANGE_C_WIDTH
+            c_pvec_idx = (h-1)*ProInfo.RANGE_C_WIDTH + w;
+            h_s = (h-1)*ProInfo.win_size + 1;
+            h_e = h*ProInfo.win_size;
+            if h_e > ProInfo.RANGE_HEIGHT
+                h_e = ProInfo.RANGE_HEIGHT;
+            end
+            w_s = (w-1)*ProInfo.win_size + 1;
+            w_e = w*ProInfo.win_size;
+            if w_e > ProInfo.RANGE_WIDTH
+                w_e = ProInfo.RANGE_WIDTH;
+            end
+
+            sum_num = 0;
+            sum_val = 0;
+            for h_f = h_s:h_e
+                for w_f = w_s:w_e
+                    pvec_idx = (h_f-1)*ProInfo.RANGE_C_WIDTH + w_f;
+                    if depth_fine_vec(pvec_idx,1) > 0
+                        sum_num = sum_num + 1;
+                        sum_val = sum_val + depth_fine_vec(pvec_idx,1);
+                    end
+                end
+            end
+            if sum_num > 0
+                depth_coarse_vec(c_pvec_idx) = sum_val / sum_num;
+            end
+            for h_f = h_s:h_e
+                for w_f = w_s:w_e
+                    pvec_idx = (h_f-1)*ProInfo.RANGE_C_WIDTH + w_f;
+                    if depth_fine_vec(pvec_idx,1) == 0
+                        depth_fine_vec(pvec_idx,1) = depth_coarse_vec(c_pvec_idx);
+                    end
+                end
+            end
         end
     end
 end
