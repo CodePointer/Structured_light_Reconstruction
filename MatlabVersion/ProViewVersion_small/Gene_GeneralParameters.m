@@ -45,7 +45,7 @@ for h = 1:ProInfo.RANGE_HEIGHT
         ProInfo.coord_trans((h-1)*ProInfo.RANGE_WIDTH + w, :) = [h,w];
     end
 end
-ProInfo.win_size = 10;
+ProInfo.win_size = 4;
 ProInfo.RANGE_C_HEIGHT = ceil(ProInfo.RANGE_HEIGHT / ProInfo.win_size);
 ProInfo.RANGE_C_WIDTH = ceil(ProInfo.RANGE_WIDTH / ProInfo.win_size);
 

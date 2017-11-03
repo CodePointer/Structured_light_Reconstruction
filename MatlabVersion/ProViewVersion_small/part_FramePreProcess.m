@@ -14,3 +14,8 @@ end
 
 % Set d_depth
 d_depth_coarse_vecs{frm_idx,1} = zeros(ProInfo.RANGE_C_HEIGHT*ProInfo.RANGE_C_WIDTH,1);
+frm_sta = frm_idx-5;
+if frm_sta < start_frame
+    frm_sta = start_frame;
+end
+frm_end = frm_idx;
