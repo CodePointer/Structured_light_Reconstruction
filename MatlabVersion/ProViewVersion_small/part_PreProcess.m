@@ -1,5 +1,4 @@
 % Load parameters
-clear;
 load ParaEpi.mat
 load GeneralPara.mat
 load ColorPara.mat
@@ -34,5 +33,7 @@ cam_est_vecs{1,1} = sum(cam_est_vecmat,2) + envir_light;
 
 % Iteration part
 error_value = zeros(total_frame_num, max_iter_num);
-% cam_obs_vecs{1,1} = cam_obs_vecs{1,1};
-% depth_fine_vecs{1,1} = depth_fine_vecs{1,1};
+cam_obs_vecs{start_frame,1} = cam_obs_vecs{1,1};
+cam_est_vecs{start_frame,1} = cam_est_vecs{1,1};
+d_depth_coarse_vecs{start_frame,1} = d_depth_coarse_vecs{start_frame,1};
+depth_fine_vecs{start_frame,1} = depth_fine_vecs{1,1};

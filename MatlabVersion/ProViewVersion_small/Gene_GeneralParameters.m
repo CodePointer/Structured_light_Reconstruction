@@ -19,7 +19,7 @@ CalibMat.camMat = CalibMat.cam * [inv(CalibMat.rot), -CalibMat.trans];
 % CamInfo set
 CamInfo.HEIGHT = 1024;
 CamInfo.WIDTH = 1280;
-CamInfo.range_mat = [287, 631+50; 408, 727];
+CamInfo.range_mat = [287+60, 631+60; 408-10, 727-10];
 % CamInfo.range_mat = [287, 631; 408, 727];
 CamInfo.RANGE_HEIGHT = CamInfo.range_mat(2,2) - CamInfo.range_mat(2,1) + 1;
 CamInfo.RANGE_WIDTH = CamInfo.range_mat(1,2) - CamInfo.range_mat(1,1) + 1;
@@ -45,12 +45,12 @@ for h = 1:ProInfo.RANGE_HEIGHT
         ProInfo.coord_trans((h-1)*ProInfo.RANGE_WIDTH + w, :) = [h,w];
     end
 end
-ProInfo.win_size = 4;
+ProInfo.win_size = 10;
 ProInfo.RANGE_C_HEIGHT = ceil(ProInfo.RANGE_HEIGHT / ProInfo.win_size);
 ProInfo.RANGE_C_WIDTH = ceil(ProInfo.RANGE_WIDTH / ProInfo.win_size);
 
 % FilePath
-FilePath.main_file_path = 'E:/Structured_Light_Data/20171031/StatueMovement_part/';
+FilePath.main_file_path = 'E:/Structured_Light_Data/20171103/SphereMovement_part/';
 FilePath.optical_path = 'pro/';
 FilePath.optical_name = 'pattern_optflow';
 FilePath.optical_suffix = '.png';
@@ -128,7 +128,7 @@ for h = 1:ProInfo.RANGE_C_HEIGHT
 end
 ParaSet.lum_radius = 4;
 
-total_frame_num = 20;
+total_frame_num = 50;
 max_iter_num = 100;
 
 

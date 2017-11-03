@@ -6,7 +6,7 @@ function error_value = fun_CoarseErrorFunction(cam_est_vec, ...
     theta, ...
     ParaSet)
 
-    data_vec = (cam_est_vec./last_cam_est_vec - cam_obs_vec./last_cam_obs_vec);
+    data_vec = (cam_est_vec - cam_obs_vec);
     data_value = sum(data_vec.^2);
 
     regular_vec = ParaSet.gradOptC * d_depth_coarse_vec;

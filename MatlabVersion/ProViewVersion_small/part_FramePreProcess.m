@@ -1,9 +1,9 @@
 % parameters
 envir_light = 30;
-alpha = 4;
-beta = 4;
+alpha = 2;
+beta = 2;
 theta = 1;
-lambda = 1;
+lambda = 5;
 C_fine = zeros(ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH,3);
 for pvec_idx = 1:ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH
     M = ParaSet.M(pvec_idx,:);
