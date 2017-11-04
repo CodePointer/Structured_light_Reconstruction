@@ -1,5 +1,4 @@
 % parameters
-envir_light = 30;
 alpha = 2;
 beta = 2;
 theta = 1;

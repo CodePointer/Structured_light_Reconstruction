@@ -9,7 +9,7 @@ fprintf('finished.\n');
 % Iteration Part
 therd_coarse = 1e3;
 therd_fine = 1e3;
-show_flag = false;
+show_flag = true;
 for frm_idx = start_frame+1:total_frame_num
     % start of frame
     part_FramePreProcess
