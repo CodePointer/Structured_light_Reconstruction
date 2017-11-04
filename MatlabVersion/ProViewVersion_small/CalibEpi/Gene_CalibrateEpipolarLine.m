@@ -42,8 +42,8 @@ for frame_idx = 0:total_frame_num-1
         FilePath.img_file_name, ...
         num2str(frame_idx), ...
         FilePath.img_file_suffix]);
-    for h = CamInfo.inter_range(2,1):CamInfo.inter_range(2,2)
-        for w = CamInfo.inter_range(1,1):CamInfo.inter_range(1,2)
+    for h = CamInfo.range_mat(2,1):CamInfo.range_mat(2,2)
+        for w = CamInfo.range_mat(1,1):CamInfo.range_mat(1,2)
             if xpro_mat(h,w) < 0
                 xpro_mat(h,w) = (xpro_mat(h,w-1) + xpro_mat(h,w+1)) / 2;
             end
@@ -57,8 +57,8 @@ for frame_idx = 0:total_frame_num-1
     % Find Correspondence and refinement
     tmp_valid_points = cell(ProInfo.RANGE_HEIGHT, ProInfo.RANGE_WIDTH);
     error_value = ones(ProInfo.RANGE_HEIGHT, ProInfo.RANGE_WIDTH)*255;
-    for h = CamInfo.inter_range(2,1):CamInfo.inter_range(2,2)
-        for w = CamInfo.inter_range(1,1):CamInfo.inter_range(1,2)
+    for h = CamInfo.range_mat(2,1):CamInfo.range_mat(2,2)
+        for w = CamInfo.range_mat(1,1):CamInfo.range_mat(1,2)
             if mod(ProInfo.pix_size,2) == 1
                 xpro_int = round(xpro_mat(h, w)+1);
                 ypro_int = round(ypro_mat(h, w)+1);

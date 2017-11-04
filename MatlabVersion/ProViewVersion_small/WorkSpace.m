@@ -1,14 +1,14 @@
 clear;
 
 % Initial process
-start_frame = 20;
+start_frame = 1;
 fprintf('Init...');
 part_PreProcess
 fprintf('finished.\n');
 
 % Iteration Part
 therd_coarse = 1e3;
-therd_fine = 1e0;
+therd_fine = 1e3;
 show_flag = true;
 for frm_idx = start_frame+1:total_frame_num
     % start of frame

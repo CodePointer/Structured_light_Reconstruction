@@ -224,7 +224,7 @@ fprintf('finished.\n');
 
 % Optimization
 fprintf('\tLeast squares...')
-envir_light = 30;
+envir_light = 15;
 tmp_color = data_mat \ (cam_vec-envir_light);
 fprintf('finished.\n');
 

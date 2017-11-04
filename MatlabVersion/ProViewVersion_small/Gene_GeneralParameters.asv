@@ -7,12 +7,12 @@ CalibMat.cam = [ 2797.80, 0.0, 639.50;
 CalibMat.pro = [ 1587.39, 0.0, 473.22;
     0.0, 1595.35, 604.52;
     0.0, 0.0, 1.0];
-CalibMat.rot = [0.9992, 0.007423, -0.03896;
-    -0.01081, 0.9961, -0.08734;
-    -0.03816, -0.08769, 0.9954];
-CalibMat.trans = [9.4647;
-    0.06125;
-    -1.4724];
+CalibMat.rot = [0.9992, 0.004844, 0.1696;
+    -0.01243, 0.9990, 0.04372;
+    -0.1692, -0.04520, 0.9845];
+CalibMat.trans = [5.3706;
+    -2.0255;
+    -17.1650];
 CalibMat.proMat = [CalibMat.pro, zeros(3,1)];
 CalibMat.camMat = CalibMat.cam * [inv(CalibMat.rot), -CalibMat.trans];
 

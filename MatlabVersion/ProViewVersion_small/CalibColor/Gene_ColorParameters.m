@@ -17,7 +17,7 @@ ProInfo.RANGE_WIDTH = (ProInfo.range_mat(1,2) - ProInfo.range_mat(1,1)) ...
     / ProInfo.pix_size;
 
 % FilePath
-FilePath.main_file_path = 'E:/Structured_Light_Data/20171031/EpiLineCalibration_part/';
+FilePath.main_file_path = 'E:/Structured_Light_Data/20171104/EpipolarCalib/';
 FilePath.optical_path = 'pro/';
 FilePath.optical_name = 'pattern_optflow';
 FilePath.optical_suffix = '.png';
@@ -32,7 +32,7 @@ FilePath.img_file_name = 'part_pattern_2size4color';
 FilePath.img_file_suffix = '.png';
 
 
-total_frame_num = 25;
+total_frame_num = 20;
 
 save('ParaEpi.mat', ...
     'CamInfo', 'ProInfo', 'FilePath', 'total_frame_num');
