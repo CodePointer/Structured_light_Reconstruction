@@ -19,7 +19,7 @@ CalibMat.proMat = CalibMat.pro * [CalibMat.rot, CalibMat.trans];
 % CamInfo set
 CamInfo.HEIGHT = 1024;
 CamInfo.WIDTH = 1280;
-CamInfo.range_mat = [434, 825; 463, 809];
+CamInfo.range_mat = [434+30, 825+40; 463, 809];
 CamInfo.R_HEIGHT = CamInfo.range_mat(2,2) - CamInfo.range_mat(2,1) + 1;
 CamInfo.R_WIDTH = CamInfo.range_mat(1,2) - CamInfo.range_mat(1,1) + 1;
 CamInfo.coord_trans = zeros(CamInfo.R_HEIGHT*CamInfo.R_WIDTH, 2);
@@ -47,7 +47,7 @@ for h = 1:ProInfo.R_HEIGHT
 end
 
 % FilePath
-FilePath.main_file_path = 'E:/Structured_Light_Data/20171104/PlaneMovement_part/';
+FilePath.main_file_path = 'E:/Structured_Light_Data/20171104/StatueMR_part/';
 FilePath.optical_path = 'pro/';
 FilePath.optical_name = 'pattern_optflow';
 FilePath.optical_suffix = '.png';
