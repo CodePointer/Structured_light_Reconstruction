@@ -50,7 +50,7 @@ for frame_idx = 0:total_frame_num-1
         end
     end
 
-    show_mat = img_mat(CamInfo.range_mat(2,1):CamInfo.range_mat(2,2), ...
+    show_mat = xpro_mat(CamInfo.range_mat(2,1):CamInfo.range_mat(2,2), ...
         CamInfo.range_mat(1,1):CamInfo.range_mat(1,2));
     imshow(show_mat);
 

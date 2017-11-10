@@ -4,7 +4,7 @@ clear;
 CamInfo.HEIGHT = 1024;
 CamInfo.WIDTH = 1280;
 % CamInfo.cam_range = [434, 780; 483, 808];
-CamInfo.range_mat = [434, 825; 463, 809];
+CamInfo.range_mat = [434, 825+40; 463, 809];
 CamInfo.R_HEIGHT = CamInfo.range_mat(2,2) - CamInfo.range_mat(2,1) + 1;
 CamInfo.R_WIDTH = CamInfo.range_mat(1,2) - CamInfo.range_mat(1,1) + 1;
 

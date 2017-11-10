@@ -34,3 +34,4 @@
 x_pro_mats{frm_idx,1} = zeros(CamInfo.R_HEIGHT, CamInfo.R_WIDTH);
 y_pro_mats{frm_idx,1} = zeros(CamInfo.R_HEIGHT, CamInfo.R_WIDTH);
 depth_mats{frm_idx,1} = zeros(CamInfo.R_HEIGHT, CamInfo.R_WIDTH);
+match_res{frm_idx,1} = cell(CamInfo.R_HEIGHT, CamInfo.R_WIDTH);

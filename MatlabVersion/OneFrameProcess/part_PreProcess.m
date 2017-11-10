@@ -6,6 +6,7 @@ cam_mats = cell(total_frame_num, 1);
 x_pro_mats = cell(total_frame_num, 1);
 y_pro_mats = cell(total_frame_num, 1);
 depth_mats = cell(total_frame_num, 1);
+match_res = cell(total_frame_num, 1);
 pro_rad = 4;
 % h_scale_mats = cell(total_frame_num, 1);
 % w_scale_mats = cell(total_frame_num, 1);

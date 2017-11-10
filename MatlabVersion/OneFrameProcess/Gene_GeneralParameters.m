@@ -19,7 +19,6 @@ CalibMat.proMat = CalibMat.pro * [CalibMat.rot, CalibMat.trans];
 % CamInfo set
 CamInfo.HEIGHT = 1024;
 CamInfo.WIDTH = 1280;
-CamInfo.range_mat = [434+30, 825+40; 463, 809];
 CamInfo.R_HEIGHT = CamInfo.range_mat(2,2) - CamInfo.range_mat(2,1) + 1;
 CamInfo.R_WIDTH = CamInfo.range_mat(1,2) - CamInfo.range_mat(1,1) + 1;
 CamInfo.coord_trans = zeros(CamInfo.R_HEIGHT*CamInfo.R_WIDTH, 2);

@@ -25,6 +25,9 @@ for h_cam = CamInfo.win_rad+1:CamInfo.R_HEIGHT-CamInfo.win_rad
         for x_pro = ProInfo.range_mat(1,1):ProInfo.range_mat(1,2)
             A = EpiLine.lineA(h_cam,w_cam);
             B = EpiLine.lineB(h_cam,w_cam);
+            if B == 0
+                continue;
+            end
             y_pro = round((-A/B)*(x_pro-1) + (1/B) + 1);
 
             raw_pro_patch = double(pattern(y_pro-pro_rad:y_pro+pro_rad, ...
@@ -47,6 +50,7 @@ for h_cam = CamInfo.win_rad+1:CamInfo.R_HEIGHT-CamInfo.win_rad
         if size(match_min_idx,1) == 0
             continue;
         end
+        match_res{frm_idx,1}{h_cam,w_cam} = [match_min_idx, match_min_val];
         x_pro_mats{frm_idx,1}(h_cam,w_cam) = match_min_idx(1);
         y_pro_mats{frm_idx,1}(h_cam,w_cam) = match_min_idx(2);
     end
