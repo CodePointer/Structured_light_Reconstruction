@@ -9,10 +9,10 @@ CalibMat.pro = [ 1587.39, 0.0, 473.22;
     0.0, 0.0, 1.0];
 CalibMat.rot = [0.9992, 0.007423, -0.03896;
     -0.01081, 0.9961, -0.08734;
-    -0.03816, -0.08769, 0.9954];
+    0.03816, 0.08769, 0.9954];
 CalibMat.trans = [9.4647;
     0.06125;
-    -1.4724];
+    -14.724];
 CalibMat.camMat = [CalibMat.cam, zeros(3,1)];
 CalibMat.proMat = CalibMat.pro * [CalibMat.rot, CalibMat.trans];
 
@@ -34,20 +34,9 @@ CamInfo.win_rad = 5;
 ProInfo.HEIGHT = 800;
 ProInfo.WIDTH = 1280;
 ProInfo.range_mat = [711, 911; 401, 601]; % matlab coordinates
-ProInfo.pix_size = 1;
-ProInfo.R_HEIGHT = (ProInfo.range_mat(2,2) - ProInfo.range_mat(2,1)) ...
-    / ProInfo.pix_size;
-ProInfo.R_WIDTH = (ProInfo.range_mat(1,2) - ProInfo.range_mat(1,1)) ...
-    / ProInfo.pix_size;
-ProInfo.coord_trans = zeros(ProInfo.R_HEIGHT*ProInfo.R_WIDTH, 2);
-for h = 1:ProInfo.R_HEIGHT
-    for w = 1:ProInfo.R_WIDTH
-        ProInfo.coord_trans((h-1)*ProInfo.R_WIDTH + w, :) = [h,w];
-    end
-end
 
 % FilePath
-FilePath.main_file_path = 'E:/Structured_Light_Data/20171104/StatueMR_part/';
+FilePath.main_file_path = 'E:/Structured_Light_Data/20171104/StatueRotation_part/';
 FilePath.optical_path = 'pro/';
 FilePath.optical_name = 'pattern_optflow';
 FilePath.optical_suffix = '.png';

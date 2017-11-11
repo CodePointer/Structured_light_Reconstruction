@@ -1,6 +1,7 @@
 clear;
 
 part_PreProcess;
+% load status.mat
 
 for frm_idx = 2:total_frame_num
     fprintf('F%d:', frm_idx);

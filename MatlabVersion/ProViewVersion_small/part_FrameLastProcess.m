@@ -1,5 +1,5 @@
 fid_res = fopen([FilePath.output_file_name, num2str(frm_idx), '.txt'], 'w+');
-for pvec_idx = 1:ProInfo.RANGE_HEIGHT*ProInfo.RANGE_WIDTH
+for pvec_idx = 1:ProInfo.R_HEIGHT*ProInfo.R_WIDTH
     h_pro = ProInfo.coord_trans(pvec_idx,1);
     w_pro = ProInfo.coord_trans(pvec_idx,2);
     x_pro = (w_pro-1)*3 + ProInfo.range_mat(1,1) - 1;
