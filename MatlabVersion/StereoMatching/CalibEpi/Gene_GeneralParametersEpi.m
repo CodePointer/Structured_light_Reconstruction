@@ -3,10 +3,11 @@ clear;
 % CamInfo set
 CamInfo.HEIGHT = 1024;
 CamInfo.WIDTH = 1280;
-% CamInfo.cam_range = [434, 780; 483, 808];
+ProInfo.HEIGHT = 800;
+ProInfo.WIDTH = 1280;
 
 % FilePath
-FilePath.main_file_path = 'E:/Structured_Light_Data/20171119/EpipolarCalib/';
+FilePath.main_file_path = 'E:/Structured_Light_Data/20171121/EpiLineCalib/';
 FilePath.xpro_file_path = 'pro/';
 FilePath.xpro_file_name = 'xpro_mat';
 FilePath.ypro_file_path = 'pro/';

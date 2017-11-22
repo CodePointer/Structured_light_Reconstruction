@@ -1,18 +1,18 @@
 clear;
 
 % Cam Pro Inner parameters
-CalibMat.cam_0 = [ 2551.2455, 0.0, 758.67;
-    0.0, 2569.2899, 349.9715;
-    0.0, 0.0, 1.0];
-CalibMat.cam_1 = [ 2491.593, 0.0, 793.67;
-    0.0, 2467.409, 511.90;
-    0.0, 0.0, 1.0];
-CalibMat.rot = [0.1414, -0.1835, 0.9728;
-    0.4085, -0.8843, -0.2261;
-    0.9018, 0.4293, -0.0501];
-CalibMat.trans = [-38.2493;
-    15.5951;
-    3.5263];
+CalibMat.cam_0 = [ 2432.058972474525, 0, 762.2933947666461;
+  0, 2435.900798664577, 353.2790048217345;
+  0, 0, 1];
+CalibMat.cam_1 = [ 2428.270501026523, 0, 717.1879617522386;
+  0, 2425.524847530806, 419.6450731465209;
+  0, 0, 1];
+CalibMat.rot = [0.9991682873520409, 0.01604901003987891, 0.03748550155365887;
+  -0.01624095229582852, 0.9998564818205395, 0.004821538134006965;
+  -0.0374027407887994, -0.00542632824227644, 0.9992855397449185];
+CalibMat.trans = [-4.672867184359712;
+  0.08985783911144951;
+  -1.53686618071908];
 CalibMat.cam_0_mat = [CalibMat.cam_0, zeros(3,1)];
 CalibMat.cam_1_mat = CalibMat.cam_1 * [CalibMat.rot, CalibMat.trans];
 
@@ -29,10 +29,10 @@ for h = 1:CamInfo.R_HEIGHT
         CamInfo.coord_trans((h-1)*CamInfo.R_WIDTH + w, :) = [h,w];
     end
 end
-CamInfo.win_rad = 5;
+CamInfo.win_rad = 9;
 
 % FilePath
-FilePath.main_file_path = 'E:/Structured_Light_Data/20171119/Plane_MR/';
+FilePath.main_file_path = 'E:/Structured_Light_Data/20171121/Plane_MR/';
 FilePath.xpro_file_path = 'pro/';
 FilePath.xpro_file_name = 'xpro_mat';
 FilePath.ypro_file_path = 'pro/';
@@ -61,7 +61,7 @@ for h_cam = 1:CamInfo.R_HEIGHT
         ParaSet.D(cvec_idx,:) = CalibMat.cam_1_mat(:,4)';
     end
 end
-ParaSet.lumi_thred = 60;
+ParaSet.lumi_thred = 30;
 
 total_frame_num = 40;
 
