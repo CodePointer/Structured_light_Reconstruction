@@ -61,7 +61,7 @@ DataSets LoadStereoCamImage(int idx) {
   ss << idx;
   string idx2str;
   ss >> idx2str;
-  string main_file_path = "E:/Structured_Light_Data/20171123/StatueMRC_2/";
+  string main_file_path = "E:/Structured_Light_Data/20171125/StatueMRC_2/";
   string img_file_path = "dyna/";
   string img_file_name = "dyna_mat";
   string img_file_suffix = ".png";
@@ -170,14 +170,18 @@ CalibParas SetCalibParas() {
   return result;
 }
 
-float CalculateError(Mat patch0, Mat patch1) {
+float CalculateError(Mat patch0, Mat patch1, float max_0, 
+                     float min_0, float max_1, float min_1) {
   Size patch_size = patch0.size();
   float sum_val = 0;
   for (int h = 0; h < patch_size.height; h++) {
     for (int w = 0; w < patch_size.width; w++) {
       float patch0_val = (float)patch0.at<uchar>(h, w);
       float patch1_val = (float)patch1.at<uchar>(h, w);
-      sum_val += (patch0_val - patch1_val) * (patch0_val - patch1_val);
+      float norm0 = (patch0_val - min_0) / (max_0 - min_0);
+      float norm1 = (patch1_val - min_1) / (max_1 - min_1);
+      // sum_val += (patch0_val - patch1_val) * (patch0_val - patch1_val);
+      sum_val += (norm0 - norm1) * (norm0 - norm1);
     }
   }
   return sum_val;
@@ -235,7 +239,8 @@ ResultSets MatchImagePair(CalibParas calib, DataSets img) {
           if (max_1 - min_1 < kLumiThred) {
             continue;
           }
-          float tmp_error = CalculateError(patch0, patch1);
+          float tmp_error = CalculateError(patch0, patch1, max_0, min_0,
+                                           max_1, min_1);
           if (tmp_error < min_val) {
             min_val = tmp_error;
             min_h_idx = h_1;
@@ -293,7 +298,7 @@ int main() {
   long calib_time = clock();
   printf("Calib finished. Time used: %.2f s\n", (float)(calib_time - start_time) / 1000);
 
-  for (int frm_idx = 0; frm_idx < kTotalFrame; frm_idx++) {
+  for (int frm_idx = 27; frm_idx < kTotalFrame; frm_idx++) {
     long frame_start = clock();
     // Load
     data_sets[frm_idx] = LoadStereoCamImage(frm_idx);

@@ -1,15 +1,12 @@
-clear;
-warning('off');
-
-part_PreProcess;
+% clear;
+% warning('off');
+% 
+% part_PreProcess;
 
 % for h_0 = CamInfo.win_rad+1:CamInfo.HEIGHT-CamInfo.win_rad
 %   for w_0 = CamInfo.win_rad+1:CamInfo.WIDTH-CamInfo.win_rad
-for h_0 = 182:CamInfo.HEIGHT-CamInfo.win_rad
-  for w_0 = 737:CamInfo.WIDTH-CamInfo.win_rad
-    if (h_0 == 144) && (w_0 == 591)
-      fprintf('');
-    end
+for h_0 = 312:CamInfo.HEIGHT-CamInfo.win_rad
+  for w_0 = 782:CamInfo.WIDTH-CamInfo.win_rad
     if (EpiLine.lineA(h_0,w_0) == 0) && (EpiLine.lineB(h_0,w_0) == 0)
       continue;
     end
