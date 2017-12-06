@@ -337,3 +337,5 @@ __pycache__/
 *.txt
 *.mat
 *.txt
+*.png
+Reconstruction/StereoMatching/result/processed_res/show.gif
