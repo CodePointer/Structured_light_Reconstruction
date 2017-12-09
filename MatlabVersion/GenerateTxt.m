@@ -69,7 +69,7 @@ dx = cam_mat_0(1, 3); fx = cam_mat_0(1, 1);
 dy = cam_mat_0(2, 3); fy = cam_mat_0(2, 2);
 for h = 1:1024
   for w = 1:1280
-    idx_k = (h-1)*1024 + w;
+    idx_k = (h-1)*1280 + w;
     tmp_vec = [(w - 1 - dx) / fx; (h - 1 - dy) / fy; 1.0];
     mat_M(idx_k, :) = cam_1_matrix(:, 1:3) * tmp_vec;
     mat_D(idx_k, :) = cam_1_matrix(:, 4);
