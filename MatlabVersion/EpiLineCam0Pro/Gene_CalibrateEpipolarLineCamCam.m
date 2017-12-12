@@ -5,7 +5,7 @@ CamInfo.HEIGHT = 1024;
 CamInfo.WIDTH = 1280;
 ProInfo.HEIGHT = 800;
 ProInfo.WIDTH = 1280;
-FilePath.main_file_path = 'E:/Structured_Light_Data/20171205/EpiLineSet/';
+FilePath.main_file_path = 'E:/Structured_Light_Data/20171211/EpiLineSet/';
 FilePath.xpro_file_path = 'pro/';
 FilePath.xpro_file_name = 'xpro_mat';
 FilePath.ypro_file_path = 'pro/';
@@ -14,14 +14,14 @@ FilePath.pro_file_suffix = '.txt';
 FilePath.img_file_path = 'dyna/';
 FilePath.img_file_name = 'dyna_mat';
 FilePath.img_file_suffix = '.png';
-total_frame_num = 46;
+total_frame_num = 16;
 
 % Create lineA, lineB, lineC
 EpiLine.lineA = zeros(CamInfo.HEIGHT, CamInfo.WIDTH);
 EpiLine.lineB = zeros(size(EpiLine.lineA));
 EpiLine.lineC = ones(size(EpiLine.lineA));
 xdis_threhold = 10;
-xnum_threhold = 8;
+xnum_threhold = 5;
 
 % Fill valid points
 valid_points = cell(CamInfo.HEIGHT, CamInfo.WIDTH);
@@ -115,5 +115,27 @@ for h_0 = 1:CamInfo.HEIGHT
 end
 imshow(error_valid_mat, []);
 
+valid_mat = zeros(CamInfo.HEIGHT, CamInfo.WIDTH);
+for h_0 = 2:CamInfo.HEIGHT-1
+  for w_0 = 2:CamInfo.WIDTH-1
+    if EpiLine.lineA(h_0, w_0) == 0
+      if (EpiLine.lineA(h_0, w_0-1) ~= 0) && (EpiLine.lineA(h_0, w_0+1) ~= 0)
+        EpiLine.lineA(h_0, w_0) = (EpiLine.lineA(h_0, w_0-1) + EpiLine.lineA(h_0, w_0+1)) / 2;
+        EpiLine.lineB(h_0, w_0) = (EpiLine.lineB(h_0, w_0-1) + EpiLine.lineB(h_0, w_0+1)) / 2;
+        valid_mat(h_0, w_0) = 1.0;
+      else
+        if (EpiLine.lineA(h_0-1, w_0) ~= 0) && (EpiLine.lineA(h_0+1, w_0) ~= 0)
+          EpiLine.lineA(h_0, w_0) = (EpiLine.lineA(h_0-1, w_0) + EpiLine.lineA(h_0+1, w_0)) / 2;
+          EpiLine.lineB(h_0, w_0) = (EpiLine.lineB(h_0-1, w_0) + EpiLine.lineB(h_0+1, w_0)) / 2;
+          valid_mat(h_0, w_0) = 1.0;
+        end
+      end
+    else
+      valid_mat(h_0, w_0) = 1.0;
+    end
+  end
+end
+imshow(valid_mat);
+
 save('EpiLineParaCamCam.mat', 'EpiLine');
-save('status.mat');
+save('statusCamCam.mat');

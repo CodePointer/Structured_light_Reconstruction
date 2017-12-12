@@ -1,5 +1,4 @@
-load EpiLineParaCamCam.mat
-
+load EpiLineParaCamPro.mat
 fid = fopen('EpiLine_A.txt', 'w+');
 for h = 1:CamInfo.HEIGHT
   for w = 1:CamInfo.WIDTH
@@ -8,7 +7,6 @@ for h = 1:CamInfo.HEIGHT
   fprintf(fid, '\n');
 end
 fclose(fid);
-
 fid = fopen('EpiLine_B.txt', 'w+');
 for h = 1:CamInfo.HEIGHT
   for w = 1:CamInfo.WIDTH
